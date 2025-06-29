@@ -1,8 +1,10 @@
 import fetch from 'node-fetch'
 import httpStatus from 'http-status'
+import { parseStringPromise } from 'xml2js'
 
 import { HttpError } from './HttpError.js'
 import { HTTP_METHODS } from './http-method.js'
+import { ResponseType } from './responseType.js'
 
 const JSON_HEADER = {
   'Content-Type': 'application/json',
@@ -28,6 +30,11 @@ const checkStatus = async (res) => {
   return res
 }
 
+const getTextResponse = async (response) => {
+  const text = await response.text()
+  return text
+}
+
 const tryConvertJsonResponse = (responseText) => {
   try {
     const obj = JSON.parse(responseText)
@@ -39,12 +46,53 @@ const tryConvertJsonResponse = (responseText) => {
 }
 
 const tryGetJsonResponse = async (response) => {
-  const text = await response.text()
-  const obj = tryConvertJsonResponse(text)
-  return obj
+  let jsonText
+  try {
+    jsonText = getTextResponse(response)
+    const obj = tryConvertJsonResponse(jsonText)
+    return obj
+  } catch (error) {
+    if (!jsonText) {
+      throw error
+    }
+    return jsonText
+  }
 }
 
-export const get = async ({ url, headers = {}, credentials = 'include' }) => {
+const tryGetXmlResponse = async (response) => {
+  let xmlText
+  try {
+    xmlText = await getTextResponse(response)
+    const xml = await parseStringPromise(xmlText)
+    return xml
+  } catch (error) {
+    if (!xmlText) {
+      throw error
+    }
+    return xmlText
+  }
+}
+
+const getResponsePayload = async (response, responseType) => {
+  switch (responseType) {
+    case ResponseType.json:
+      return tryGetJsonResponse(response)
+
+    case ResponseType.xml:
+      return tryGetXmlResponse(response)
+
+    default:
+    case ResponseType.text:
+      return getTextResponse(response)
+  }
+}
+
+export const get = async ({
+  url,
+  headers = {},
+  credentials = 'include',
+  expectedType = ResponseType.json,
+}) => {
   const response = await fetch(url, {
     method: HTTP_METHODS.GET,
     headers: {
@@ -55,11 +103,17 @@ export const get = async ({ url, headers = {}, credentials = 'include' }) => {
   })
 
   await checkStatus(response)
-  const data = await tryGetJsonResponse(response)
+  const data = await getResponsePayload(response, expectedType)
   return data
 }
 
-export const post = async ({ url, body, headers, credentials = 'include' }) => {
+export const post = async ({
+  url,
+  body,
+  headers,
+  credentials = 'include',
+  expectedType = ResponseType.json,
+}) => {
   const response = await fetch(url, {
     method: HTTP_METHODS.POST,
     headers: {
@@ -70,7 +124,7 @@ export const post = async ({ url, body, headers, credentials = 'include' }) => {
     ...(credentials ? { credentials } : {}),
   })
   await checkStatus(response)
-  const data = await tryGetJsonResponse(response)
+  const data = await getResponsePayload(response, expectedType)
   return data
 }
 
@@ -79,6 +133,7 @@ export const put = async ({
   body,
   headers = {},
   credentials = 'include',
+  expectedType = ResponseType.json,
 }) => {
   const response = await fetch(url, {
     method: HTTP_METHODS.PUT,
@@ -91,7 +146,7 @@ export const put = async ({
   })
 
   await checkStatus(response)
-  const data = await tryGetJsonResponse(response)
+  const data = await getResponsePayload(response, expectedType)
   return data
 }
 
@@ -100,6 +155,7 @@ export const patch = async ({
   body,
   headers,
   credentials = 'include',
+  expectedType = ResponseType.json,
 }) => {
   const response = await fetch(url, {
     method: HTTP_METHODS.PATCH,
@@ -112,7 +168,7 @@ export const patch = async ({
   })
 
   await checkStatus(response)
-  const data = await tryGetJsonResponse(response)
+  const data = await getResponsePayload(response, expectedType)
   return data
 }
 
@@ -121,6 +177,7 @@ export const deleteApi = async ({
   body,
   headers,
   credentials = 'include',
+  expectedType = ResponseType.json,
 }) => {
   const response = await fetch(url, {
     method: HTTP_METHODS.DELETE,
@@ -133,14 +190,14 @@ export const deleteApi = async ({
   })
 
   await checkStatus(response)
-  const data = await tryGetJsonResponse(response)
+  const data = await getResponsePayload(response, expectedType)
   return data
 }
 
 export const http = {
   get,
+  put,
   post,
   patch,
-  put,
   deleteApi,
 }

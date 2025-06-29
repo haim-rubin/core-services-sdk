@@ -12,5 +12,5 @@
   },
   "javascript.preferences.importModuleSpecifierEnding": "js",
   "js/ts.implicitProjectConfig.checkJs": true,
-  "javascript.validate.enable": false
+  "javascript.validate.enable": true
 }
