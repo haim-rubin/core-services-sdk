@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from 'uuid'
 /**
  * Connects to RabbitMQ server.
  * @param {{ host: string }} options
- * @returns {Promise<amqp.Connection>}
+ * @returns {Promise<import('amqplib').Connection>}
  */
 export const connectQueueService = async ({ host }) => {
   try {
@@ -57,10 +57,10 @@ const parseMessage = (msgInfo) => {
  * @returns {Promise<void>}
  */
 export const subscribeToQueue = async ({
-  channel,
-  queue,
-  onReceive,
   log,
+  queue,
+  channel,
+  onReceive,
   nackOnError = false,
 }) => {
   try {
