@@ -34,7 +34,7 @@ import { mongoConnect } from './connect.js'
  *
  * await client.close(); // Close connection manually
  */
-export const initializeMongoDb = async ({ config, collectionNames }) => {
+export const initializeMongoDb = async ({ config, collectionNames = {} }) => {
   const client = await mongoConnect(config)
   const db = client.db(config.options.dbName)
 
