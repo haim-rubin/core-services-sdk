@@ -1,4 +1,4 @@
-export * from './fastify'
+export * from './fastify/index.js'
 export * from './mongodb/index.js'
 export * from './mongodb/connect.js'
 export * from './rabbit-mq/index.js'
