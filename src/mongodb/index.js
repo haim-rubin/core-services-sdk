@@ -48,15 +48,17 @@ export const initializeMongoDb = async ({ config, collectionNames = {} }) => {
 
   const withTransaction = async (action) => {
     const session = client.startSession()
+    let actionResponse
     try {
       session.startTransaction()
-      await action({ session })
+      actionResponse = await action({ session })
       await session.commitTransaction()
     } catch (error) {
       await session.abortTransaction()
       throw error
     } finally {
       await session.endSession()
+      return actionResponse
     }
   }
 
