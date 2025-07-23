@@ -8,3 +8,8 @@ export { initMailer } from './mailer/index.js'
 export { HttpError } from './http/HttpError.js'
 export { Mailer } from './mailer/mailer.service.js'
 export { TransportFactory } from './mailer/transport.factory.js'
+export {
+  isItFile,
+  loadTemplates,
+  getTemplateContent,
+} from './templates/template-loader.js'
