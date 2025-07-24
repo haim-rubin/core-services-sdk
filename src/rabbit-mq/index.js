@@ -47,24 +47,29 @@ const parseMessage = (msgInfo) => {
 
 /**
  * Subscribes to a queue to receive messages.
- * @param {{
- *   channel: amqp.Channel,
- *   queue: string,
- *   onReceive: (data: any) => Promise<void>,
- *   log: Log,
- *   nackOnError?: boolean
- * }} options
+ *
+ * @param {Object} options
+ * @param {import('amqplib').Channel} options.channel - RabbitMQ channel
+ * @param {string} options.queue - Queue name to subscribe to
+ * @param {(data: any) => Promise<void>} options.onReceive - Async handler for incoming message
+ * @param {Log} options.log - Logging utility
+ * @param {boolean} [options.nackOnError=false] - Whether to nack the message on error (default: false)
+ * @param {number} [options.prefetch=1] - Max unacked messages per consumer (default: 1)
+ *
  * @returns {Promise<void>}
  */
 export const subscribeToQueue = async ({
   log,
   queue,
   channel,
+  prefetch = 1,
   onReceive,
   nackOnError = false,
 }) => {
   try {
     await channel.assertQueue(queue, { durable: true })
+
+    !!prefetch && (await channel.prefetch(prefetch))
 
     channel.consume(queue, async (msgInfo) => {
       if (!msgInfo) return
