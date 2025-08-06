@@ -6,6 +6,7 @@ import {
   generateTenantId,
   generatePrefixedId,
   generatePermissionId,
+  generateOnboardingId,
   generateCorrelationId,
   generateVerificationId,
   generateRolePermissionsId,
@@ -52,6 +53,10 @@ describe('generate*Id functions', () => {
 
   it('generateTenantId returns ID with tnt_ prefix', () => {
     testPrefixFunction(generateTenantId, ID_PREFIXES.TENANT)
+  })
+
+  it('generateOnboardingId returns ID with onb_ prefix', () => {
+    testPrefixFunction(generateOnboardingId, ID_PREFIXES.ONBOARDING)
   })
 
   it('generatePermissionId returns ID with prm_ prefix', () => {

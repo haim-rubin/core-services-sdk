@@ -71,3 +71,11 @@ export const generateVerificationId = () =>
  */
 export const generateRolePermissionsId = () =>
   generatePrefixedId(ID_PREFIXES.ROLE_PERMISSIONS)
+
+/**
+ * Generates a onboarding ID with a `onb_` prefix.
+ *
+ * @returns {string} A onboarding ID.
+ */
+export const generateOnboardingId = () =>
+  generatePrefixedId(ID_PREFIXES.ONBOARDING)

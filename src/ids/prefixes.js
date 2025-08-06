@@ -25,4 +25,7 @@ export const ID_PREFIXES = Object.freeze({
 
   /** Role-permissions mapping ID prefix */
   ROLE_PERMISSIONS: 'role',
+
+  /** Onboarding mapping ID prefix */
+  ONBOARDING: 'onb',
 })
