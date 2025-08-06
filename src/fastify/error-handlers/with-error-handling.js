@@ -1,7 +1,11 @@
 import httpStatus from 'http-status'
 
-import { HttpError } from '../../http/HttpError.js'
 import { GENERAL_ERROR } from '../error-codes.js'
+import { HttpError } from '../../http/HttpError.js'
+
+/** @typedef {import('fastify').FastifyReply} Reply */
+/** @typedef {import('fastify').FastifyRequest} Request */
+/** @typedef {import('pino').Logger} Logger */
 
 /**
  * Generic error-handling wrapper that logs and throws a safe error.
