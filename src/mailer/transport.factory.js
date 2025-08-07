@@ -1,6 +1,7 @@
-import aws from 'aws-sdk'
 import nodemailer from 'nodemailer'
 import sgTransport from 'nodemailer-sendgrid-transport'
+import { SESClient, SendRawEmailCommand } from '@aws-sdk/client-ses'
+import { defaultProvider } from '@aws-sdk/credential-provider-node'
 
 /**
  * Factory for creating Nodemailer transporters based on configuration.
@@ -54,13 +55,25 @@ export class TransportFactory {
           }),
         )
 
-      case 'ses':
-        const ses = new aws.SES({
-          accessKeyId: config.accessKeyId,
-          secretAccessKey: config.secretAccessKey,
+      case 'ses': {
+        const sesClient = new SESClient({
           region: config.region,
+          credentials:
+            config.accessKeyId && config.secretAccessKey
+              ? {
+                  accessKeyId: config.accessKeyId,
+                  secretAccessKey: config.secretAccessKey,
+                }
+              : defaultProvider(),
         })
-        return nodemailer.createTransport({ SES: { ses, aws } })
+
+        return nodemailer.createTransport({
+          SES: {
+            ses: sesClient,
+            aws: { SendRawEmailCommand },
+          },
+        })
+      }
 
       default:
         throw new Error(`Unsupported transport type: ${config.type}`)

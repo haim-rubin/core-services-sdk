@@ -3,7 +3,7 @@ import { tmpdir } from 'os'
 import { writeFile, rm, mkdir } from 'fs/promises'
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 
-import { loadTemplates } from '../src/templates/template-loader.js'
+import { loadTemplates } from '../../src/templates/template-loader.js'
 
 const tempDir = join(tmpdir(), 'template-tests')
 

@@ -1,13 +1,14 @@
+// @ts-nocheck
 import httpStatus from 'http-status'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-import { HttpError } from '../src/http/HttpError.js'
-import { GENERAL_ERROR } from '../src/fastify/error-codes.js'
+import { HttpError } from '../../../src/http/HttpError.js'
+import { GENERAL_ERROR } from '../../../src/fastify/error-codes.js'
 import {
   replyOnErrorOnly,
   withErrorHandling,
   withErrorHandlingReply,
-} from '../src/fastify/error-handlers/with-error-handling.js'
+} from '../../../src/fastify/error-handlers/with-error-handling.js'
 
 describe('withErrorHandling', () => {
   const log = { error: vi.fn() }

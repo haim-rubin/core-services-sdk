@@ -2,15 +2,18 @@
 import { mongoConnect } from './connect.js'
 
 /**
- * Initializes MongoDB collections and provides a transaction wrapper and read-only client accessor.
+ * Initializes MongoDB collections and provides:
+ * - Named collection references
+ * - A transaction wrapper (`withTransaction`)
+ * - A read-only MongoDB client accessor
  *
  * @param {Object} options
  * @param {{ uri: string, options: { dbName: string } }} options.config - MongoDB connection config
- * @param {Record<string, string>} options.collectionNames - Map of collection keys to MongoDB collection names
+ * @param {Record<string, string>} options.collectionNames - Map of keys to actual MongoDB collection names
  *
  * @returns {Promise<
  *   Record<string, import('mongodb').Collection> & {
- *     withTransaction: (action: ({ session: import('mongodb').ClientSession }) => Promise<void>) => Promise<void>,
+ *     withTransaction: <T>(action: ({ session: import('mongodb').ClientSession }) => Promise<T>) => Promise<T>,
  *     readonly client: import('mongodb').MongoClient
  *   }
  * >}
@@ -32,7 +35,7 @@ import { mongoConnect } from './connect.js'
  *   await logs.insertOne({ event: 'UserCreated', user: 'Alice' }, { session });
  * });
  *
- * await client.close(); // Close connection manually
+ * await client.close(); // Close connection manually when done
  */
 export const initializeMongoDb = async ({ config, collectionNames = {} }) => {
   const client = await mongoConnect(config)
@@ -48,17 +51,16 @@ export const initializeMongoDb = async ({ config, collectionNames = {} }) => {
 
   const withTransaction = async (action) => {
     const session = client.startSession()
-    let actionResponse
     try {
       session.startTransaction()
-      actionResponse = await action({ session })
+      const actionResponse = await action({ session })
       await session.commitTransaction()
+      return actionResponse
     } catch (error) {
       await session.abortTransaction()
       throw error
     } finally {
       await session.endSession()
-      return actionResponse
     }
   }
 

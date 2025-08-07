@@ -12,6 +12,7 @@ describe('ID_PREFIXES', () => {
       CORRELATION: 'crln',
       VERIFICATION: 'vrf',
       ROLE_PERMISSIONS: 'role',
+      ONBOARDING: 'onb',
     })
   })
 

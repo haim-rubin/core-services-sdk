@@ -1,6 +1,6 @@
 {
   "name": "core-services-sdk",
-  "version": "1.3.7",
+  "version": "1.3.8",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
@@ -19,8 +19,9 @@
   "homepage": "https://github.com/haim-rubin/core-services-sdk#readme",
   "description": "",
   "dependencies": {
+    "@aws-sdk/client-ses": "^3.862.0",
+    "@aws-sdk/credential-provider-node": "^3.862.0",
     "amqplib": "^0.10.8",
-    "aws-sdk": "^2.1692.0",
     "crypto": "^1.0.1",
     "dot": "^1.1.3",
     "fastify": "^5.4.0",

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll } from 'vitest'
-import { initializeQueue, rabbitUriFromEnv } from '../src/rabbit-mq/index.js'
+
+import { initializeQueue, rabbitUriFromEnv } from '../../src/rabbit-mq/index.js'
 
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms))
 
@@ -37,8 +38,8 @@ describe('RabbitMQ SDK', () => {
 describe('rabbitUriFromEnv', () => {
   it('should build valid amqp URI from env', () => {
     const env = {
-      RABBIT_HOST: '0.0.0.0',
       RABBIT_PORT: 5672,
+      RABBIT_HOST: '0.0.0.0',
       RABBIT_USERNAME: 'botq',
       RABBIT_PASSWORD: 'botq',
       _RABBIT_HOST: '0.0.0.0',

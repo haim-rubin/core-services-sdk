@@ -4,9 +4,9 @@ const mockTransport = {
   sendMail: vi.fn(),
 }
 
-// Dynamically mock the TransportFactory module and turn .create into a spy
-vi.mock('../src/mailer/transport.factory.js', async () => {
-  const actual = await vi.importActual('../src/mailer/transport.factory.js')
+// Mock the TransportFactory with a spy
+vi.mock('../../src/mailer/transport.factory.js', async () => {
+  const actual = await vi.importActual('../../src/mailer/transport.factory.js') // fixed path
   return {
     ...actual,
     TransportFactory: {
@@ -16,17 +16,16 @@ vi.mock('../src/mailer/transport.factory.js', async () => {
 })
 
 // Mock Mailer class
-vi.mock('../src/mailer/mailer.service.js', async () => {
+vi.mock('../../src/mailer/mailer.service.js', async () => {
   const Mailer = vi.fn().mockImplementation((transport) => ({
     send: vi.fn((opts) => transport.sendMail(opts)),
   }))
   return { Mailer }
 })
 
-// Only now import code under test
-import { initMailer } from '../src/mailer/index.js'
-import { TransportFactory } from '../src/mailer/transport.factory.js'
-import { Mailer } from '../src/mailer/mailer.service.js'
+import { initMailer } from '../../src/mailer/index.js'
+import { Mailer } from '../../src/mailer/mailer.service.js'
+import { TransportFactory } from '../../src/mailer/transport.factory.js'
 
 describe('initMailer', () => {
   beforeEach(() => {
@@ -44,10 +43,7 @@ describe('initMailer', () => {
 
     const mailer = initMailer(config)
 
-    // Ensure TransportFactory.create was called
     expect(TransportFactory.create).toHaveBeenCalledWith(config)
-
-    // Ensure Mailer was created with the mock transport
     expect(Mailer).toHaveBeenCalledWith(mockTransport)
 
     const emailOptions = {

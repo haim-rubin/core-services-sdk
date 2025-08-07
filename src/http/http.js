@@ -1,3 +1,10 @@
+/**
+ * A lightweight HTTP client wrapper around `node-fetch` supporting JSON, XML, and plain text responses.
+ * Provides simplified helper methods for GET, POST, PUT, PATCH, and DELETE with automatic error handling.
+ *
+ * @module http
+ */
+
 import fetch from 'node-fetch'
 import httpStatus from 'http-status'
 import { parseStringPromise } from 'xml2js'
@@ -13,40 +20,36 @@ const JSON_HEADER = {
 /**
  * Checks if the HTTP status is considered successful (2xx).
  *
- * @param {Response} res - The fetch response object.
- * @returns {boolean} `true` if status code is between 200-299.
+ * @param {import('node-fetch').Response} response
+ * @returns {boolean}
  */
 const isOkStatus = ({ status }) =>
   status >= httpStatus.OK && status < httpStatus.MULTIPLE_CHOICES
 
 /**
- * Verifies response status and throws a structured HttpError if not OK.
- *
- * @param {Response} res - The fetch response object.
- * @throws {HttpError} When the response status is not OK.
- * @returns {Response} The response if status is OK.
+ * @param {import('node-fetch').Response} response
+ * @returns {Promise<import('node-fetch').Response>}
  */
-const checkStatus = async (res) => {
-  if (!isOkStatus(res)) {
-    const text = await res.text()
+const checkStatus = async (response) => {
+  if (!isOkStatus(response)) {
+    const text = await response.text()
     const info = tryConvertJsonResponse(text)
-    const { status, statusText } = res
+    const { status, statusText } = response
 
     throw new HttpError({
       code: status,
       httpStatusCode: status,
       httpStatusText: statusText,
-      details: info,
     })
   }
-  return res
+  return response
 }
 
 /**
  * Reads the raw text from a fetch response.
  *
- * @param {Response} response - The fetch response.
- * @returns {Promise<string>} The text body.
+ * @param {import('node-fetch').Response} response
+ * @returns {Promise<string>} The plain text body.
  */
 const getTextResponse = async (response) => {
   return await response.text()
@@ -71,8 +74,8 @@ const tryConvertJsonResponse = (responseText) => {
 /**
  * Attempts to extract a JSON object from a fetch response.
  *
- * @param {Response} response - The fetch response.
- * @returns {Promise<Object|string>} Parsed object or raw string on failure.
+ * @param {import('node-fetch').Response} response
+ * @returns {Promise<Object|string>} Parsed JSON or raw string if parsing fails.
  */
 const tryGetJsonResponse = async (response) => {
   let jsonText
@@ -88,8 +91,8 @@ const tryGetJsonResponse = async (response) => {
 /**
  * Attempts to extract an XML object from a fetch response.
  *
- * @param {Response} response - The fetch response.
- * @returns {Promise<Object|string>} Parsed XML object or raw string.
+ * @param {import('node-fetch').Response} response
+ * @returns {Promise<Object|string>} Parsed XML object or raw string if parsing fails.
  */
 const tryGetXmlResponse = async (response) => {
   let xmlText
@@ -105,8 +108,8 @@ const tryGetXmlResponse = async (response) => {
 /**
  * Extracts and parses the fetch response body based on expected type.
  *
- * @param {Response} response - The fetch response.
- * @param {string} responseType - The expected response type ('json', 'xml', 'text').
+ * @param {import('node-fetch').Response} response
+ * @param {string} responseType - Expected type: 'json', 'xml', or 'text'.
  * @returns {Promise<any>} The parsed response payload.
  */
 const getResponsePayload = async (response, responseType) => {
@@ -125,10 +128,10 @@ const getResponsePayload = async (response, responseType) => {
  * Sends an HTTP GET request.
  *
  * @param {Object} params
- * @param {string} params.url - The target URL.
- * @param {Object} [params.headers] - Optional custom headers.
- * @param {string} [params.credentials='include'] - Credential mode.
- * @param {string} [params.expectedType='json'] - Response type.
+ * @param {string} params.url - Target URL.
+ * @param {Object} [params.headers] - Optional request headers.
+ * @param {string} [params.credentials='include'] - Credential policy.
+ * @param {string} [params.expectedType='json'] - Expected response format.
  * @returns {Promise<any>} Parsed response data.
  */
 export const get = async ({
@@ -137,11 +140,13 @@ export const get = async ({
   credentials = 'include',
   expectedType = ResponseType.json,
 }) => {
+  /** @type {import('node-fetch').Response} */
   const response = await fetch(url, {
     method: HTTP_METHODS.GET,
     headers: { ...JSON_HEADER, ...headers },
     ...(credentials ? { credentials } : {}),
   })
+
   await checkStatus(response)
   return await getResponsePayload(response, expectedType)
 }
@@ -150,11 +155,11 @@ export const get = async ({
  * Sends an HTTP POST request.
  *
  * @param {Object} params
- * @param {string} params.url - The target URL.
- * @param {Object} params.body - Body data to send.
- * @param {Object} [params.headers] - Optional custom headers.
- * @param {string} [params.credentials='include'] - Credential mode.
- * @param {string} [params.expectedType='json'] - Response type.
+ * @param {string} params.url - Target URL.
+ * @param {Object} params.body - Request body (will be JSON.stringify-ed).
+ * @param {Object} [params.headers] - Optional request headers.
+ * @param {string} [params.credentials='include'] - Credential policy.
+ * @param {string} [params.expectedType='json'] - Expected response format.
  * @returns {Promise<any>} Parsed response data.
  */
 export const post = async ({
@@ -177,7 +182,12 @@ export const post = async ({
 /**
  * Sends an HTTP PUT request.
  *
- * @param {Object} params - Same as `post`.
+ * @param {Object} params
+ * @param {string} params.url
+ * @param {Object} params.body
+ * @param {Object} [params.headers]
+ * @param {string} [params.credentials='include']
+ * @param {string} [params.expectedType='json']
  * @returns {Promise<any>} Parsed response data.
  */
 export const put = async ({

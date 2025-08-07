@@ -2,7 +2,7 @@ import dot from 'dot'
 import * as fs from 'fs/promises'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-import { loadTemplates } from '../src/templates/template-loader.js'
+import { loadTemplates } from '../../src/templates/template-loader.js'
 
 vi.mock('fs/promises')
 
