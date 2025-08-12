@@ -1,12 +1,40 @@
-// src/core/phone-validate.js
-// Validate & normalize using google-libphonenumber
+// normalize-phone-number.js
+// Works with both CJS and ESM builds of google-libphonenumber
 
-import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
+import * as raw from 'google-libphonenumber'
 
-const phoneUtil = PhoneNumberUtil.getInstance()
+/** Resolve libphonenumber regardless of interop shape */
+export function getLib() {
+  // Prefer direct (CJS-style or ESM w/ named), else default
+  // e.g. raw.PhoneNumberUtil OR raw.default.PhoneNumberUtil
+  // eslint-disable-next-line no-unused-vars
+  /** @type {any} */
+  const anyRaw = raw
+  const lib = anyRaw.PhoneNumberUtil ? anyRaw : anyRaw.default ?? anyRaw
+
+  if (!lib || !lib.PhoneNumberUtil || !lib.PhoneNumberFormat) {
+    throw new Error('google-libphonenumber failed to load (exports not found)')
+  }
+  return lib
+}
+
+let _util // lazy singleton
+
+export function phoneUtil() {
+  if (!_util) {
+    const { PhoneNumberUtil } = getLib()
+    _util = PhoneNumberUtil.getInstance()
+  }
+  return _util
+}
+
+function formats() {
+  const { PhoneNumberFormat } = getLib()
+  return PhoneNumberFormat
+}
 
 /**
- * Trim and remove invisible RTL markers that can sneak in from copy/paste.
+ * Trim and remove invisible RTL markers.
  * @param {string} input
  * @returns {string}
  */
@@ -18,53 +46,57 @@ function clean(input) {
 
 /**
  * Convert a parsed libphonenumber object into a normalized result.
- * @param {import('google-libphonenumber').PhoneNumber} parsed
+ * @param {any} parsed
  * @returns {{e164:string,national:string,international:string,regionCode:string|undefined,type:number}}
  */
 function toResult(parsed) {
+  const PNF = formats()
+  const util = phoneUtil()
   return {
-    e164: phoneUtil.format(parsed, PhoneNumberFormat.E164),
-    national: phoneUtil.format(parsed, PhoneNumberFormat.NATIONAL),
-    international: phoneUtil.format(parsed, PhoneNumberFormat.INTERNATIONAL),
-    regionCode: phoneUtil.getRegionCodeForNumber(parsed),
-    type: phoneUtil.getNumberType(parsed),
+    e164: util.format(parsed, PNF.E164),
+    national: util.format(parsed, PNF.NATIONAL),
+    international: util.format(parsed, PNF.INTERNATIONAL),
+    regionCode: util.getRegionCodeForNumber(parsed),
+    type: util.getNumberType(parsed),
   }
 }
 
 /**
  * Parse & validate an international number (must start with '+').
- * Throws on invalid input.
- *
- * @param {string} input - International number, e.g. "+972541234567"
+ * @param {string} input
  * @returns {{e164:string,national:string,international:string,regionCode:string|undefined,type:number}}
  * @throws {Error} If the number is invalid
  */
 export function normalizePhoneOrThrowIntl(input) {
   try {
-    const parsed = phoneUtil.parseAndKeepRawInput(clean(input))
-    if (!phoneUtil.isValidNumber(parsed)) throw new Error('x')
+    const util = phoneUtil()
+    const parsed = util.parseAndKeepRawInput(clean(input))
+    if (!util.isValidNumber(parsed)) throw new Error('x')
     return toResult(parsed)
-  } catch {
-    throw new Error('Invalid phone number')
+  } catch (e) {
+    const err = new Error('Invalid phone number')
+    err.cause = e
+    throw err
   }
 }
 
 /**
  * Parse & validate a national number using a region hint.
- * Throws on invalid input.
- *
- * @param {string} input - National number, e.g. "054-123-4567"
- * @param {string} defaultRegion - ISO region like "IL" or "US"
+ * @param {string} input
+ * @param {string} defaultRegion
  * @returns {{e164:string,national:string,international:string,regionCode:string|undefined,type:number}}
  * @throws {Error} If the number is invalid
  */
 export function normalizePhoneOrThrowWithRegion(input, defaultRegion) {
   try {
-    const parsed = phoneUtil.parseAndKeepRawInput(clean(input), defaultRegion)
-    if (!phoneUtil.isValidNumber(parsed)) throw new Error('x')
+    const util = phoneUtil()
+    const parsed = util.parseAndKeepRawInput(clean(input), defaultRegion)
+    if (!util.isValidNumber(parsed)) throw new Error('x')
     return toResult(parsed)
-  } catch {
-    throw new Error('Invalid phone number')
+  } catch (e) {
+    const err = new Error('Invalid phone number')
+    err.cause = e
+    throw err
   }
 }
 
@@ -72,8 +104,6 @@ export function normalizePhoneOrThrowWithRegion(input, defaultRegion) {
  * Smart normalization:
  * - If input starts with '+', parse as international.
  * - Otherwise require a defaultRegion and parse as national.
- * Throws on invalid input or when defaultRegion is missing for non-international numbers.
- *
  * @param {string} input
  * @param {{ defaultRegion?: string }} [opts]
  * @returns {{e164:string,national:string,international:string,regionCode:string|undefined,type:number}}
@@ -86,7 +116,6 @@ export function normalizePhoneOrThrow(input, opts = {}) {
   }
   const { defaultRegion } = opts
   if (!defaultRegion) {
-    // keep this one specific; your test relies on a different message here
     throw new Error('defaultRegion is required for non-international numbers')
   }
   return normalizePhoneOrThrowWithRegion(cleaned, defaultRegion)
