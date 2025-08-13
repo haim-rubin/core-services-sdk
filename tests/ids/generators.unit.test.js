@@ -10,6 +10,7 @@ import {
   generateCorrelationId,
   generateVerificationId,
   generateRolePermissionsId,
+  generateSessionId,
 } from '../../src/ids/generators.js'
 import { ID_PREFIXES } from '../../src/ids/prefixes.js'
 
@@ -73,5 +74,9 @@ describe('generate*Id functions', () => {
 
   it('generateRolePermissionsId returns ID with role_ prefix', () => {
     testPrefixFunction(generateRolePermissionsId, ID_PREFIXES.ROLE_PERMISSIONS)
+  })
+
+  it('generateSessionId returns ID with sess_ prefix', () => {
+    testPrefixFunction(generateSessionId, ID_PREFIXES.SESSION)
   })
 })

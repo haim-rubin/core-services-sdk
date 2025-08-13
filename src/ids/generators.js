@@ -79,3 +79,10 @@ export const generateRolePermissionsId = () =>
  */
 export const generateOnboardingId = () =>
   generatePrefixedId(ID_PREFIXES.ONBOARDING)
+
+/**
+ * Generates a session ID with a `sess_` prefix.
+ *
+ * @returns {string} A onboarding ID.
+ */
+export const generateSessionId = () => generatePrefixedId(ID_PREFIXES.SESSION)

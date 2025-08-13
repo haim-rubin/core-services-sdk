@@ -28,4 +28,7 @@ export const ID_PREFIXES = Object.freeze({
 
   /** Onboarding mapping ID prefix */
   ONBOARDING: 'onb',
+
+  /** Session mapping ID prefix */
+  SESSION: 'sess',
 })

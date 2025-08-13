@@ -13,6 +13,7 @@ describe('ID_PREFIXES', () => {
       VERIFICATION: 'vrf',
       ROLE_PERMISSIONS: 'role',
       ONBOARDING: 'onb',
+      SESSION: 'sess',
     })
   })
 
