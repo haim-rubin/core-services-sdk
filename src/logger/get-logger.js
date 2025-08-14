@@ -7,6 +7,9 @@ const dummyLogger = {
   warn: () => {},
   error: () => {},
   debug: () => {},
+  child() {
+    return this
+  },
 }
 
 /**
