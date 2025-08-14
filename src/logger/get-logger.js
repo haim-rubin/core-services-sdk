@@ -1,12 +1,16 @@
 import pino from 'pino'
 
-const requiredMethods = ['info', 'warn', 'error', 'debug']
+const requiredMethods = ['info', 'warn', 'error', 'debug', 'fatal', 'trace']
 
 const dummyLogger = {
   info: () => {},
   warn: () => {},
-  error: () => {},
+  trace: () => {},
   debug: () => {},
+  error: () => {},
+  fatal: () => {},
+  levels: () => {},
+  silent: () => {},
   child() {
     return this
   },
