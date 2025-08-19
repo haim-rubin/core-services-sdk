@@ -29,34 +29,42 @@ describe('getLogger', () => {
       warn: vi.fn(),
       error: vi.fn(),
       debug: vi.fn(),
+      fatal: vi.fn(),
+      trace: vi.fn(),
     }
 
     const result = getLogger({ logger: mockLogger })
     expect(result).toBe(mockLogger)
   })
 
-  it('returns the dummy logger when logger is invalid', () => {
-    const invalidLogger = { info: () => {}, warn: () => {} } // missing 'error' and 'debug'
+  it('returns the dummy logger when logger is invalid (missing methods)', () => {
+    const invalidLogger = { info: () => {}, warn: () => {} } // missing required methods
     const logger = getLogger({ logger: invalidLogger })
 
     expect(logger.info).toBeDefined()
     expect(logger.warn).toBeDefined()
     expect(logger.error).toBeDefined()
     expect(logger.debug).toBeDefined()
+    expect(logger.fatal).toBeDefined()
+    expect(logger.trace).toBeDefined()
 
-    // Check that it's the dummy logger (no-op)
+    // dummy logger methods are no-ops
     expect(() => logger.info('hello')).not.toThrow()
     // @ts-ignore
     expect(logger.info()).toBeUndefined()
   })
 
-  it('returns the dummy logger when called with invalid object', () => {
+  it('returns the dummy logger when called with unrelated object', () => {
     const result = getLogger({ someOtherKey: 123 })
     expect(result.info).toBeDefined()
     expect(result.warn).toBeDefined()
+    expect(result.error).toBeDefined()
+    expect(result.debug).toBeDefined()
+    expect(result.fatal).toBeDefined()
+    expect(result.trace).toBeDefined()
   })
 
-  it('logs a message when using internal pino', () => {
+  it('logs a message when using internal pino with level warn', () => {
     const logger = getLogger({ logger: true, level: 'warn' })
     // @ts-ignore
     expect(logger.level).toBe('warn')

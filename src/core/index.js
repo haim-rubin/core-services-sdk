@@ -1,6 +1,7 @@
 export * from './regex-utils.js'
 export * from './otp-generators.js'
 export * from './sanitize-objects.js'
+export * from './normalize-min-max.js'
 export * from './normalize-to-array.js'
 export * from './combine-unique-arrays.js'
 export * from './normalize-phone-number.js'
