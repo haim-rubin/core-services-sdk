@@ -1,20 +1,13 @@
 import { vi, it, expect, describe, afterEach } from 'vitest'
 
-import fetch from 'node-fetch'
 import { http } from '../../src/http/http.js'
 import { HttpError } from '../../src/http/HttpError.js'
 import { HTTP_METHODS } from '../../src/http/http-method.js'
 import { ResponseType } from '../../src/http/responseType.js'
 
-vi.mock('node-fetch', async () => {
-  const actual = await vi.importActual('node-fetch')
-  return {
-    ...actual,
-    default: vi.fn(),
-  }
-})
-
-const mockFetch = /** @type {typeof fetch} */ (fetch)
+// Mock the global fetch
+const mockFetch = vi.fn()
+global.fetch = mockFetch
 
 const createMockResponse = ({
   body = '',
@@ -23,22 +16,22 @@ const createMockResponse = ({
   headers = {},
 } = {}) => {
   return {
-    ok: status >= 200 && status < 300,
     status,
     statusText,
     text: vi.fn().mockResolvedValue(body),
-    headers: { get: vi.fn().mockImplementation((k) => headers[k]) },
+    headers: {
+      get: vi.fn().mockImplementation((k) => headers[k]),
+    },
   }
 }
 
-describe('http client', () => {
+describe('http client (native fetch)', () => {
   afterEach(() => {
     vi.clearAllMocks()
   })
 
   describe('GET', () => {
     it('should return parsed JSON response', async () => {
-      // @ts-ignore
       mockFetch.mockResolvedValueOnce(
         createMockResponse({ body: JSON.stringify({ hello: 'world' }) }),
       )
@@ -52,7 +45,6 @@ describe('http client', () => {
     })
 
     it('should throw HttpError on non-2xx status', async () => {
-      // @ts-ignore
       mockFetch.mockResolvedValueOnce(
         createMockResponse({
           status: 404,
@@ -69,7 +61,6 @@ describe('http client', () => {
 
   describe('POST', () => {
     it('should send a JSON body and return parsed JSON', async () => {
-      // @ts-ignore
       mockFetch.mockResolvedValueOnce(
         createMockResponse({ body: JSON.stringify({ ok: true }) }),
       )
@@ -92,7 +83,6 @@ describe('http client', () => {
 
   describe('PUT', () => {
     it('should send a PUT request and return JSON', async () => {
-      // @ts-ignore
       mockFetch.mockResolvedValueOnce(
         createMockResponse({ body: JSON.stringify({ updated: true }) }),
       )
@@ -108,7 +98,6 @@ describe('http client', () => {
 
   describe('PATCH', () => {
     it('should send a PATCH request and return JSON', async () => {
-      // @ts-ignore
       mockFetch.mockResolvedValueOnce(
         createMockResponse({ body: JSON.stringify({ patched: true }) }),
       )
@@ -124,7 +113,6 @@ describe('http client', () => {
 
   describe('DELETE', () => {
     it('should send a DELETE request with body and return JSON', async () => {
-      // @ts-ignore
       mockFetch.mockResolvedValueOnce(
         createMockResponse({ body: JSON.stringify({ deleted: true }) }),
       )
@@ -140,7 +128,6 @@ describe('http client', () => {
 
   describe('ResponseType', () => {
     it('should return text if expectedType is text', async () => {
-      // @ts-ignore
       mockFetch.mockResolvedValueOnce(createMockResponse({ body: 'hello' }))
 
       const result = await http.get({
@@ -153,7 +140,6 @@ describe('http client', () => {
 
     it('should return XML as parsed object if expectedType is xml', async () => {
       const xml = `<note><to>User</to><from>ChatGPT</from></note>`
-      // @ts-ignore
       mockFetch.mockResolvedValueOnce(createMockResponse({ body: xml }))
 
       const result = await http.get({

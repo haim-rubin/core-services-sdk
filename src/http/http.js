@@ -1,11 +1,12 @@
 /**
- * A lightweight HTTP client wrapper around `node-fetch` supporting JSON, XML, and plain text responses.
- * Provides simplified helper methods for GET, POST, PUT, PATCH, and DELETE with automatic error handling.
+ * A lightweight HTTP client wrapper around Node.js native fetch
+ * supporting JSON, XML, and plain text responses.
+ * Provides simplified helper methods for GET, POST, PUT, PATCH, and DELETE
+ * with automatic error handling.
  *
  * @module http
  */
 
-import fetch from 'node-fetch'
 import httpStatus from 'http-status'
 import { parseStringPromise } from 'xml2js'
 
@@ -20,26 +21,27 @@ const JSON_HEADER = {
 /**
  * Checks if the HTTP status is considered successful (2xx).
  *
- * @param {import('node-fetch').Response} response
+ * @param {Response} response
  * @returns {boolean}
  */
 const isOkStatus = ({ status }) =>
   status >= httpStatus.OK && status < httpStatus.MULTIPLE_CHOICES
 
 /**
- * @param {import('node-fetch').Response} response
- * @returns {Promise<import('node-fetch').Response>}
+ * Ensures the response has a successful status, otherwise throws HttpError.
+ *
+ * @param {Response} response
+ * @returns {Promise<Response>}
  */
 const checkStatus = async (response) => {
   if (!isOkStatus(response)) {
     const text = await response.text()
-    const info = tryConvertJsonResponse(text)
     const { status, statusText } = response
-
     throw new HttpError({
       code: status,
       httpStatusCode: status,
       httpStatusText: statusText,
+      extendInfo: { text },
     })
   }
   return response
@@ -48,19 +50,17 @@ const checkStatus = async (response) => {
 /**
  * Reads the raw text from a fetch response.
  *
- * @param {import('node-fetch').Response} response
- * @returns {Promise<string>} The plain text body.
+ * @param {Response} response
+ * @returns {Promise<string>}
  */
-const getTextResponse = async (response) => {
-  return await response.text()
-}
+const getTextResponse = async (response) => response.text()
 
 /**
  * Attempts to parse a JSON string.
  *
- * @param {string} responseText - A raw JSON string.
- * @returns {Object} Parsed JSON object.
- * @throws {SyntaxError} If the string is not valid JSON.
+ * @param {string} responseText
+ * @returns {Object}
+ * @throws {SyntaxError} If not valid JSON.
  */
 const tryConvertJsonResponse = (responseText) => {
   try {
@@ -72,10 +72,10 @@ const tryConvertJsonResponse = (responseText) => {
 }
 
 /**
- * Attempts to extract a JSON object from a fetch response.
+ * Extracts JSON from a response, or returns raw text on failure.
  *
- * @param {import('node-fetch').Response} response
- * @returns {Promise<Object|string>} Parsed JSON or raw string if parsing fails.
+ * @param {Response} response
+ * @returns {Promise<Object|string>}
  */
 const tryGetJsonResponse = async (response) => {
   let jsonText
@@ -89,10 +89,10 @@ const tryGetJsonResponse = async (response) => {
 }
 
 /**
- * Attempts to extract an XML object from a fetch response.
+ * Extracts XML from a response, or returns raw text on failure.
  *
- * @param {import('node-fetch').Response} response
- * @returns {Promise<Object|string>} Parsed XML object or raw string if parsing fails.
+ * @param {Response} response
+ * @returns {Promise<Object|string>}
  */
 const tryGetXmlResponse = async (response) => {
   let xmlText
@@ -106,11 +106,11 @@ const tryGetXmlResponse = async (response) => {
 }
 
 /**
- * Extracts and parses the fetch response body based on expected type.
+ * Parses the fetch response based on expected type.
  *
- * @param {import('node-fetch').Response} response
- * @param {string} responseType - Expected type: 'json', 'xml', or 'text'.
- * @returns {Promise<any>} The parsed response payload.
+ * @param {Response} response
+ * @param {string} responseType
+ * @returns {Promise<any>}
  */
 const getResponsePayload = async (response, responseType) => {
   switch (responseType) {
@@ -119,149 +119,100 @@ const getResponsePayload = async (response, responseType) => {
     case ResponseType.xml:
       return tryGetXmlResponse(response)
     default:
-    case ResponseType.text:
       return getTextResponse(response)
   }
 }
 
 /**
  * Sends an HTTP GET request.
- *
- * @param {Object} params
- * @param {string} params.url - Target URL.
- * @param {Object} [params.headers] - Optional request headers.
- * @param {string} [params.credentials='include'] - Credential policy.
- * @param {string} [params.expectedType='json'] - Expected response format.
- * @returns {Promise<any>} Parsed response data.
  */
 export const get = async ({
   url,
   headers = {},
-  credentials = 'include',
   expectedType = ResponseType.json,
 }) => {
-  /** @type {import('node-fetch').Response} */
   const response = await fetch(url, {
     method: HTTP_METHODS.GET,
     headers: { ...JSON_HEADER, ...headers },
-    ...(credentials ? { credentials } : {}),
   })
-
   await checkStatus(response)
-  return await getResponsePayload(response, expectedType)
+  return getResponsePayload(response, expectedType)
 }
 
 /**
  * Sends an HTTP POST request.
- *
- * @param {Object} params
- * @param {string} params.url - Target URL.
- * @param {Object} params.body - Request body (will be JSON.stringify-ed).
- * @param {Object} [params.headers] - Optional request headers.
- * @param {string} [params.credentials='include'] - Credential policy.
- * @param {string} [params.expectedType='json'] - Expected response format.
- * @returns {Promise<any>} Parsed response data.
  */
 export const post = async ({
   url,
   body,
-  headers,
-  credentials = 'include',
+  headers = {},
   expectedType = ResponseType.json,
 }) => {
   const response = await fetch(url, {
     method: HTTP_METHODS.POST,
     headers: { ...JSON_HEADER, ...headers },
     body: JSON.stringify(body),
-    ...(credentials ? { credentials } : {}),
   })
   await checkStatus(response)
-  return await getResponsePayload(response, expectedType)
+  return getResponsePayload(response, expectedType)
 }
 
 /**
  * Sends an HTTP PUT request.
- *
- * @param {Object} params
- * @param {string} params.url
- * @param {Object} params.body
- * @param {Object} [params.headers]
- * @param {string} [params.credentials='include']
- * @param {string} [params.expectedType='json']
- * @returns {Promise<any>} Parsed response data.
  */
 export const put = async ({
   url,
   body,
   headers = {},
-  credentials = 'include',
   expectedType = ResponseType.json,
 }) => {
   const response = await fetch(url, {
     method: HTTP_METHODS.PUT,
     headers: { ...JSON_HEADER, ...headers },
     body: JSON.stringify(body),
-    ...(credentials ? { credentials } : {}),
   })
   await checkStatus(response)
-  return await getResponsePayload(response, expectedType)
+  return getResponsePayload(response, expectedType)
 }
 
 /**
  * Sends an HTTP PATCH request.
- *
- * @param {Object} params - Same as `post`.
- * @returns {Promise<any>} Parsed response data.
  */
 export const patch = async ({
   url,
   body,
-  headers,
-  credentials = 'include',
+  headers = {},
   expectedType = ResponseType.json,
 }) => {
   const response = await fetch(url, {
     method: HTTP_METHODS.PATCH,
     headers: { ...JSON_HEADER, ...headers },
     body: JSON.stringify(body),
-    ...(credentials ? { credentials } : {}),
   })
   await checkStatus(response)
-  return await getResponsePayload(response, expectedType)
+  return getResponsePayload(response, expectedType)
 }
 
 /**
  * Sends an HTTP DELETE request.
- *
- * @param {Object} params - Same as `post`, but body is optional.
- * @returns {Promise<any>} Parsed response data.
  */
 export const deleteApi = async ({
   url,
   body,
-  headers,
-  credentials = 'include',
+  headers = {},
   expectedType = ResponseType.json,
 }) => {
   const response = await fetch(url, {
     method: HTTP_METHODS.DELETE,
     headers: { ...JSON_HEADER, ...headers },
     ...(body ? { body: JSON.stringify(body) } : {}),
-    ...(credentials ? { credentials } : {}),
   })
   await checkStatus(response)
-  return await getResponsePayload(response, expectedType)
+  return getResponsePayload(response, expectedType)
 }
 
 /**
- * Consolidated HTTP client with method shortcuts.
- *
- * @namespace http
- * @property {Function} get - HTTP GET method.
- * @property {Function} post - HTTP POST method.
- * @property {Function} put - HTTP PUT method.
- * @property {Function} patch - HTTP PATCH method.
- * @property {Function} deleteApi - HTTP DELETE method.
+ * Consolidated HTTP client.
  */
 export const http = {
   get,
