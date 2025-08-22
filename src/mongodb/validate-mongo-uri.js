@@ -26,7 +26,7 @@ export function isValidMongoUri(uri) {
     const hasHostname = Boolean(parsed.hostname)
 
     return isValidProtocol && hasHostname
-  } catch (e) {
+  } catch {
     return false
   }
 }

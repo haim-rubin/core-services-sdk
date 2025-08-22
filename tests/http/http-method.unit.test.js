@@ -20,7 +20,7 @@ describe('HTTP_METHODS constant', () => {
     // Attempt to mutate and verify it fails
     try {
       HTTP_METHODS.NEW = 'NEW'
-    } catch (err) {
+    } catch {
       // Ignore in strict mode
     }
 

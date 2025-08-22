@@ -16,8 +16,12 @@
  */
 
 export const isValidRegex = (pattern) => {
-  if (pattern instanceof RegExp) return true
-  if (typeof pattern !== 'string') return false
+  if (pattern instanceof RegExp) {
+    return true
+  }
+  if (typeof pattern !== 'string') {
+    return false
+  }
   try {
     new RegExp(pattern)
     return true

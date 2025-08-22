@@ -75,7 +75,9 @@ export const subscribeToQueue = async ({
     !!prefetch && (await channel.prefetch(prefetch))
 
     channel.consume(queue, async (msgInfo) => {
-      if (!msgInfo) return
+      if (!msgInfo) {
+        return
+      }
 
       try {
         const { msgId, data } = parseMessage(msgInfo)

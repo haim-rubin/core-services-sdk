@@ -35,7 +35,7 @@ describe('ID_PREFIXES', () => {
     // Try to mutate
     try {
       ID_PREFIXES.USER = 'hacked'
-    } catch (_) {
+    } catch {
       // Ignore error in strict mode
     }
 

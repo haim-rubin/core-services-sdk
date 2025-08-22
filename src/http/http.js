@@ -83,7 +83,9 @@ const tryGetJsonResponse = async (response) => {
     jsonText = await getTextResponse(response)
     return tryConvertJsonResponse(jsonText)
   } catch (error) {
-    if (!jsonText) throw error
+    if (!jsonText) {
+      throw error
+    }
     return jsonText
   }
 }
@@ -100,7 +102,9 @@ const tryGetXmlResponse = async (response) => {
     xmlText = await getTextResponse(response)
     return await parseStringPromise(xmlText)
   } catch (error) {
-    if (!xmlText) throw error
+    if (!xmlText) {
+      throw error
+    }
     return xmlText
   }
 }

@@ -12,5 +12,10 @@
   },
   "javascript.preferences.importModuleSpecifierEnding": "js",
   "js/ts.implicitProjectConfig.checkJs": true,
-  "javascript.validate.enable": true
+  "javascript.validate.enable": true,
+  "eslint.validate": ["javascript"],
+
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  }
 }

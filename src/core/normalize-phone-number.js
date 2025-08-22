@@ -7,10 +7,9 @@ import * as raw from 'google-libphonenumber'
 export function getLib() {
   // Prefer direct (CJS-style or ESM w/ named), else default
   // e.g. raw.PhoneNumberUtil OR raw.default.PhoneNumberUtil
-  // eslint-disable-next-line no-unused-vars
   /** @type {any} */
   const anyRaw = raw
-  const lib = anyRaw.PhoneNumberUtil ? anyRaw : anyRaw.default ?? anyRaw
+  const lib = anyRaw.PhoneNumberUtil ? anyRaw : (anyRaw.default ?? anyRaw)
 
   if (!lib || !lib.PhoneNumberUtil || !lib.PhoneNumberFormat) {
     throw new Error('google-libphonenumber failed to load (exports not found)')
@@ -71,7 +70,9 @@ export function normalizePhoneOrThrowIntl(input) {
   try {
     const util = phoneUtil()
     const parsed = util.parseAndKeepRawInput(clean(input))
-    if (!util.isValidNumber(parsed)) throw new Error('x')
+    if (!util.isValidNumber(parsed)) {
+      throw new Error('Phone number failed validation')
+    }
     return toResult(parsed)
   } catch (e) {
     const err = new Error('Invalid phone number')
@@ -91,7 +92,9 @@ export function normalizePhoneOrThrowWithRegion(input, defaultRegion) {
   try {
     const util = phoneUtil()
     const parsed = util.parseAndKeepRawInput(clean(input), defaultRegion)
-    if (!util.isValidNumber(parsed)) throw new Error('x')
+    if (!util.isValidNumber(parsed)) {
+      throw new Error('Phone number failed validation')
+    }
     return toResult(parsed)
   } catch (e) {
     const err = new Error('Invalid phone number')

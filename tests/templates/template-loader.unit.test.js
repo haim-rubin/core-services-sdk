@@ -1,4 +1,3 @@
-import dot from 'dot'
 import * as fs from 'fs/promises'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
@@ -7,9 +6,6 @@ import { loadTemplates } from '../../src/templates/template-loader.js'
 vi.mock('fs/promises')
 
 describe('loadTemplates', () => {
-  // @ts-ignore
-  const mockCompile = vi.spyOn(dot, 'compile')
-
   beforeEach(() => {
     vi.resetAllMocks()
   })
