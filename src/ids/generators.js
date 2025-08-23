@@ -1,26 +1,28 @@
-import { v4 as uuidv4 } from 'uuid'
+import { ulid } from 'ulid'
 import { ID_PREFIXES } from './prefixes.js'
 
 /**
- * Generates a new UUID v4 string.
+ * Generates a new ULID string.
  *
- * @returns {string} A new UUID (version 4).
+ * ULIDs are 26-character, lexicographically sortable identifiers.
+ *
+ * @returns {string} A new ULID.
  *
  * @example
- * generateId() // '550e8400-e29b-41d4-a716-446655440000'
+ * generateId() // '01HZY3M7K4FJ9A8Q4Y1ZB5NX3T'
  */
 export const generateId = () => {
-  return uuidv4()
+  return ulid()
 }
 
 /**
  * Generates a unique ID with the given prefix.
  *
- * @param {string} prefix - A prefix string to prepend to the UUID.
- * @returns {string} A unique ID in the format `${prefix}_${uuid}`.
+ * @param {string} prefix - A prefix string to prepend to the ULID.
+ * @returns {string} A unique ID in the format `${prefix}_${ulid}`.
  *
  * @example
- * generatePrefixedId('usr') // 'usr_550e8400-e29b-41d4-a716-446655440000'
+ * generatePrefixedId('usr') // 'usr_01HZY3M7K4FJ9A8Q4Y1ZB5NX3T'
  */
 export const generatePrefixedId = (prefix) => {
   return `${prefix}_${generateId()}`
@@ -73,9 +75,9 @@ export const generateRolePermissionsId = () =>
   generatePrefixedId(ID_PREFIXES.ROLE_PERMISSIONS)
 
 /**
- * Generates a onboarding ID with a `onb_` prefix.
+ * Generates an onboarding ID with a `onb_` prefix.
  *
- * @returns {string} A onboarding ID.
+ * @returns {string} An onboarding ID.
  */
 export const generateOnboardingId = () =>
   generatePrefixedId(ID_PREFIXES.ONBOARDING)
@@ -83,6 +85,6 @@ export const generateOnboardingId = () =>
 /**
  * Generates a session ID with a `sess_` prefix.
  *
- * @returns {string} A onboarding ID.
+ * @returns {string} A session ID.
  */
 export const generateSessionId = () => generatePrefixedId(ID_PREFIXES.SESSION)

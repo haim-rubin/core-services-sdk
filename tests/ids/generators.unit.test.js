@@ -14,25 +14,25 @@ import {
 } from '../../src/ids/generators.js'
 import { ID_PREFIXES } from '../../src/ids/prefixes.js'
 
-const UUID_V4_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+// ULID is a 26-character Base32 string (no I, L, O, U).
+const ULID_REGEX = /^[0-9A-HJKMNP-TV-Z]{26}$/
 
 const testPrefixFunction = (fn, expectedPrefix) => {
   const id = fn()
   expect(typeof id).toBe('string')
-  const [prefix, uuid] = id.split('_')
+  const [prefix, ulid] = id.split('_')
   expect(prefix).toBe(expectedPrefix)
-  expect(uuid).toMatch(UUID_V4_REGEX)
+  expect(ulid).toMatch(ULID_REGEX)
 }
 
 describe('generateId', () => {
-  it('generates a valid UUID v4', () => {
+  it('generates a valid ULID', () => {
     const id = generateId()
     expect(typeof id).toBe('string')
-    expect(id).toMatch(UUID_V4_REGEX)
+    expect(id).toMatch(ULID_REGEX)
   })
 
-  it('generates unique UUIDs', () => {
+  it('generates unique ULIDs', () => {
     const ids = new Set(Array.from({ length: 10 }, () => generateId()))
     expect(ids.size).toBe(10)
   })
@@ -41,9 +41,9 @@ describe('generateId', () => {
 describe('generatePrefixedId', () => {
   it('generates an ID with the correct prefix', () => {
     const prefixed = generatePrefixedId('test')
-    const [prefix, uuid] = prefixed.split('_')
+    const [prefix, ulid] = prefixed.split('_')
     expect(prefix).toBe('test')
-    expect(uuid).toMatch(UUID_V4_REGEX)
+    expect(ulid).toMatch(ULID_REGEX)
   })
 })
 
