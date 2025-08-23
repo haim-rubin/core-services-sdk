@@ -1,8 +1,8 @@
 /**
  * Mapping of entity types to their unique ID prefixes.
  *
- * These prefixes are prepended to UUIDs to create consistent and identifiable IDs across the system.
- * For example: 'usr_550e8400-e29b-41d4-a716-446655440000'
+ * These prefixes are prepended to ULIDs to create consistent and identifiable IDs across the system.
+ * For example: 'usr_01HZY3M7K4FJ9A8Q4Y1ZB5NX3T'
  *
  * @readonly
  * @enum {string}

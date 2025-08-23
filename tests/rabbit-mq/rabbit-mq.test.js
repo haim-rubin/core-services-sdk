@@ -7,6 +7,10 @@ const sleep = (ms) => new Promise((res) => setTimeout(res, ms))
 const testLog = {
   info: () => {},
   error: console.error,
+  debug: console.debug,
+  child() {
+    return testLog
+  },
 }
 
 describe('RabbitMQ SDK', () => {

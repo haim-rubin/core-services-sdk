@@ -1,48 +1,83 @@
 // @ts-nocheck
 import * as amqp from 'amqplib'
-import { v4 as uuidv4 } from 'uuid'
+import { ulid } from 'ulid'
 
 /**
  * @typedef {Object} Log
- * @property {(msg: string) => void} info
- * @property {(msg: string, ...args: any[]) => void} error
+ * @property {(obj: any, msg?: string) => void} info
+ * @property {(obj: any, msg?: string) => void} error
+ * @property {(obj: any, msg?: string) => void} debug
  */
 
+const generateMsgId = () => `rbt_${ulid()}`
+
 /**
- * Connects to RabbitMQ server.
- * @param {{ host: string }} options
+ * Connects to a RabbitMQ server.
+ *
+ * @param {{ host: string, log: import('pino').Logger }} options
  * @returns {Promise<amqp.Connection>}
  */
-export const connectQueueService = async ({ host }) => {
+export const connectQueueService = async ({ host, log }) => {
+  const t0 = Date.now()
+  const logger = log.child({ op: 'connectQueueService', host })
+
   try {
-    return await amqp.connect(host)
-  } catch (error) {
-    console.error('Failed to connect to RabbitMQ:', error)
-    throw error
+    logger.debug('start')
+    const connection = await amqp.connect(host)
+
+    logger.info({
+      event: 'ok',
+      ms: Date.now() - t0,
+    })
+
+    return connection
+  } catch (err) {
+    logger.error(err, {
+      event: 'error',
+      ms: Date.now() - t0,
+    })
+    throw err
   }
 }
 
 /**
- * Creates a channel from RabbitMQ connection.
- * @param {{ host: string }} options
+ * Creates a channel from a RabbitMQ connection.
+ *
+ * @param {{ host: string, log: import('pino').Logger }} options
  * @returns {Promise<amqp.Channel>}
  */
-export const createChannel = async ({ host }) => {
+export const createChannel = async ({ host, log }) => {
+  const t0 = Date.now()
+  const logger = log.child({ op: 'createChannel', host })
+
   try {
+    logger.debug('start')
     const connection = /** @type {amqp.Connection} */ (
-      await connectQueueService({ host })
+      await connectQueueService({ host, log })
     )
-    return await connection.createChannel()
-  } catch (error) {
-    console.error('Failed to create channel:', error)
-    throw error
+    const channel = await connection.createChannel()
+
+    logger.debug('channel-created')
+    logger.info({
+      event: 'ok',
+      ms: Date.now() - t0,
+    })
+
+    return channel
+  } catch (err) {
+    logger.error(err, {
+      event: 'error',
+      ms: Date.now() - t0,
+    })
+    throw err
   }
 }
 
 /**
- * Parses a RabbitMQ message.
+ * Parses a RabbitMQ message into a structured object.
+ *
  * @param {amqp.ConsumeMessage} msgInfo
- * @returns {{ msgId: string, data: any }}
+ * @returns {{ msgId: string, data: any, correlationId?: string }}
  */
 const parseMessage = (msgInfo) => {
   return JSON.parse(msgInfo.content.toString())
@@ -54,8 +89,8 @@ const parseMessage = (msgInfo) => {
  * @param {Object} options
  * @param {import('amqplib').Channel} options.channel - RabbitMQ channel
  * @param {string} options.queue - Queue name to subscribe to
- * @param {(data: any) => Promise<void>} options.onReceive - Async handler for incoming message
- * @param {Log} options.log - Logging utility
+ * @param {(data: any, correlationId?: string) => Promise<void>} options.onReceive - Async handler
+ * @param {import('pino').Logger} options.log - Base logger
  * @param {boolean} [options.nackOnError=false] - Whether to nack the message on error (default: false)
  * @param {number} [options.prefetch=1] - Max unacked messages per consumer (default: 1)
  *
@@ -69,31 +104,48 @@ export const subscribeToQueue = async ({
   onReceive,
   nackOnError = false,
 }) => {
+  const logger = log.child({ op: 'subscribeToQueue', queue })
+
   try {
     await channel.assertQueue(queue, { durable: true })
-
     !!prefetch && (await channel.prefetch(prefetch))
 
     channel.consume(queue, async (msgInfo) => {
       if (!msgInfo) {
         return
       }
+      const t0 = Date.now()
+
+      const { msgId, data, correlationId } = parseMessage(msgInfo)
+      const child = logger.child({ msgId, correlationId })
 
       try {
-        const { msgId, data } = parseMessage(msgInfo)
-        log.info(`Handling message from '${queue}' msgId: ${msgId}`)
-        await onReceive(data)
+        child.debug('start')
+        child.info('message-received')
+
+        await onReceive(data, correlationId)
         channel.ack(msgInfo)
-      } catch (error) {
-        const { msgId } = parseMessage(msgInfo)
-        log.error(`Error handling message: ${msgId} on queue '${queue}'`)
-        log.error(error)
+
+        child.info({
+          event: 'ok',
+          ms: Date.now() - t0,
+        })
+        return
+      } catch (err) {
         nackOnError ? channel.nack(msgInfo) : channel.ack(msgInfo)
+
+        child.error(err, {
+          event: 'error',
+          ms: Date.now() - t0,
+        })
+        return
       }
     })
-  } catch (error) {
-    console.error('Failed to subscribe to queue:', error)
-    throw error
+  } catch (err) {
+    logger.error(err, {
+      event: 'error',
+    })
+    throw err
   }
 }
 
@@ -101,57 +153,73 @@ export const subscribeToQueue = async ({
  * Initializes RabbitMQ integration with publish and subscribe support.
  *
  * @param {Object} options
- * @param {string} options.host - RabbitMQ connection URI (e.g., 'amqp://user:pass@localhost:5672')
- * @param {Log} options.log - Logging utility with `info()` and `error()` methods
+ * @param {string} options.host - RabbitMQ connection URI
+ * @param {import('pino').Logger} options.log - Logger
  *
  * @returns {Promise<{
- *   publish: (queue: string, data: any) => Promise<boolean>,
+ *   publish: (queue: string, data: any, correlationId?: string) => Promise<boolean>,
  *   subscribe: (options: {
  *     queue: string,
- *     onReceive: (data: any) => Promise<void>,
+ *     onReceive: (data: any, correlationId?: string) => Promise<void>,
  *     nackOnError?: boolean
  *   }) => Promise<void>,
  *   channel: amqp.Channel
  * }>}
- *
- * @example
- * const rabbit = await initializeQueue({ host, log });
- * await rabbit.publish('jobs', { task: 'sendEmail' });
- * await rabbit.subscribe({
- *   queue: 'jobs',
- *   onReceive: async (data) => { console.log(data); },
- * });
  */
 export const initializeQueue = async ({ host, log }) => {
-  const channel = await createChannel({ host })
+  const channel = await createChannel({ host, log })
+  const logger = log.child({ op: 'initializeQueue' })
 
   /**
-   * Publishes a message to a queue.
-   * @param {string} queue
-   * @param {any} data
-   * @returns {Promise<boolean>}
+   * Publishes a message to a queue with a generated `rbt_<ulid>` ID.
+   *
+   * @param {string} queue - Queue name
+   * @param {any} data - Payload to send
+   * @param {string} [correlationId] - Correlation ID for tracing
+   * @returns {Promise<boolean>} True if the message was sent successfully
    */
-  const publish = async (queue, data) => {
-    const msgId = uuidv4()
+  const publish = async (queue, data, correlationId) => {
+    const msgId = generateMsgId()
+    const t0 = Date.now()
+    const logChild = logger.child({
+      op: 'publish',
+      queue,
+      msgId,
+      correlationId,
+    })
+
     try {
+      logChild.debug('start')
+
       await channel.assertQueue(queue, { durable: true })
-      log.info(`Publishing to '${queue}' msgId: ${msgId}`)
-      return channel.sendToQueue(
+      const payload = { msgId, data, correlationId }
+      const sent = channel.sendToQueue(
         queue,
-        Buffer.from(JSON.stringify({ msgId, data })),
+        Buffer.from(JSON.stringify(payload)),
       )
-    } catch (error) {
-      log.error(`Error publishing to '${queue}' msgId: ${msgId}`)
-      log.error(error)
-      throw error
+
+      logChild.debug('message-sent')
+      logChild.info({
+        event: 'ok',
+        ms: Date.now() - t0,
+      })
+
+      return sent
+    } catch (err) {
+      logChild.error(err, {
+        event: 'error',
+        ms: Date.now() - t0,
+      })
+      throw err
     }
   }
 
   /**
-   * Subscribes to a queue.
+   * Subscribes to a queue for incoming messages.
+   *
    * @param {{
    *   queue: string,
-   *   onReceive: (data: any) => Promise<void>,
+   *   onReceive: (data: any, correlationId?: string) => Promise<void>,
    *   nackOnError?: boolean
    * }} options
    * @returns {Promise<void>}
@@ -168,7 +236,8 @@ export const initializeQueue = async ({ host, log }) => {
 }
 
 /**
- * Builds RabbitMQ URI from environment variables.
+ * Builds a RabbitMQ URI string from environment variables.
+ *
  * @param {{
  *   RABBIT_HOST: string,
  *   RABBIT_PORT: string | number,
