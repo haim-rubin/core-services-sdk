@@ -1,0 +1,10 @@
+export function generateId(): string;
+export function generatePrefixedId(prefix: string): string;
+export function generateUserId(): string;
+export function generateTenantId(): string;
+export function generatePermissionId(): string;
+export function generateCorrelationId(): string;
+export function generateVerificationId(): string;
+export function generateRolePermissionsId(): string;
+export function generateOnboardingId(): string;
+export function generateSessionId(): string;

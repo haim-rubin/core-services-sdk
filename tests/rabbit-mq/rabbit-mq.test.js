@@ -22,6 +22,7 @@ describe('RabbitMQ SDK', () => {
   let received = null
 
   beforeAll(async () => {
+    // @ts-ignore
     sdk = await initializeQueue({ host, log: testLog })
 
     await sdk.subscribe({
