@@ -1,3 +1,4 @@
 export * from "./connect.js";
+export * from "./dsl-to-mongo.js";
 export * from "./initialize-mongodb.js";
 export * from "./validate-mongo-uri.js";
