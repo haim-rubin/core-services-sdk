@@ -18,6 +18,7 @@ export function buildServer() {
 
   // POST /search with body { where: {...} }
   app.post('/search', async (req) => {
+    // @ts-ignore
     const dsl = normalizeOperators(req.body?.where || {})
     const mongo = toMongo(dsl)
     return { dsl, mongo }
