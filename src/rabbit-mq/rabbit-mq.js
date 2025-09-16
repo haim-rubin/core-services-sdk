@@ -1,6 +1,8 @@
 // @ts-nocheck
-import * as amqp from 'amqplib'
 import { ulid } from 'ulid'
+import * as amqp from 'amqplib'
+
+import { mask } from '../util/mask-sensitive.js'
 
 /**
  * @typedef {Object} Log
@@ -19,7 +21,7 @@ const generateMsgId = () => `rbt_${ulid()}`
  */
 export const connectQueueService = async ({ host, log }) => {
   const t0 = Date.now()
-  const logger = log.child({ op: 'connectQueueService', host })
+  const logger = log.child({ op: 'connectQueueService', host: mask(host) })
 
   try {
     logger.debug('start')
@@ -48,7 +50,7 @@ export const connectQueueService = async ({ host, log }) => {
  */
 export const createChannel = async ({ host, log }) => {
   const t0 = Date.now()
-  const logger = log.child({ op: 'createChannel', host })
+  const logger = log.child({ op: 'createChannel', host: mask(host) })
 
   try {
     logger.debug('start')
@@ -168,7 +170,7 @@ export const subscribeToQueue = async ({
  */
 export const initializeQueue = async ({ host, log }) => {
   const channel = await createChannel({ host, log })
-  const logger = log.child({ op: 'initializeQueue' })
+  const logger = log.child({ op: 'initializeQueue', host: mask(host) })
 
   /**
    * Publishes a message to a queue with a generated `rbt_<ulid>` ID.
