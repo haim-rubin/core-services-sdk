@@ -1,18 +1,18 @@
 /**
  * Mask middle of a primitive value while keeping left/right edges.
  * @param {string|number|boolean|null|undefined} value
- * @param {string} [fill='•']
- * @param {number} [maskLen=3]
+ * @param {string} [fill='.']
+ * @param {number} [maskLen=2]
  * @param {number} [left=4]
  * @param {number} [right=4]
  * @returns {string}
  */
 export const maskSingle = (
   value,
-  fill = '•',
-  maskLen = 3,
-  left = 4,
-  right = 4,
+  fill = '.',
+  maskLen = null,
+  left = 2,
+  right = 2,
 ) => {
   if (value == null) {
     return ''
@@ -21,14 +21,19 @@ export const maskSingle = (
   if (str.length === 0) {
     return ''
   }
-  const m = Math.max(1, maskLen)
+
+  if (typeof value === 'boolean') {
+    return str
+  }
+  const m =
+    null === maskLen ? Math.max(1, str.length - (right + left)) : maskLen
 
   if (str.length <= left + right) {
     if (str.length === 1) {
       return fill
     }
     if (str.length === 2) {
-      return str[0] + fill.repeat(2) // "ab" -> "a••"
+      return str[0] + fill.repeat(1) // "ab" -> "a.."
     }
     return str.slice(0, 1) + fill.repeat(m) + str.slice(-1)
   }
@@ -39,13 +44,19 @@ export const maskSingle = (
 /**
  * Recursively mask values in strings, numbers, booleans, arrays, and objects.
  * @param {string|number|boolean|Array|Object|null|undefined} value
- * @param {string} [fill='•']
- * @param {number} [maskLen=3]
+ * @param {string} [fill='.']
+ * @param {number} [maskLen=2]
  * @param {number} [left=4]
  * @param {number} [right=4]
  * @returns {string|Array|Object}
  */
-export const mask = (value, fill = '•', maskLen = 3, left = 4, right = 4) => {
+export const mask = (
+  value,
+  fill = '.',
+  maskLen = null,
+  left = 2,
+  right = 2,
+) => {
   const type = typeof value
 
   if (value instanceof Date) {

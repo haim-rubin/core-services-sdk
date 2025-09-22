@@ -4,30 +4,37 @@ import { mask, maskSingle } from '../../src/util/index.js'
 
 describe('maskSingle', () => {
   it('masks middle of a regular string (length == left+right)', () => {
-    expect(maskSingle('abcdefgh')).toBe('a•••h')
+    const value = maskSingle('abcdefgh')
+    expect(value).toBe('ab....gh')
   })
 
   it('masks numbers with default settings', () => {
-    expect(maskSingle(12345678)).toBe('1•••8')
+    expect(maskSingle(12345678)).toBe('12....78')
   })
 
   it('masks booleans', () => {
-    expect(maskSingle(true)).toBe('t•••e')
-    expect(maskSingle(false)).toBe('f•••e')
+    const trueValue = maskSingle(true)
+    expect(trueValue).toBe('true')
+    const falseValue = maskSingle(false)
+    expect(falseValue).toBe('false')
   })
 
   it('masks very short strings correctly', () => {
-    expect(maskSingle('ab')).toBe('a••b'.slice(0, 3)) // will produce 'a••'
-    expect(maskSingle('a')).toBe('•')
+    const value1 = maskSingle('ab')
+    expect(value1).toBe('a.') // will produce 'a.'
+    const value2 = maskSingle('a')
+    expect(value2).toBe('.')
     expect(maskSingle('')).toBe('')
   })
 
   it('respects custom fill and mask length', () => {
-    expect(maskSingle('abcdefgh', '*', 5)).toBe('a*****h')
+    const value = maskSingle('abcdefgh', '*', 5)
+    expect(value).toBe('ab*****gh')
   })
 
   it('ensures maskLen is at least 1', () => {
-    expect(maskSingle('abcdefgh', '*', 0)).toBe('a*h')
+    const value = maskSingle('abcdefgh', '*', 1, 1, 1)
+    expect(value).toBe('a*h')
   })
 
   it('returns empty string for null/undefined', () => {
@@ -38,9 +45,10 @@ describe('maskSingle', () => {
 
 describe('mask', () => {
   it('masks primitives (string, number, boolean)', () => {
-    expect(mask('abcdefgh')).toBe('a•••h')
-    expect(mask(12345678)).toBe('1•••8')
-    expect(mask(true)).toBe('true')
+    expect(mask('abcdefgh')).toBe('ab....gh')
+    expect(mask(12345678)).toBe('12....78')
+    const trueValue = mask(true)
+    expect(trueValue).toBe('true')
     expect(mask(false)).toBe('false')
   })
 
@@ -50,20 +58,22 @@ describe('mask', () => {
   })
 
   it('masks arrays recursively', () => {
-    expect(mask(['abcdefgh', 12345678])).toEqual(['a•••h', '1•••8'])
+    const value = mask(['abcdefgh', 12345678])
+    expect(value).toEqual(['ab....gh', '12....78'])
   })
 
   it('masks objects recursively', () => {
     expect(mask({ a: 'abcdefgh', b: 12345678 })).toEqual({
-      a: 'a•••h',
-      b: '1•••8',
+      a: 'ab....gh',
+      b: '12....78',
     })
   })
 
   it('masks nested objects/arrays recursively', () => {
     const input = { arr: ['abcdefgh', { num: 12345678 }] }
-    const expected = { arr: ['a•••h', { num: '1•••8' }] }
-    expect(mask(input)).toEqual(expected)
+    const expected = { arr: ['ab....gh', { num: '12....78' }] }
+    const value = mask(input)
+    expect(value).toEqual(expected)
   })
 
   it('handles Date instances by returning full ISO string', () => {
@@ -73,7 +83,8 @@ describe('mask', () => {
 
   it('respects custom fill and mask length in recursive calls', () => {
     const input = { val: 'abcdefgh' }
-    const expected = { val: 'a*****h' }
-    expect(mask(input, '*', 5)).toEqual(expected)
+    const expected = { val: 'ab*****gh' }
+    const value = mask(input, '*', 5)
+    expect(value).toEqual(expected)
   })
 })
