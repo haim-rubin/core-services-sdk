@@ -1,4 +1,7 @@
-export function mongoConnect({ uri, serverApi }: {
+export function mongoConnect({ uri, serverApi, timeout, retries, }: {
     uri: string;
     serverApi?: object;
-}): Promise<import("mongodb").MongoClient>;
+    timeout?: number;
+    retries?: number;
+}): Promise<MongoClient>;
+import { MongoClient } from 'mongodb';

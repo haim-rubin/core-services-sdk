@@ -31,4 +31,40 @@ export const ID_PREFIXES: Readonly<{
     ONBOARDING: "onb";
     /** Session mapping ID prefix */
     SESSION: "sess";
+    /** File mapping ID prefix */
+    FILE: "fil";
+    /** Event entity ID prefix */
+    EVENT: "evt";
+    /** Job entity ID prefix */
+    JOB: "job";
+    /** Task entity ID prefix */
+    TASK: "task";
+    /** Queue entity ID prefix */
+    QUEUE: "que";
+    /** Message entity ID prefix */
+    MESSAGE: "msg";
+    /** Notification entity ID prefix */
+    NOTIFICATION: "ntf";
+    /** Log entity ID prefix */
+    LOG: "log";
+    /** Audit entity ID prefix */
+    AUDIT: "adt";
+    /** Config entity ID prefix */
+    CONFIG: "cfg";
+    /** Key entity ID prefix */
+    KEY: "key";
+    /** Metric entity ID prefix */
+    METRIC: "met";
+    /** Tag entity ID prefix */
+    TAG: "tag";
+    /** Policy entity ID prefix */
+    POLICY: "plc";
+    /** Profile entity ID prefix */
+    PROFILE: "prf";
+    /** Device entity ID prefix */
+    DEVICE: "dev";
+    /** Alert entity ID prefix */
+    ALERT: "alr";
+    /** Resource entity ID prefix */
+    RESOURCE: "res";
 }>;
