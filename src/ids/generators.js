@@ -88,3 +88,130 @@ export const generateOnboardingId = () =>
  * @returns {string} A session ID.
  */
 export const generateSessionId = () => generatePrefixedId(ID_PREFIXES.SESSION)
+
+/**
+ * Generates a file ID with a `fil_` prefix.
+ *
+ * @returns {string} A file ID.
+ */
+export const generateFileId = () => generatePrefixedId(ID_PREFIXES.FILE)
+
+/**
+ * Generates an event ID with an `evt_` prefix.
+ *
+ * @returns {string} An event ID.
+ */
+export const generateEventId = () => generatePrefixedId(ID_PREFIXES.EVENT)
+
+/**
+ * Generates a job ID with a `job_` prefix.
+ *
+ * @returns {string} A job ID.
+ */
+export const generateJobId = () => generatePrefixedId(ID_PREFIXES.JOB)
+
+/**
+ * Generates a task ID with a `task_` prefix.
+ *
+ * @returns {string} A task ID.
+ */
+export const generateTaskId = () => generatePrefixedId(ID_PREFIXES.TASK)
+
+/**
+ * Generates a queue ID with a `que_` prefix.
+ *
+ * @returns {string} A queue ID.
+ */
+export const generateQueueId = () => generatePrefixedId(ID_PREFIXES.QUEUE)
+
+/**
+ * Generates a message ID with a `msg_` prefix.
+ *
+ * @returns {string} A message ID.
+ */
+export const generateMessageId = () => generatePrefixedId(ID_PREFIXES.MESSAGE)
+
+/**
+ * Generates a notification ID with a `ntf_` prefix.
+ *
+ * @returns {string} A notification ID.
+ */
+export const generateNotificationId = () =>
+  generatePrefixedId(ID_PREFIXES.NOTIFICATION)
+
+/**
+ * Generates a log ID with a `log_` prefix.
+ *
+ * @returns {string} A log ID.
+ */
+export const generateLogId = () => generatePrefixedId(ID_PREFIXES.LOG)
+
+/**
+ * Generates an audit ID with an `adt_` prefix.
+ *
+ * @returns {string} An audit ID.
+ */
+export const generateAuditId = () => generatePrefixedId(ID_PREFIXES.AUDIT)
+
+/**
+ * Generates a config ID with a `cfg_` prefix.
+ *
+ * @returns {string} A config ID.
+ */
+export const generateConfigId = () => generatePrefixedId(ID_PREFIXES.CONFIG)
+
+/**
+ * Generates a key ID with a `key_` prefix.
+ *
+ * @returns {string} A key ID.
+ */
+export const generateKeyId = () => generatePrefixedId(ID_PREFIXES.KEY)
+
+/**
+ * Generates a metric ID with a `met_` prefix.
+ *
+ * @returns {string} A metric ID.
+ */
+export const generateMetricId = () => generatePrefixedId(ID_PREFIXES.METRIC)
+
+/**
+ * Generates a tag ID with a `tag_` prefix.
+ *
+ * @returns {string} A tag ID.
+ */
+export const generateTagId = () => generatePrefixedId(ID_PREFIXES.TAG)
+
+/**
+ * Generates a policy ID with a `plc_` prefix.
+ *
+ * @returns {string} A policy ID.
+ */
+export const generatePolicyId = () => generatePrefixedId(ID_PREFIXES.POLICY)
+
+/**
+ * Generates a profile ID with a `prf_` prefix.
+ *
+ * @returns {string} A profile ID.
+ */
+export const generateProfileId = () => generatePrefixedId(ID_PREFIXES.PROFILE)
+
+/**
+ * Generates a device ID with a `dev_` prefix.
+ *
+ * @returns {string} A device ID.
+ */
+export const generateDeviceId = () => generatePrefixedId(ID_PREFIXES.DEVICE)
+
+/**
+ * Generates an alert ID with an `alr_` prefix.
+ *
+ * @returns {string} An alert ID.
+ */
+export const generateAlertId = () => generatePrefixedId(ID_PREFIXES.ALERT)
+
+/**
+ * Generates a resource ID with a `res_` prefix.
+ *
+ * @returns {string} A resource ID.
+ */
+export const generateResourceId = () => generatePrefixedId(ID_PREFIXES.RESOURCE)
