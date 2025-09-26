@@ -10,3 +10,4 @@ export const util = {
 }
 
 export { mask, maskSingle }
+export { Context } from './context.js'
