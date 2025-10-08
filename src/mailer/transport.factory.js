@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer'
 import sgMail from '@sendgrid/mail'
 import { defaultProvider } from '@aws-sdk/credential-provider-node'
-import { SESClient, SendRawEmailCommand } from '@aws-sdk/client-ses'
+import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2'
 
 /**
  * Factory for creating email transporters based on configuration.
@@ -57,7 +57,7 @@ export class TransportFactory {
         return sgMail // Not a Nodemailer transport, but SendGrid's mail API
 
       case 'ses': {
-        const sesClient = new SESClient({
+        const sesClient = new SESv2Client({
           region: config.region,
           credentials:
             config.accessKeyId && config.secretAccessKey
@@ -70,8 +70,8 @@ export class TransportFactory {
 
         return nodemailer.createTransport({
           SES: {
-            ses: sesClient,
-            aws: { SendRawEmailCommand },
+            sesClient,
+            SendEmailCommand,
           },
         })
       }

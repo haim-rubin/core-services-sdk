@@ -1,8 +1,8 @@
 // @ts-nocheck
 import nodemailer from 'nodemailer'
-
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+// ---------------- Mock Nodemailer ----------------
 vi.mock('nodemailer', () => {
   const createTransport = vi.fn((options) => ({
     type: 'mock-transport',
@@ -15,6 +15,7 @@ vi.mock('nodemailer', () => {
   }
 })
 
+// ---------------- Mock SendGrid ----------------
 vi.mock('@sendgrid/mail', () => {
   const setApiKey = vi.fn()
   const send = vi.fn()
@@ -26,23 +27,31 @@ vi.mock('@sendgrid/mail', () => {
   }
 })
 
-vi.mock('@aws-sdk/client-ses', () => {
+// ---------------- Mock AWS SESv2 ----------------
+vi.mock('@aws-sdk/client-sesv2', () => {
   const mockSesInstance = { mocked: true }
-  const SESClient = vi.fn(() => mockSesInstance)
-  globalThis.__mockedSesClient__ = SESClient
-  globalThis.__mockedSesInstance__ = mockSesInstance
+  const SESv2Client = vi.fn(() => mockSesInstance)
+  const SendEmailCommand = vi.fn(() => 'mocked-command')
+
+  globalThis.__mockedSesv2Client__ = SESv2Client
+  globalThis.__mockedSesv2Instance__ = mockSesInstance
+  globalThis.__mockedSendEmailCommand__ = SendEmailCommand
+
   return {
-    SESClient,
-    SendRawEmailCommand: 'mocked-command',
+    __esModule: true,
+    SESv2Client,
+    SendEmailCommand,
   }
 })
 
+// ---------------- Mock AWS Default Provider ----------------
 vi.mock('@aws-sdk/credential-provider-node', () => {
   const defaultProvider = vi.fn(() => 'mocked-default-provider')
   globalThis.__mockedDefaultProvider__ = defaultProvider
-  return { defaultProvider }
+  return { __esModule: true, defaultProvider }
 })
 
+// ---------------- Import the module under test ----------------
 import { TransportFactory } from '../../src/mailer/transport.factory.js'
 
 describe('TransportFactory', () => {
@@ -50,6 +59,7 @@ describe('TransportFactory', () => {
     vi.clearAllMocks()
   })
 
+  // ---------- SMTP ----------
   it('should create smtp transport', () => {
     const config = {
       type: 'smtp',
@@ -70,6 +80,7 @@ describe('TransportFactory', () => {
     expect(transport.type).toBe('mock-transport')
   })
 
+  // ---------- GMAIL ----------
   it('should create gmail transport', () => {
     const config = {
       type: 'gmail',
@@ -85,6 +96,7 @@ describe('TransportFactory', () => {
     expect(transport.type).toBe('mock-transport')
   })
 
+  // ---------- SENDGRID ----------
   it('should create sendgrid transport', () => {
     const config = {
       type: 'sendgrid',
@@ -105,17 +117,18 @@ describe('TransportFactory', () => {
     }).toThrow('Missing SendGrid API key')
   })
 
-  it('should create ses transport with credentials', () => {
+  // ---------- SESv2 ----------
+  it('should create sesv2 transport with explicit credentials', () => {
     const config = {
       type: 'ses',
       accessKeyId: 'AKIA...',
       secretAccessKey: 'secret',
-      region: 'us-west-2',
+      region: 'eu-central-1',
     }
 
     const transport = TransportFactory.create(config)
 
-    expect(globalThis.__mockedSesClient__).toHaveBeenCalledWith({
+    expect(globalThis.__mockedSesv2Client__).toHaveBeenCalledWith({
       region: config.region,
       credentials: {
         accessKeyId: config.accessKeyId,
@@ -126,15 +139,15 @@ describe('TransportFactory', () => {
     const args = nodemailer.createTransport.mock.calls[0][0]
     expect(args).toEqual({
       SES: {
-        ses: globalThis.__mockedSesInstance__,
-        aws: { SendRawEmailCommand: 'mocked-command' },
+        sesClient: globalThis.__mockedSesv2Instance__,
+        SendEmailCommand: globalThis.__mockedSendEmailCommand__,
       },
     })
 
     expect(transport.type).toBe('mock-transport')
   })
 
-  it('should create ses transport with defaultProvider fallback', () => {
+  it('should create sesv2 transport with defaultProvider fallback', () => {
     const config = {
       type: 'ses',
       region: 'us-east-1',
@@ -143,7 +156,7 @@ describe('TransportFactory', () => {
     const transport = TransportFactory.create(config)
 
     expect(globalThis.__mockedDefaultProvider__).toHaveBeenCalled()
-    expect(globalThis.__mockedSesClient__).toHaveBeenCalledWith({
+    expect(globalThis.__mockedSesv2Client__).toHaveBeenCalledWith({
       region: config.region,
       credentials: 'mocked-default-provider',
     })
@@ -151,14 +164,15 @@ describe('TransportFactory', () => {
     const args = nodemailer.createTransport.mock.calls[0][0]
     expect(args).toEqual({
       SES: {
-        ses: globalThis.__mockedSesInstance__,
-        aws: { SendRawEmailCommand: 'mocked-command' },
+        sesClient: globalThis.__mockedSesv2Instance__,
+        SendEmailCommand: globalThis.__mockedSendEmailCommand__,
       },
     })
 
     expect(transport.type).toBe('mock-transport')
   })
 
+  // ---------- INVALID ----------
   it('should throw error for unsupported type', () => {
     expect(() => {
       TransportFactory.create({ type: 'invalid' })
