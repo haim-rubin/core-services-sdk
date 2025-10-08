@@ -97,3 +97,22 @@ export function toMongo(query = {}) {
     }),
   )
 }
+
+export function castIsoDates(obj) {
+  if (Array.isArray(obj)) {
+    return obj.map(castIsoDates)
+  }
+  if (obj && typeof obj === 'object') {
+    for (const [key, value] of Object.entries(obj)) {
+      obj[key] = castIsoDates(value)
+    }
+    return obj
+  }
+  if (typeof obj === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(obj)) {
+    const d = new Date(obj)
+    if (!isNaN(d)) {
+      return d
+    }
+  }
+  return obj
+}
