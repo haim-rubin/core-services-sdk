@@ -46,7 +46,7 @@ export const connectQueueService = async ({ host, log }) => {
  * Creates a channel from a RabbitMQ connection.
  *
  * @param {{ host: string, log: import('pino').Logger }} options
- * @returns {Promise<amqp.Channel>}
+ * @returns {Promise<{ channel: amqp.Channel, connection: amqp.Connection }>}
  */
 export const createChannel = async ({ host, log }) => {
   const t0 = Date.now()
@@ -65,7 +65,7 @@ export const createChannel = async ({ host, log }) => {
       ms: Date.now() - t0,
     })
 
-    return channel
+    return { channel, connection }
   } catch (err) {
     logger.error(err, {
       event: 'error',
@@ -96,7 +96,7 @@ const parseMessage = (msgInfo) => {
  * @param {boolean} [options.nackOnError=false] - Whether to nack the message on error (default: false)
  * @param {number} [options.prefetch=1] - Max unacked messages per consumer (default: 1)
  *
- * @returns {Promise<void>}
+ * @returns {Promise<string>} Returns the consumer tag for later cancellation
  */
 export const subscribeToQueue = async ({
   log,
@@ -112,7 +112,7 @@ export const subscribeToQueue = async ({
     await channel.assertQueue(queue, { durable: true })
     !!prefetch && (await channel.prefetch(prefetch))
 
-    channel.consume(queue, async (msgInfo) => {
+    const { consumerTag } = await channel.consume(queue, async (msgInfo) => {
       if (!msgInfo) {
         return
       }
@@ -143,6 +143,9 @@ export const subscribeToQueue = async ({
         return
       }
     })
+
+    logger.debug({ consumerTag }, 'consumer-started')
+    return consumerTag
   } catch (err) {
     logger.error(err, {
       event: 'error',
@@ -164,12 +167,14 @@ export const subscribeToQueue = async ({
  *     queue: string,
  *     onReceive: (data: any, correlationId?: string) => Promise<void>,
  *     nackOnError?: boolean
- *   }) => Promise<void>,
- *   channel: amqp.Channel
+ *   }) => Promise<string>,
+ *   channel: amqp.Channel,
+ *   connection: amqp.Connection,
+ *   close: () => Promise<void>
  * }>}
  */
 export const initializeQueue = async ({ host, log }) => {
-  const channel = await createChannel({ host, log })
+  const { channel, connection } = await createChannel({ host, log })
   const logger = log.child({ op: 'initializeQueue', host: mask(host) })
 
   /**
@@ -224,16 +229,45 @@ export const initializeQueue = async ({ host, log }) => {
    *   onReceive: (data: any, correlationId?: string) => Promise<void>,
    *   nackOnError?: boolean
    * }} options
-   * @returns {Promise<void>}
+   * @returns {Promise<string>} Returns the consumer tag for later cancellation
    */
   const subscribe = async ({ queue, onReceive, nackOnError = false }) => {
     return subscribeToQueue({ channel, queue, onReceive, log, nackOnError })
   }
 
+  /**
+   * Gracefully closes the RabbitMQ channel and connection.
+   *
+   * @returns {Promise<void>}
+   */
+  const close = async () => {
+    const t0 = Date.now()
+    const logChild = logger.child({ op: 'close' })
+
+    try {
+      logChild.debug('closing-channel-and-connection')
+      await channel.close()
+      await connection.close()
+
+      logChild.info({
+        event: 'ok',
+        ms: Date.now() - t0,
+      })
+    } catch (err) {
+      logChild.error(err, {
+        event: 'error',
+        ms: Date.now() - t0,
+      })
+      throw err
+    }
+  }
+
   return {
     channel,
+    connection,
     publish,
     subscribe,
+    close,
   }
 }
 
