@@ -48,8 +48,8 @@ export const withErrorHandlingReply =
     try {
       return await withErrorHandling(log, defaultError)(funcToInvoke)
     } catch (error) {
-      const { code, httpStatusText, httpStatusCode } = error
-      reply.status(httpStatusCode).send({ code, httpStatusText })
+      const { code, status } = error
+      reply.status(status).send({ code })
     }
   }
 
@@ -81,12 +81,11 @@ export const replyOnErrorOnly =
         errorMerged.stack = error.stack
       }
 
-      const exposed =
-        errorMerged.message ?? errorMerged.code ?? GENERAL_ERROR.httpStatusText
+      const exposed = errorMerged.message ?? errorMerged.code
 
       const status =
-        errorMerged.httpStatusCode && errorMerged.httpStatusCode in httpStatus
-          ? errorMerged.httpStatusCode
+        errorMerged.status && errorMerged.status in httpStatus
+          ? errorMerged.status
           : httpStatus.INTERNAL_SERVER_ERROR
 
       reply.status(status).send({ error: exposed })

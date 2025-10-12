@@ -15,13 +15,7 @@ export class HttpError extends Error {
    * @type {number | undefined}
    * HTTP status code associated with the error (e.g., 400, 500).
    */
-  httpStatusCode
-
-  /**
-   * @type {string | undefined}
-   * Human-readable HTTP status text (e.g., "Bad Request").
-   */
-  httpStatusText
+  status
 
   /**
    * @type {object | undefined}
@@ -35,24 +29,16 @@ export class HttpError extends Error {
    * @param {Object} [error] - Optional error object.
    * @param {string | number} [error.code] - Application-specific error code.
    * @param {string} [error.message] - Custom error message.
-   * @param {number} [error.httpStatusCode] - HTTP status code (e.g., 404, 500).
-   * @param {string} [error.httpStatusText] - Optional human-readable HTTP status text.
+   * @param {number} [error.status] - HTTP status code (e.g., 404, 500).
    * @param {object} [error.extendInfo] - Optional extended metadata for diagnostics.
    */
   constructor(error = {}) {
-    const { code, message, httpStatusCode, httpStatusText, extendInfo } = error
+    const { code, status, message, extendInfo } = error
 
-    super(
-      message ||
-        (httpStatusCode && httpStatus[httpStatusCode]) ||
-        code ||
-        'Unknown error',
-    )
+    super(message || (status && httpStatus[status]) || code || 'Unknown error')
 
     this.code = code
-    this.httpStatusCode = httpStatusCode
-    this.httpStatusText =
-      httpStatusText || (httpStatusCode && httpStatus[httpStatusCode])
+    this.status = status
     this.extendInfo = extendInfo
 
     if (typeof Error.captureStackTrace === 'function') {
@@ -81,8 +67,7 @@ export class HttpError extends Error {
       instance &&
       typeof instance === 'object' &&
       'message' in instance &&
-      'httpStatusCode' in instance &&
-      'httpStatusText' in instance
+      'status' in instance
     )
   }
 
@@ -92,8 +77,7 @@ export class HttpError extends Error {
    * @returns {{
    *   code: string | number | undefined,
    *   message: string,
-   *   httpStatusCode: number | undefined,
-   *   httpStatusText: string | undefined,
+   *   status: number | undefined,
    *   extendInfo?: object
    * }}
    */
@@ -101,8 +85,7 @@ export class HttpError extends Error {
     return {
       code: this.code,
       message: this.message,
-      httpStatusCode: this.httpStatusCode,
-      httpStatusText: this.httpStatusText,
+      status: this.status,
       ...(this.extendInfo ? { extendInfo: this.extendInfo } : {}),
     }
   }
@@ -118,8 +101,7 @@ export class HttpError extends Error {
       error instanceof HttpError ||
       (error &&
         typeof error === 'object' &&
-        'httpStatusCode' in error &&
-        'httpStatusText' in error &&
+        'status' in error &&
         'toJSON' in error)
     )
   }
@@ -138,8 +120,7 @@ export class HttpError extends Error {
     const httpError = new HttpError({
       code: 'UNHANDLED_ERROR',
       message: error.message || 'An unexpected error occurred',
-      httpStatusCode: httpStatus.INTERNAL_SERVER_ERROR,
-      httpStatusText: httpStatus[httpStatus.INTERNAL_SERVER_ERROR],
+      status: httpStatus.INTERNAL_SERVER_ERROR,
     })
 
     httpError.stack = error.stack

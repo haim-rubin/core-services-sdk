@@ -8,26 +8,24 @@ describe('HttpError', () => {
     const error = new HttpError({
       code: 'INVALID_INPUT',
       message: 'Invalid input provided',
-      httpStatusCode: 400,
+      status: httpStatus.BAD_REQUEST,
       extendInfo: { field: 'email', reason: 'missing' },
     })
 
     expect(error).toBeInstanceOf(HttpError)
     expect(error.message).toBe('Invalid input provided')
     expect(error.code).toBe('INVALID_INPUT')
-    expect(error.httpStatusCode).toBe(400)
-    expect(error.httpStatusText).toBe(httpStatus[400])
+    expect(error.status).toBe(httpStatus.BAD_REQUEST)
     expect(error.extendInfo).toEqual({ field: 'email', reason: 'missing' })
   })
 
   it('should fallback to default message from status if message is missing', () => {
     const error = new HttpError({
       code: 'BAD_REQUEST',
-      httpStatusCode: 400,
+      status: httpStatus.BAD_REQUEST,
     })
 
-    expect(error.message).toBe(httpStatus[400])
-    expect(error.httpStatusText).toBe(httpStatus[400])
+    expect(error.message).toBe(httpStatus[httpStatus.BAD_REQUEST])
     expect(error.extendInfo).toBeUndefined()
   })
 
@@ -35,7 +33,7 @@ describe('HttpError', () => {
     const error = new HttpError({ code: 'ERROR_CODE_ONLY' })
 
     expect(error.message).toBe('ERROR_CODE_ONLY')
-    expect(error.httpStatusCode).toBeUndefined()
+    expect(error.status).toBeUndefined()
     expect(error.extendInfo).toBeUndefined()
   })
 
@@ -50,14 +48,13 @@ describe('HttpError', () => {
     const error = new HttpError({
       code: 'NOT_FOUND',
       message: 'Resource not found',
-      httpStatusCode: 404,
+      status: httpStatus.NOT_FOUND,
     })
 
     expect(error.toJSON()).toEqual({
       code: 'NOT_FOUND',
       message: 'Resource not found',
-      httpStatusCode: 404,
-      httpStatusText: httpStatus[404],
+      status: httpStatus.NOT_FOUND,
     })
   })
 
@@ -65,15 +62,14 @@ describe('HttpError', () => {
     const error = new HttpError({
       code: 'NOT_FOUND',
       message: 'Resource not found',
-      httpStatusCode: 404,
+      status: httpStatus.NOT_FOUND,
       extendInfo: { resource: 'user', id: 123 },
     })
 
     expect(error.toJSON()).toEqual({
       code: 'NOT_FOUND',
       message: 'Resource not found',
-      httpStatusCode: 404,
-      httpStatusText: httpStatus[404],
+      status: httpStatus.NOT_FOUND,
       extendInfo: { resource: 'user', id: 123 },
     })
   })
@@ -81,7 +77,7 @@ describe('HttpError', () => {
   it('should detect instance using isHttpError', () => {
     const error = new HttpError({
       code: 'TEST',
-      httpStatusCode: 500,
+      status: httpStatus.INTERNAL_SERVER_ERROR,
     })
 
     expect(HttpError.isHttpError(error)).toBe(true)
@@ -91,7 +87,7 @@ describe('HttpError', () => {
   it('FromError should return same instance if already HttpError', () => {
     const original = new HttpError({
       code: 'ALREADY_HTTP',
-      httpStatusCode: 401,
+      status: httpStatus.UNAUTHORIZED,
     })
     const result = HttpError.FromError(original)
 
@@ -105,8 +101,8 @@ describe('HttpError', () => {
     expect(httpError).toBeInstanceOf(HttpError)
     expect(httpError.message).toBe('Boom!')
     expect(httpError.code).toBe('UNHANDLED_ERROR')
-    expect(httpError.httpStatusCode).toBe(500)
-    expect(httpError.httpStatusText).toBe(httpStatus[500])
+    expect(httpError.status).toBe(httpStatus.INTERNAL_SERVER_ERROR)
+
     expect(httpError.extendInfo).toBeUndefined()
   })
 })

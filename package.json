@@ -1,6 +1,6 @@
 {
   "name": "core-services-sdk",
-  "version": "1.3.36",
+  "version": "1.3.37",
   "main": "src/index.js",
   "type": "module",
   "types": "types/index.d.ts",

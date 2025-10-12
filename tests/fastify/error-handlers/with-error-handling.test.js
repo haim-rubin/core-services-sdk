@@ -25,7 +25,7 @@ describe('withErrorHandling', () => {
   it('should rethrow HttpError', async () => {
     const err = new HttpError({
       message: 'Bad',
-      httpStatusCode: httpStatus.BAD_REQUEST,
+      status: httpStatus.BAD_REQUEST,
     })
     const fn = vi.fn().mockRejectedValue(err)
 
@@ -65,8 +65,7 @@ describe('withErrorHandlingReply', () => {
     const err = new HttpError({
       message: 'not found',
       code: 'NOT_FOUND',
-      httpStatusCode: httpStatus.NOT_FOUND,
-      httpStatusText: httpStatus[httpStatus.NOT_FOUND],
+      status: httpStatus.NOT_FOUND,
     })
 
     const fn = vi.fn().mockRejectedValue(err)
@@ -75,7 +74,6 @@ describe('withErrorHandlingReply', () => {
     expect(reply.status).toHaveBeenCalledWith(httpStatus.NOT_FOUND)
     expect(reply.send).toHaveBeenCalledWith({
       code: 'NOT_FOUND',
-      httpStatusText: 'Not Found',
     })
   })
 })
@@ -112,8 +110,7 @@ describe('replyOnErrorOnly', () => {
     const err = new HttpError({
       message: 'forbidden',
       code: 'NO_ACCESS',
-      httpStatusCode: httpStatus.FORBIDDEN,
-      httpStatusText: httpStatus[httpStatus.FORBIDDEN],
+      status: httpStatus.FORBIDDEN,
     })
 
     const fn = vi.fn().mockRejectedValue(err)

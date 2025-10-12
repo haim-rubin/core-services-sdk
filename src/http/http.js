@@ -36,11 +36,10 @@ const isOkStatus = ({ status }) =>
 const checkStatus = async (response) => {
   if (!isOkStatus(response)) {
     const text = await response.text()
-    const { status, statusText } = response
+    const { status } = response
     throw new HttpError({
+      status,
       code: status,
-      httpStatusCode: status,
-      httpStatusText: statusText,
       extendInfo: { text },
     })
   }
