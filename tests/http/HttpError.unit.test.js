@@ -21,11 +21,11 @@ describe('HttpError', () => {
 
   it('should fallback to default message from status if message is missing', () => {
     const error = new HttpError({
-      code: 'BAD_REQUEST',
+      code: 'Missing parameter x',
       status: httpStatus.BAD_REQUEST,
     })
 
-    expect(error.message).toBe(httpStatus[httpStatus.BAD_REQUEST])
+    expect(error.message).toBe('Missing parameter x')
     expect(error.extendInfo).toBeUndefined()
   })
 

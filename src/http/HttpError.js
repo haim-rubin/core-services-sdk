@@ -35,7 +35,7 @@ export class HttpError extends Error {
   constructor(error = {}) {
     const { code, status, message, extendInfo } = error
 
-    super(message || (status && httpStatus[status]) || code || 'Unknown error')
+    super(message || code || httpStatus[status] || 'Unknown error')
 
     this.code = code
     this.status = status
