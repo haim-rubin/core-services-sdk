@@ -1,2 +1,2 @@
-export * from "./prefixes.js";
-export * from "./generators.js";
+export * from './prefixes.js'
+export * from './generators.js'

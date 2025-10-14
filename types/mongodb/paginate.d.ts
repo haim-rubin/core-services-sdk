@@ -9,16 +9,26 @@
  * @param {'asc'|'desc'} [options.order='asc']
  * @param {number} [options.limit=10]
  */
-export function paginate(collection: import("mongodb").Collection, { limit, projection, filter, cursor, order, cursorField, }?: {
-    filter?: any;
-    cursorField?: string;
-    cursor?: string | Date | ObjectId;
-    order?: "asc" | "desc";
-    limit?: number;
-}): Promise<{
-    order: "desc" | "asc";
-    list: import("mongodb").WithId<import("bson").Document>[];
-    previous: any;
-    next: any;
-}>;
-import { ObjectId } from 'mongodb';
+export function paginate(
+  collection: import('mongodb').Collection,
+  {
+    limit,
+    projection,
+    filter,
+    cursor,
+    order,
+    cursorField,
+  }?: {
+    filter?: any
+    cursorField?: string
+    cursor?: string | Date | ObjectId
+    order?: 'asc' | 'desc'
+    limit?: number
+  },
+): Promise<{
+  order: 'asc' | 'desc'
+  list: import('mongodb').WithId<import('bson').Document>[]
+  previous: any
+  next: any
+}>
+import { ObjectId } from 'mongodb'

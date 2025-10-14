@@ -1,7 +1,7 @@
 /**
  * *
  */
-export type ResponseType = string;
+export type ResponseType = string
 /**
  * Enum representing supported response types for HTTP client parsing.
  *
@@ -13,8 +13,8 @@ export type ResponseType = string;
  * @property {string} file - Binary file or blob (not automatically parsed).
  */
 export const ResponseType: Readonly<{
-    xml: "xml";
-    json: "json";
-    text: "text";
-    file: "file";
-}>;
+  xml: 'xml'
+  json: 'json'
+  text: 'text'
+  file: 'file'
+}>

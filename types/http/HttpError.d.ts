@@ -37,7 +37,6 @@ export class HttpError extends Error {
     code?: string | number
     message?: string
     status?: number
-
     extendInfo?: object
   })
   /**
@@ -49,10 +48,10 @@ export class HttpError extends Error {
    * @type {number | undefined}
    * HTTP status code associated with the error (e.g., 400, 500).
    */
-  httpStatusCode: number | undefined
+  status: number | undefined
   /**
-   * @type {string | undefined}
-   * Human-readable HTTP status text (e.g., "Bad Request").
+   * @type {object | undefined}
+   * Optional metadata for debugging/logging (e.g., request ID, user ID, retryAfter).
    */
   extendInfo: object | undefined
   /**

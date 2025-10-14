@@ -3,7 +3,9 @@
     "declaration": true,
     "allowJs": true,
     "emitDeclarationOnly": true,
-    "outDir": "types"
+    "outDir": "types",
+    "esModuleInterop": true,
+    "skipLibCheck": true
   },
   "include": ["src"]
 }

@@ -4,4 +4,5 @@
  * @param {Record<string, any>} query - normalized DSL query
  * @returns {Record<string, any>} - MongoDB query object
  */
-export function toMongo(query?: Record<string, any>): Record<string, any>;
+export function toMongo(query?: Record<string, any>): Record<string, any>
+export function castIsoDates(obj: any): any

@@ -1,1 +1,1 @@
-export function normalizeOperators(obj: any): any;
+export function normalizeOperators(obj: any): any

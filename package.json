@@ -10,7 +10,7 @@
     "test": "vitest run --coverage",
     "format": "prettier --write .",
     "bump": "node ./scripts/bump-version.js",
-    "build:types": "tsc --declaration --allowJs --emitDeclarationOnly --outDir types ./src/index.js"
+    "build:types": "tsc --project tsconfig.json && prettier --write ."
   },
   "repository": {
     "type": "git",

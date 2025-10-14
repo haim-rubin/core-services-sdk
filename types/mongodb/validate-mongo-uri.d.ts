@@ -12,4 +12,4 @@
  * isValidMongoUri('http://localhost') // false
  * isValidMongoUri('') // false
  */
-export function isValidMongoUri(uri: string): boolean;
+export function isValidMongoUri(uri: string): boolean

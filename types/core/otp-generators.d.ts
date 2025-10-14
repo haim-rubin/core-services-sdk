@@ -11,46 +11,50 @@
  * @throws {Error} If charset is provided and is not a non-empty string.
  * @throws {Error} If the type is invalid and no valid charset is provided.
  */
-export function generateCode({ length, type, charset }?: {
-    length?: number;
-    type?: string;
-    charset?: string;
-}): string;
+export function generateCode({
+  length,
+  type,
+  charset,
+}?: {
+  length?: number
+  type?: string
+  charset?: string
+}): string
 /**
  * Generates an OTP code using alphabetic characters (both lowercase and uppercase).
  *
  * @param {number} [length=4] - The desired length of the code.
  * @returns {string} The generated code.
  */
-export function generateCodeAlpha(length?: number): string;
+export function generateCodeAlpha(length?: number): string
 /**
  * Generates an OTP code using only numeric digits (0-9).
  *
  * @param {number} [length=4] - The desired length of the code.
  * @returns {string} The generated code.
  */
-export function generateCodeDigits(length?: number): string;
+export function generateCodeDigits(length?: number): string
 /**
  * Generates an OTP code using alphabetic characters and digits.
  *
  * @param {number} [length=4] - The desired length of the code.
  * @returns {string} The generated code.
  */
-export function generateCodeAlphaNumeric(length?: number): string;
+export function generateCodeAlphaNumeric(length?: number): string
 /**
  * Generates an OTP code using alphabetic characters, digits, and symbols.
  *
  * @param {number} [length=4] - The desired length of the code.
  * @returns {string} The generated code.
  */
-export function generateCodeAlphaNumericSymbols(length?: number): string;
+export function generateCodeAlphaNumericSymbols(length?: number): string
 export const OTP_GENERATOR_TYPES: Readonly<{
-    any: "any";
-    alpha: "alpha";
-    numeric: "numeric";
-    symbols: "symbols";
-    alphaLower: "alphaLower";
-    alphaUpper: "alphaUpper";
-    alphanumeric: "alphanumeric";
-    alphanumericSymbols: "alphanumericSymbols";
-}>;
+  any: 'any'
+  alpha: 'alpha'
+  numeric: 'numeric'
+  symbols: 'symbols'
+  alphaLower: 'alphaLower'
+  alphaUpper: 'alphaUpper'
+  alphanumeric: 'alphanumeric'
+  alphanumericSymbols: 'alphanumericSymbols'
+}>

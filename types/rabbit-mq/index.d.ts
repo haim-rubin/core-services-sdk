@@ -1,1 +1,1 @@
-export * from "./rabbit-mq.js";
+export * from './rabbit-mq.js'

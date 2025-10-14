@@ -53,7 +53,11 @@
  *   {}
  * )
  */
-export function normalizeOrDefault<T>(value: any, isValid: (v: any) => boolean, defaultValue: T): T;
+export function normalizeOrDefault<T>(
+  value: any,
+  isValid: (v: any) => boolean,
+  defaultValue: T,
+): T
 /**
  * Normalize a value to a non-empty, trimmed string; otherwise return a default (also trimmed).
  *
@@ -93,7 +97,10 @@ export function normalizeOrDefault<T>(value: any, isValid: (v: any) => boolean, 
  * normalizeStringOrDefault(42, 'user-roles-management:edit')
  * // → 'user-roles-management:edit'
  */
-export function normalizeStringOrDefault(value: any, defaultValue: string): string;
+export function normalizeStringOrDefault(
+  value: any,
+  defaultValue: string,
+): string
 /**
  * Normalize a value to a valid number (with safe string coercion); otherwise return a default.
  *
@@ -131,7 +138,10 @@ export function normalizeStringOrDefault(value: any, defaultValue: string): stri
  * normalizeNumberOrDefault(NaN, 7)      // → 7
  * normalizeNumberOrDefault({}, 7)       // → 7
  */
-export function normalizeNumberOrDefault(value: any, defaultValue: number): number;
+export function normalizeNumberOrDefault(
+  value: any,
+  defaultValue: number,
+): number
 /**
  * Normalize a value to a boolean (with "true"/"false" string support); otherwise return a default.
  *
@@ -169,4 +179,7 @@ export function normalizeNumberOrDefault(value: any, defaultValue: number): numb
  * normalizeBooleanOrDefault('yes',  false) // → false  (rejected → default)
  * normalizeBooleanOrDefault(1,      true)  // → true   (rejected → default)
  */
-export function normalizeBooleanOrDefault(value: any, defaultValue: boolean): boolean;
+export function normalizeBooleanOrDefault(
+  value: any,
+  defaultValue: boolean,
+): boolean

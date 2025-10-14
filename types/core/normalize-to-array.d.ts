@@ -1,1 +1,1 @@
-export function normalizeToArray(value: any): string[];
+export function normalizeToArray(value: any): string[]
