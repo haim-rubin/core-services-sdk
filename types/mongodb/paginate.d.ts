@@ -1,5 +1,5 @@
 /**
- * Pagination with SQL-like ascending/descending
+ * Pagination with SQL-like ascending/descending and total count
  *
  * @param {import('mongodb').Collection} collection
  * @param {Object} options
@@ -27,8 +27,25 @@ export function paginate(
   },
 ): Promise<{
   order: 'asc' | 'desc'
+  totalCount: number
   list: import('mongodb').WithId<import('bson').Document>[]
   previous: any
   next: any
+}>
+export function getPaginationEdges({
+  order,
+  filter,
+  results,
+  collection,
+  cursorField,
+}: {
+  order: any
+  filter: any
+  results: any
+  collection: any
+  cursorField: any
+}): Promise<{
+  hasNext: boolean
+  hasPrevious: boolean
 }>
 import { ObjectId } from 'mongodb'

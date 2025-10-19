@@ -54,7 +54,7 @@ describe('paginate - Integration', () => {
 
     expect(result.list).toHaveLength(5)
     expect(result.next).toBeDefined()
-    expect(result.previous).toBeDefined()
+    expect(result.previous).toBeNull()
   })
 
   it('returns empty when no docs match filter', async () => {
