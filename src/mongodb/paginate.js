@@ -97,8 +97,6 @@ export async function getPaginationEdges({
   }
 }
 
-import { ObjectId } from 'mongodb'
-
 /**
  * Classic page/limit pagination with total count
  *
@@ -114,19 +112,23 @@ import { ObjectId } from 'mongodb'
 export async function paginate(
   collection,
   {
+    sortBy = '_id',
+    page = 1,
+    limit = 10,
     filter = {},
     projection,
     order = 'desc',
-    cursorField = '_id',
-    limit = 10,
-    page = 1,
   } = {},
 ) {
   // Validation
-  if (page < 1) page = 1
-  if (limit < 1) limit = 10
+  if (page < 1) {
+    page = 1
+  }
+  if (limit < 1) {
+    limit = 10
+  }
 
-  const sort = { [cursorField]: order === 'asc' ? 1 : -1 }
+  const sort = { [sortBy]: order === 'asc' ? 1 : -1 }
   const skip = (page - 1) * limit
 
   const [results, totalCount] = await Promise.all([
@@ -145,11 +147,11 @@ export async function paginate(
 
   return {
     order,
+    hasNext,
     totalCount,
     totalPages,
-    currentPage: page,
-    hasNext,
     hasPrevious,
     list: results,
+    currentPage: page,
   }
 }
