@@ -11,7 +11,7 @@ import { ObjectId } from 'mongodb'
  * @param {'asc'|'desc'} [options.order='asc']
  * @param {number} [options.limit=10]
  */
-export async function paginate(
+export async function paginateCursor(
   collection,
   {
     limit = 10,
@@ -52,7 +52,7 @@ export async function paginate(
           collection,
           cursorField,
         })
-      : { hasNext: false, hasPrevious: false }
+      : { hasNext: null, hasPrevious: null }
 
   const { hasNext, hasPrevious } = paginationEdges
   return {
@@ -94,5 +94,62 @@ export async function getPaginationEdges({
   return {
     hasNext,
     hasPrevious,
+  }
+}
+
+import { ObjectId } from 'mongodb'
+
+/**
+ * Classic page/limit pagination with total count
+ *
+ * @param {import('mongodb').Collection} collection
+ * @param {Object} options
+ * @param {Object} [options.filter={}] - MongoDB filter
+ * @param {string} [options.cursorField='_id'] - Field to sort by
+ * @param {'asc'|'desc'} [options.order='desc'] - Sort order
+ * @param {number} [options.limit=10] - Items per page
+ * @param {number} [options.page=1] - Page number (1-based)
+ * @param {Object} [options.projection] - Projection fields
+ */
+export async function paginate(
+  collection,
+  {
+    filter = {},
+    projection,
+    order = 'desc',
+    cursorField = '_id',
+    limit = 10,
+    page = 1,
+  } = {},
+) {
+  // Validation
+  if (page < 1) page = 1
+  if (limit < 1) limit = 10
+
+  const sort = { [cursorField]: order === 'asc' ? 1 : -1 }
+  const skip = (page - 1) * limit
+
+  const [results, totalCount] = await Promise.all([
+    collection
+      .find(filter, { projection })
+      .sort(sort)
+      .skip(skip)
+      .limit(limit)
+      .toArray(),
+    collection.countDocuments(filter),
+  ])
+
+  const totalPages = Math.ceil(totalCount / limit)
+  const hasNext = page < totalPages
+  const hasPrevious = page > 1
+
+  return {
+    order,
+    totalCount,
+    totalPages,
+    currentPage: page,
+    hasNext,
+    hasPrevious,
+    list: results,
   }
 }
