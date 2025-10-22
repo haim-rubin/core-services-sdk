@@ -85,4 +85,7 @@ export const ID_PREFIXES = Object.freeze({
 
   /** Resource entity ID prefix */
   RESOURCE: 'res',
+
+  /** Incoming email ID prefix */
+  INCOMING_EMAIL: 'ieml',
 })

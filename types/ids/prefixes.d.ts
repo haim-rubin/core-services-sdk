@@ -67,4 +67,6 @@ export const ID_PREFIXES: Readonly<{
   ALERT: 'alr'
   /** Resource entity ID prefix */
   RESOURCE: 'res'
+  /** Incoming email ID prefix */
+  INCOMING_EMAIL: 'ieml'
 }>

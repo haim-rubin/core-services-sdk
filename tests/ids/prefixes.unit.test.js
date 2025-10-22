@@ -1,6 +1,5 @@
 // @ts-nocheck
 import { describe, it, expect } from 'vitest'
-
 import { ID_PREFIXES } from '../../src/ids/prefixes.js'
 
 describe('ID_PREFIXES', () => {
@@ -32,6 +31,7 @@ describe('ID_PREFIXES', () => {
       DEVICE: 'dev',
       ALERT: 'alr',
       RESOURCE: 'res',
+      INCOMING_EMAIL: 'ieml', // ✅ added
     })
   })
 

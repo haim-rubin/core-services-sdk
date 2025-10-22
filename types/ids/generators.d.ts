@@ -26,3 +26,4 @@ export function generateProfileId(): string
 export function generateDeviceId(): string
 export function generateAlertId(): string
 export function generateResourceId(): string
+export function generateIncomingEmailId(): string
