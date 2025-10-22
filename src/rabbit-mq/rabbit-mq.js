@@ -21,7 +21,10 @@ const generateMsgId = () => `rbt_${ulid()}`
  */
 export const connectQueueService = async ({ host, log }) => {
   const t0 = Date.now()
-  const logger = log.child({ op: 'connectQueueService', host: mask(host) })
+  const logger = log.child({
+    op: 'connectQueueService',
+    host: mask(host, '.', 3),
+  })
 
   try {
     logger.debug('start')
@@ -50,7 +53,7 @@ export const connectQueueService = async ({ host, log }) => {
  */
 export const createChannel = async ({ host, log }) => {
   const t0 = Date.now()
-  const logger = log.child({ op: 'createChannel', host: mask(host) })
+  const logger = log.child({ op: 'createChannel', host: mask(host, '.', 3) })
 
   try {
     logger.debug('start')
@@ -175,7 +178,7 @@ export const subscribeToQueue = async ({
  */
 export const initializeQueue = async ({ host, log }) => {
   const { channel, connection } = await createChannel({ host, log })
-  const logger = log.child({ op: 'initializeQueue', host: mask(host) })
+  const logger = log.child({ op: 'initializeQueue', host: mask(host, '.', 3) })
 
   /**
    * Publishes a message to a queue with a generated `rbt_<ulid>` ID.

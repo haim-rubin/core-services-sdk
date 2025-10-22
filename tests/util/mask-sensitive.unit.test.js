@@ -87,4 +87,13 @@ describe('mask', () => {
     const value = mask(input, '*', 5)
     expect(value).toEqual(expected)
   })
+
+  it('mask long string with maskLen in recursive calls', () => {
+    const input = {
+      val: 'abcdsdkljhfjksdhgfjksdghkhsdkjfhasldkjjhskjfgsdkjhgfhskdgfefgh',
+    }
+    const expected = { val: 'ab***gh' }
+    const value = mask(input, '*', 3)
+    expect(value).toEqual(expected)
+  })
 })
