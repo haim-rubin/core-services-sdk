@@ -31,7 +31,8 @@ describe('ID_PREFIXES', () => {
       DEVICE: 'dev',
       ALERT: 'alr',
       RESOURCE: 'res',
-      INCOMING_EMAIL: 'ieml', // ✅ added
+      INCOMING_EMAIL: 'ieml',
+      EMAIL: 'eml',
     })
   })
 

@@ -88,4 +88,7 @@ export const ID_PREFIXES = Object.freeze({
 
   /** Incoming email ID prefix */
   INCOMING_EMAIL: 'ieml',
+
+  /** Email ID prefix */
+  EMAIL: 'eml',
 })

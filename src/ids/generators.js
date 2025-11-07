@@ -223,3 +223,10 @@ export const generateResourceId = () => generatePrefixedId(ID_PREFIXES.RESOURCE)
  */
 export const generateIncomingEmailId = () =>
   generatePrefixedId(ID_PREFIXES.INCOMING_EMAIL)
+
+/**
+ * Generates a resource ID with a `eml_` prefix.
+ *
+ * @returns {string} An Email ID.
+ */
+export const generateEmailId = () => generatePrefixedId(ID_PREFIXES.EMAIL)
