@@ -30,10 +30,10 @@ describe('WhatsApp unified message mapper – all mock samples', () => {
     describe(`Message mock: ${file}`, () => {
       it('should map type correctly', () => {
         console.log(file)
-        const unifiedType = getMessageType({ originalMessage: raw })
+        const unifiedType = getMessageType({ imMessage: raw })
 
         const unifiedMessage = mapMessageWhatsApp({
-          originalMessage: raw,
+          imMessage: raw,
         })
 
         expect(unifiedMessage).toBeTypeOf('object')
@@ -47,7 +47,7 @@ describe('WhatsApp unified message mapper – all mock samples', () => {
       })
 
       it('should include mandatory unified fields', () => {
-        const unified = mapMessageWhatsApp({ originalMessage: raw })
+        const unified = mapMessageWhatsApp({ imMessage: raw })
 
         expect(unified).toHaveProperty('id')
         expect(unified).toHaveProperty('chatId')

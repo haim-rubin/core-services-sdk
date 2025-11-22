@@ -66,7 +66,7 @@ describe('Unified message mapper – all platforms, all mock samples', () => {
         const mapper = messageUnifiedMapper[application]
         expect(mapper).toBeTypeOf('function')
 
-        const unified = mapper({ originalMessage: raw })
+        const unified = mapper({ imMessage: raw })
 
         expect(unified).toBeTypeOf('object')
         expect(unified).toHaveProperty('id')

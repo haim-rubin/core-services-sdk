@@ -28,3 +28,4 @@ export function generateAlertId(): string
 export function generateResourceId(): string
 export function generateIncomingEmailId(): string
 export function generateEmailId(): string
+export function generateImId(): string

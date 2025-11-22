@@ -5,12 +5,12 @@ import { MESSAGE_MEDIA_TYPE, MESSAGE_TYPE } from './message-types.js'
  * inside the platform-original message object.
  *
  * @param {string} mediaType - One of MESSAGE_MEDIA_TYPE.*
- * @returns {(params: { originalMessage: any }) => boolean}
+ * @returns {(params: { imMessage: any }) => boolean}
  */
 export const isItMediaType =
   (mediaType) =>
-  ({ originalMessage }) => {
-    const message = originalMessage?.message
+  ({ imMessage }) => {
+    const message = imMessage?.message
     if (!message || typeof message !== 'object') {
       return false
     }
@@ -23,14 +23,14 @@ export const isItMediaType =
  *
  * @function isMessageTypeof
  * @param {string} typeOfMessage - One of the MESSAGE_TYPE.* values.
- * @returns {(params: { originalMessage: any }) => boolean}
- * A function that accepts an object containing `originalMessage`
+ * @returns {(params: { imMessage: any }) => boolean}
+ * A function that accepts an object containing `imMessage`
  * and returns true if its `type` matches the expected type.
  */
 export const isMessageTypeof =
   (typeOfMessage) =>
-  ({ originalMessage }) => {
-    const type = originalMessage?.type
+  ({ imMessage }) => {
+    const type = imMessage?.type
     return type === typeOfMessage
   }
 
@@ -41,11 +41,11 @@ export const isMessageTypeof =
  *
  * @function isCallbackQuery
  * @param {Object} params
- * @param {Object} params.originalMessage - Raw Telegram update
+ * @param {Object} params.imMessage - Raw Telegram update
  * @returns {boolean}
  */
-export const isCallbackQuery = ({ originalMessage }) => {
-  return 'callback_query' in originalMessage
+export const isCallbackQuery = ({ imMessage }) => {
+  return 'callback_query' in imMessage
 }
 
 // Media-type detectors for each supported message detail section.
@@ -77,7 +77,7 @@ export const isItButtonClick = isMessageTypeof(MESSAGE_TYPE.BUTTON_CLICK)
  *
  * @function getTelegramMessageType
  * @param {Object} params
- * @param {Object} params.originalMessage - Raw update object from Telegram or WhatsApp.
+ * @param {Object} params.imMessage - Raw update object from Telegram or WhatsApp.
  *   For Telegram:
  *     - May contain: message, callback_query, poll, etc.
  *   For WhatsApp:
@@ -89,60 +89,60 @@ export const isItButtonClick = isMessageTypeof(MESSAGE_TYPE.BUTTON_CLICK)
  *   - MESSAGE_TYPE.UNKNOWN_MESSAGE_TYPE
  *
  * @example
- * getTelegramMessageType({ originalMessage: telegramUpdate })
+ * getTelegramMessageType({ imMessage: telegramUpdate })
  * // → "text"
  *
  * @example
- * getTelegramMessageType({ originalMessage: whatsappPayload })
+ * getTelegramMessageType({ imMessage: whatsappPayload })
  * // → "image"
  */
-export const getTelegramMessageType = ({ originalMessage }) => {
+export const getTelegramMessageType = ({ imMessage }) => {
   switch (true) {
-    case isCallbackQuery({ originalMessage }): {
+    case isCallbackQuery({ imMessage }): {
       return MESSAGE_TYPE.BUTTON_CLICK
     }
 
-    case isItFreeText({ originalMessage }): {
+    case isItFreeText({ imMessage }): {
       return MESSAGE_MEDIA_TYPE.TEXT
     }
 
-    case isItVideo({ originalMessage }): {
+    case isItVideo({ imMessage }): {
       return MESSAGE_MEDIA_TYPE.VIDEO
     }
 
-    case isItPhoto({ originalMessage }): {
+    case isItPhoto({ imMessage }): {
       return MESSAGE_MEDIA_TYPE.PHOTO
     }
 
-    case isItDocument({ originalMessage }): {
+    case isItDocument({ imMessage }): {
       return MESSAGE_MEDIA_TYPE.DOCUMENT
     }
 
-    case isItLocation({ originalMessage }): {
+    case isItLocation({ imMessage }): {
       return MESSAGE_MEDIA_TYPE.LOCATION
     }
 
-    case isItVoice({ originalMessage }): {
+    case isItVoice({ imMessage }): {
       return MESSAGE_MEDIA_TYPE.VOICE
     }
 
-    case isItVideoNote({ originalMessage }): {
+    case isItVideoNote({ imMessage }): {
       return MESSAGE_MEDIA_TYPE.VIDEO_NOTE
     }
 
-    case isItPoll({ originalMessage }): {
+    case isItPoll({ imMessage }): {
       return MESSAGE_MEDIA_TYPE.POLL
     }
 
-    case isItSticker({ originalMessage }): {
+    case isItSticker({ imMessage }): {
       return MESSAGE_MEDIA_TYPE.STICKER
     }
 
-    case isItMessage({ originalMessage }): {
+    case isItMessage({ imMessage }): {
       return MESSAGE_MEDIA_TYPE.MESSAGE
     }
 
-    case isItContact({ originalMessage }): {
+    case isItContact({ imMessage }): {
       return MESSAGE_MEDIA_TYPE.CONTACT
     }
 

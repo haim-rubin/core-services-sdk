@@ -31,10 +31,10 @@ describe('Telegram unified message mapper – all mock samples', () => {
 
     describe(`Message mock: ${file}`, () => {
       it('should map type correctly', () => {
-        const unifiedType = getTelegramMessageType({ originalMessage: raw })
+        const unifiedType = getTelegramMessageType({ imMessage: raw })
 
         const unifiedMessage = mapMessageTelegram({
-          originalMessage: raw,
+          imMessage: raw,
         })
 
         expect(unifiedMessage).toBeTypeOf('object')
@@ -48,7 +48,7 @@ describe('Telegram unified message mapper – all mock samples', () => {
       })
 
       it('should include mandatory unified fields', () => {
-        const unified = mapMessageTelegram({ originalMessage: raw })
+        const unified = mapMessageTelegram({ imMessage: raw })
 
         expect(unified).toHaveProperty('id')
         expect(unified).toHaveProperty('chatId')

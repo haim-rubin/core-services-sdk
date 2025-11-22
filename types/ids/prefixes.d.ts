@@ -71,4 +71,6 @@ export const ID_PREFIXES: Readonly<{
   INCOMING_EMAIL: 'ieml'
   /** Email ID prefix */
   EMAIL: 'eml'
+  /** Instant Message ID prefix */
+  IM: 'im'
 }>

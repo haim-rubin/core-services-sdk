@@ -1,13 +1,5 @@
-export function getMessageType({
-  originalMessage,
-}: {
-  originalMessage: any
-}): string
-export function mapMessageTelegramBase({
-  originalMessage,
-}: {
-  originalMessage: any
-}): {
+export function getMessageType({ imMessage }: { imMessage: any }): string
+export function mapMessageTelegramBase({ imMessage }: { imMessage: any }): {
   messageBase: {
     timestamp: string
     forwardInfo: {
@@ -46,11 +38,7 @@ export function mapMessageWhatsAppContent({
       reply: any
       text?: undefined
     }
-export function mapMessageTelegram({
-  originalMessage,
-}: {
-  originalMessage: any
-}):
+export function mapMessageTelegram({ imMessage }: { imMessage: any }):
   | {
       text: any
       reply?: undefined
@@ -125,24 +113,16 @@ export function mapMessageTelegram({
       itIsForward: boolean
     }
 export function getWhatsAppMessageType({ message }: { message: any }): any
-export function extractReply({ originalMessage }: { originalMessage: any }): {
+export function extractReply({ imMessage }: { imMessage: any }): {
   id: any
   title: any
 }
-export function whatsappBaseExtraction({
-  originalMessage,
-}: {
-  originalMessage: any
-}): {
+export function whatsappBaseExtraction({ imMessage }: { imMessage: any }): {
   field: any
   value: any
   wbaid: any
 }
-export function mapMessageWhatsAppBase({
-  originalMessage,
-}: {
-  originalMessage: any
-}): {
+export function mapMessageWhatsAppBase({ imMessage }: { imMessage: any }): {
   messageBase: {
     id: any
     chatId: any
@@ -165,11 +145,11 @@ export function mapMessageWhatsAppBase({
 export function mapMessageTelegramContent({
   type,
   message,
-  originalMessage,
+  imMessage,
 }: {
   type: any
   message: any
-  originalMessage: any
+  imMessage: any
 }):
   | {
       text: any
@@ -193,11 +173,7 @@ export function mapMessageTelegramContent({
       }
       text?: undefined
     }
-export function mapMessageWhatsApp({
-  originalMessage,
-}: {
-  originalMessage: any
-}):
+export function mapMessageWhatsApp({ imMessage }: { imMessage: any }):
   | {
       text: any
       reply?: undefined
@@ -250,7 +226,7 @@ export function mapMessageWhatsApp({
       timestamp: any
     }
 export const messageUnifiedMapper: {
-  [IM_PLATFORM.TELEGRAM]: ({ originalMessage }: { originalMessage: any }) =>
+  [IM_PLATFORM.TELEGRAM]: ({ imMessage }: { imMessage: any }) =>
     | {
         text: any
         reply?: undefined
@@ -324,7 +300,7 @@ export const messageUnifiedMapper: {
         chatter: any
         itIsForward: boolean
       }
-  [IM_PLATFORM.WHATSAPP]: ({ originalMessage }: { originalMessage: any }) =>
+  [IM_PLATFORM.WHATSAPP]: ({ imMessage }: { imMessage: any }) =>
     | {
         text: any
         reply?: undefined

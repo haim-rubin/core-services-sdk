@@ -23,18 +23,18 @@ describe('message-type helpers', () => {
     const isPhoto = isItMediaType(MESSAGE_MEDIA_TYPE.PHOTO)
 
     it('returns true when media type exists inside message', () => {
-      const originalMessage = { message: { photo: [{}] } }
-      expect(isPhoto({ originalMessage })).toBe(true)
+      const imMessage = { message: { photo: [{}] } }
+      expect(isPhoto({ imMessage })).toBe(true)
     })
 
     it('returns false when media type does not exist', () => {
-      const originalMessage = { message: { text: 'hi' } }
-      expect(isPhoto({ originalMessage })).toBe(false)
+      const imMessage = { message: { text: 'hi' } }
+      expect(isPhoto({ imMessage })).toBe(false)
     })
 
     it('returns false when message is missing', () => {
-      expect(isPhoto({ originalMessage: {} })).toBe(false)
-      expect(isPhoto({ originalMessage: null })).toBe(false)
+      expect(isPhoto({ imMessage: {} })).toBe(false)
+      expect(isPhoto({ imMessage: null })).toBe(false)
     })
   })
 
@@ -42,150 +42,142 @@ describe('message-type helpers', () => {
     const isButtonClick = isMessageTypeof(MESSAGE_TYPE.BUTTON_CLICK)
 
     it('returns true when type matches', () => {
-      const originalMessage = { type: MESSAGE_TYPE.BUTTON_CLICK }
-      expect(isButtonClick({ originalMessage })).toBe(true)
+      const imMessage = { type: MESSAGE_TYPE.BUTTON_CLICK }
+      expect(isButtonClick({ imMessage })).toBe(true)
     })
 
     it('returns false when type differs', () => {
-      const originalMessage = { type: MESSAGE_MEDIA_TYPE.TEXT }
-      expect(isButtonClick({ originalMessage })).toBe(false)
+      const imMessage = { type: MESSAGE_MEDIA_TYPE.TEXT }
+      expect(isButtonClick({ imMessage })).toBe(false)
     })
 
     it('returns false on missing type', () => {
-      const originalMessage = {}
-      expect(isButtonClick({ originalMessage })).toBe(false)
+      const imMessage = {}
+      expect(isButtonClick({ imMessage })).toBe(false)
     })
   })
 
   describe('isCallbackQuery', () => {
     it('returns true for Telegram callback_query', () => {
-      const originalMessage = { callback_query: { data: '1' } }
-      expect(isCallbackQuery({ originalMessage })).toBe(true)
+      const imMessage = { callback_query: { data: '1' } }
+      expect(isCallbackQuery({ imMessage })).toBe(true)
     })
 
     it('returns false otherwise', () => {
-      expect(isCallbackQuery({ originalMessage: {} })).toBe(false)
+      expect(isCallbackQuery({ imMessage: {} })).toBe(false)
     })
   })
 
   describe('media helpers', () => {
     it('isItFreeText works', () => {
-      expect(
-        isItFreeText({ originalMessage: { message: { text: 'hi' } } }),
-      ).toBe(true)
+      expect(isItFreeText({ imMessage: { message: { text: 'hi' } } })).toBe(
+        true,
+      )
     })
 
     it('isItPhoto works', () => {
-      expect(isItPhoto({ originalMessage: { message: { photo: [{}] } } })).toBe(
-        true,
-      )
+      expect(isItPhoto({ imMessage: { message: { photo: [{}] } } })).toBe(true)
     })
 
     it('isItVideo works', () => {
-      expect(isItVideo({ originalMessage: { message: { video: {} } } })).toBe(
-        true,
-      )
+      expect(isItVideo({ imMessage: { message: { video: {} } } })).toBe(true)
     })
 
     it('isItVoice works', () => {
-      expect(isItVoice({ originalMessage: { message: { voice: {} } } })).toBe(
-        true,
-      )
+      expect(isItVoice({ imMessage: { message: { voice: {} } } })).toBe(true)
     })
 
     it('isItDocument works', () => {
-      expect(
-        isItDocument({ originalMessage: { message: { document: {} } } }),
-      ).toBe(true)
+      expect(isItDocument({ imMessage: { message: { document: {} } } })).toBe(
+        true,
+      )
     })
 
     it('isItContact works', () => {
-      expect(
-        isItContact({ originalMessage: { message: { contact: {} } } }),
-      ).toBe(true)
+      expect(isItContact({ imMessage: { message: { contact: {} } } })).toBe(
+        true,
+      )
     })
 
     it('isItPoll works', () => {
-      expect(isItPoll({ originalMessage: { message: { poll: {} } } })).toBe(
-        true,
-      )
+      expect(isItPoll({ imMessage: { message: { poll: {} } } })).toBe(true)
     })
   })
 
   describe('getTelegramMessageType', () => {
     it('detects callback_query → BUTTON_CLICK', () => {
-      const originalMessage = { callback_query: {} }
-      expect(getTelegramMessageType({ originalMessage })).toBe(
+      const imMessage = { callback_query: {} }
+      expect(getTelegramMessageType({ imMessage })).toBe(
         MESSAGE_TYPE.BUTTON_CLICK,
       )
     })
 
     it('detects text', () => {
-      const originalMessage = { message: { text: 'hello' } }
-      expect(getTelegramMessageType({ originalMessage })).toBe(
+      const imMessage = { message: { text: 'hello' } }
+      expect(getTelegramMessageType({ imMessage })).toBe(
         MESSAGE_MEDIA_TYPE.TEXT,
       )
     })
 
     it('detects photo', () => {
-      const originalMessage = { message: { photo: [{}] } }
-      expect(getTelegramMessageType({ originalMessage })).toBe(
+      const imMessage = { message: { photo: [{}] } }
+      expect(getTelegramMessageType({ imMessage })).toBe(
         MESSAGE_MEDIA_TYPE.PHOTO,
       )
     })
 
     it('detects video', () => {
-      const originalMessage = { message: { video: {} } }
-      expect(getTelegramMessageType({ originalMessage })).toBe(
+      const imMessage = { message: { video: {} } }
+      expect(getTelegramMessageType({ imMessage })).toBe(
         MESSAGE_MEDIA_TYPE.VIDEO,
       )
     })
 
     it('detects document', () => {
-      const originalMessage = { message: { document: {} } }
-      expect(getTelegramMessageType({ originalMessage })).toBe(
+      const imMessage = { message: { document: {} } }
+      expect(getTelegramMessageType({ imMessage })).toBe(
         MESSAGE_MEDIA_TYPE.DOCUMENT,
       )
     })
 
     it('detects location', () => {
-      const originalMessage = { message: { location: {} } }
-      expect(getTelegramMessageType({ originalMessage })).toBe(
+      const imMessage = { message: { location: {} } }
+      expect(getTelegramMessageType({ imMessage })).toBe(
         MESSAGE_MEDIA_TYPE.LOCATION,
       )
     })
 
     it('detects voice', () => {
-      const originalMessage = { message: { voice: {} } }
-      expect(getTelegramMessageType({ originalMessage })).toBe(
+      const imMessage = { message: { voice: {} } }
+      expect(getTelegramMessageType({ imMessage })).toBe(
         MESSAGE_MEDIA_TYPE.VOICE,
       )
     })
 
     it('detects poll', () => {
-      const originalMessage = { message: { poll: {} } }
-      expect(getTelegramMessageType({ originalMessage })).toBe(
+      const imMessage = { message: { poll: {} } }
+      expect(getTelegramMessageType({ imMessage })).toBe(
         MESSAGE_MEDIA_TYPE.POLL,
       )
     })
 
     it('detects sticker', () => {
-      const originalMessage = { message: { sticker: {} } }
-      expect(getTelegramMessageType({ originalMessage })).toBe(
+      const imMessage = { message: { sticker: {} } }
+      expect(getTelegramMessageType({ imMessage })).toBe(
         MESSAGE_MEDIA_TYPE.STICKER,
       )
     })
 
     it('detects contact', () => {
-      const originalMessage = { message: { contact: {} } }
-      expect(getTelegramMessageType({ originalMessage })).toBe(
+      const imMessage = { message: { contact: {} } }
+      expect(getTelegramMessageType({ imMessage })).toBe(
         MESSAGE_MEDIA_TYPE.CONTACT,
       )
     })
 
     it('falls back to UNKNOWN_MESSAGE_TYPE', () => {
-      const originalMessage = { message: { something_else: 'x' } }
-      expect(getTelegramMessageType({ originalMessage })).toBe(
+      const imMessage = { message: { something_else: 'x' } }
+      expect(getTelegramMessageType({ imMessage })).toBe(
         MESSAGE_TYPE.UNKNOWN_MESSAGE_TYPE,
       )
     })
