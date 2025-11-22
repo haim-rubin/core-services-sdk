@@ -33,6 +33,7 @@ describe('ID_PREFIXES', () => {
       RESOURCE: 'res',
       INCOMING_EMAIL: 'ieml',
       EMAIL: 'eml',
+      IM: 'im',
     })
   })
 

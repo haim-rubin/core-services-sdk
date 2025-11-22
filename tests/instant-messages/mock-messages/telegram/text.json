@@ -1,0 +1,63 @@
+{
+  "update_id": 895013316,
+  "message": {
+    "message_id": 20,
+    "from": {
+      "id": 59627707,
+      "is_bot": false,
+      "first_name": "Haim",
+      "last_name": "Rubin",
+      "username": "haimrubin",
+      "language_code": "en"
+    },
+    "chat": {
+      "id": 59627707,
+      "first_name": "Haim",
+      "last_name": "Rubin",
+      "username": "haimrubin",
+      "type": "private"
+    },
+    "date": 1763790010,
+    "reply_to_message": {
+      "message_id": 15,
+      "from": {
+        "id": 59627707,
+        "is_bot": false,
+        "first_name": "Haim",
+        "last_name": "Rubin",
+        "username": "haimrubin",
+        "language_code": "en"
+      },
+      "chat": {
+        "id": 59627707,
+        "first_name": "Haim",
+        "last_name": "Rubin",
+        "username": "haimrubin",
+        "type": "private"
+      },
+      "date": 1763789772,
+      "document": {
+        "file_name": "View PDF Statement_2024-12-31.pdf",
+        "mime_type": "application/pdf",
+        "thumbnail": {
+          "file_id": "AAMCBAADGQEAAw9pIUvMD7oscJOFf765U00bgAk_6AACsBkAAn3bmVCXCOv2H3Zr0wEAB20AAzYE",
+          "file_unique_id": "AQADsBkAAn3bmVBy",
+          "file_size": 13015,
+          "width": 247,
+          "height": 320
+        },
+        "thumb": {
+          "file_id": "AAMCBAADGQEAAw9pIUvMD7oscJOFf765U00bgAk_6AACsBkAAn3bmVCXCOv2H3Zr0wEAB20AAzYE",
+          "file_unique_id": "AQADsBkAAn3bmVBy",
+          "file_size": 13015,
+          "width": 247,
+          "height": 320
+        },
+        "file_id": "BQACAgQAAxkBAAMPaSFLzA-6LHCThX--uVNNG4AJP-gAArAZAAJ925lQlwjr9h92a9M2BA",
+        "file_unique_id": "AgADsBkAAn3bmVA",
+        "file_size": 934888
+      }
+    },
+    "text": "Han"
+  }
+}

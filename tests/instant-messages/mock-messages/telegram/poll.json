@@ -1,0 +1,45 @@
+{
+  "update_id": 895013313,
+  "message": {
+    "message_id": 17,
+    "from": {
+      "id": 59627707,
+      "is_bot": false,
+      "first_name": "Haim",
+      "last_name": "Rubin",
+      "username": "haimrubin",
+      "language_code": "en"
+    },
+    "chat": {
+      "id": 59627707,
+      "first_name": "Haim",
+      "last_name": "Rubin",
+      "username": "haimrubin",
+      "type": "private"
+    },
+    "date": 1763789823,
+    "poll": {
+      "id": "5841554975993365379",
+      "question": "Choose one",
+      "options": [
+        {
+          "text": "Ans1",
+          "voter_count": 0
+        },
+        {
+          "text": "Ans2",
+          "voter_count": 0
+        },
+        {
+          "text": "Ans3",
+          "voter_count": 0
+        }
+      ],
+      "total_voter_count": 0,
+      "is_closed": false,
+      "is_anonymous": true,
+      "type": "regular",
+      "allows_multiple_answers": false
+    }
+  }
+}

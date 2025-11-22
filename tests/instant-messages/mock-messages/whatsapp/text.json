@@ -1,0 +1,39 @@
+{
+  "object": "whatsapp_business_account",
+  "entry": [
+    {
+      "id": "2671155033226672",
+      "changes": [
+        {
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "15556396461",
+              "phone_number_id": "850007711535110"
+            },
+            "contacts": [
+              {
+                "profile": {
+                  "name": "TaxDrop - FCHANGE LTD"
+                },
+                "wa_id": "972555628927"
+              }
+            ],
+            "messages": [
+              {
+                "from": "972555628927",
+                "id": "wamid.HBgMOTcyNTU1NjI4OTI3FQIAEhgUMkFCMEVEREFDRDhEM0QyQTZDNzYA",
+                "timestamp": "1763787737",
+                "text": {
+                  "body": "Hello, this is a text message"
+                },
+                "type": "text"
+              }
+            ]
+          },
+          "field": "messages"
+        }
+      ]
+    }
+  ]
+}

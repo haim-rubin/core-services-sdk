@@ -91,4 +91,7 @@ export const ID_PREFIXES = Object.freeze({
 
   /** Email ID prefix */
   EMAIL: 'eml',
+
+  /** Instant Message ID prefix */
+  IM: 'im',
 })

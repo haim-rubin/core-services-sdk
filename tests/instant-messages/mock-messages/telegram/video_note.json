@@ -1,0 +1,43 @@
+{
+  "update_id": 895013315,
+  "message": {
+    "message_id": 19,
+    "from": {
+      "id": 59627707,
+      "is_bot": false,
+      "first_name": "Haim",
+      "last_name": "Rubin",
+      "username": "haimrubin",
+      "language_code": "en"
+    },
+    "chat": {
+      "id": 59627707,
+      "first_name": "Haim",
+      "last_name": "Rubin",
+      "username": "haimrubin",
+      "type": "private"
+    },
+    "date": 1763789938,
+    "video_note": {
+      "duration": 5,
+      "length": 400,
+      "thumbnail": {
+        "file_id": "AAMCBAADGQEAAxNpIUxyECXLPQboUNXKbvm5bX54oAAC6xsAAk1fEVGddHN0dzY9SAEAB20AAzYE",
+        "file_unique_id": "AQAD6xsAAk1fEVFy",
+        "file_size": 11460,
+        "width": 320,
+        "height": 320
+      },
+      "thumb": {
+        "file_id": "AAMCBAADGQEAAxNpIUxyECXLPQboUNXKbvm5bX54oAAC6xsAAk1fEVGddHN0dzY9SAEAB20AAzYE",
+        "file_unique_id": "AQAD6xsAAk1fEVFy",
+        "file_size": 11460,
+        "width": 320,
+        "height": 320
+      },
+      "file_id": "DQACAgQAAxkBAAMTaSFMchAlyz0G6FDVym75uW1-eKAAAusbAAJNXxFRnXRzdHc2PUg2BA",
+      "file_unique_id": "AgAD6xsAAk1fEVE",
+      "file_size": 587250
+    }
+  }
+}

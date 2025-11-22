@@ -1,5 +1,5 @@
-import { APPLICATION } from './applications.js'
-import { getMessageType } from './message-type.js'
+import { IM_PLATFORM } from './im-platform.js'
+import { getTelegramMessageType } from './message-type.js'
 import {
   MESSAGE_TYPE,
   MESSAGE_MEDIA_TYPE,
@@ -10,12 +10,47 @@ const INTERACTIVE_MAPPER = {
   button_reply: MESSAGE_TYPE.BUTTON_CLICK,
   list_reply: MESSAGE_TYPE.BUTTON_CLICK_MULTIPLE,
 }
+/**
+ * Universal message type resolver.
+ *
+ * Detects whether the message is Telegram or WhatsApp automatically,
+ * and delegates to the correct internal resolver.
+ *
+ * @param {Object} params
+ * @param {Object} params.originalMessage - Raw message payload
+ * @returns {string} Unified message type
+ */
+export const getMessageType = ({ originalMessage }) => {
+  if (!originalMessage || typeof originalMessage !== 'object') {
+    return MESSAGE_TYPE.UNKNOWN_MESSAGE_TYPE
+  }
+
+  // Telegram format
+  if (
+    'update_id' in originalMessage ||
+    'message' in originalMessage ||
+    'callback_query' in originalMessage
+  ) {
+    return getTelegramMessageType({ originalMessage })
+  }
+
+  // WhatsApp format
+  const entry = originalMessage?.entry?.[0]
+  const change = entry?.changes?.[0]
+  const message = change?.value?.messages?.[0]
+
+  if (message) {
+    return getWhatsAppMessageType({ message })
+  }
+
+  return MESSAGE_TYPE.UNKNOWN_MESSAGE_TYPE
+}
 
 export const mapMessageTelegramBase = ({ originalMessage }) => {
   const { callback_query, message, update_id } = originalMessage
   const messageData = callback_query?.message || message
   const { chat, date, from, message_id } = messageData
-  const type = getMessageType({ originalMessage })
+  const type = getTelegramMessageType({ originalMessage })
   const typeMapped = MESSAGE_MEDIA_TYPE_MAPPER[type] || type
   const { forward_date, forward_from } = messageData
   const itIsForward = !!(forward_date && forward_from)
@@ -211,6 +246,6 @@ export const mapMessageWhatsApp = ({ originalMessage }) => {
 }
 
 export const messageUnifiedMapper = {
-  [APPLICATION.TELEGRAM]: mapMessageTelegram,
-  [APPLICATION.WHATSAPP]: mapMessageWhatsApp,
+  [IM_PLATFORM.TELEGRAM]: mapMessageTelegram,
+  [IM_PLATFORM.WHATSAPP]: mapMessageWhatsApp,
 }

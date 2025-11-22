@@ -1,0 +1,42 @@
+{
+  "object": "whatsapp_business_account",
+  "entry": [
+    {
+      "id": "2671155033226672",
+      "changes": [
+        {
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "15556396461",
+              "phone_number_id": "850007711535110"
+            },
+            "contacts": [
+              {
+                "profile": {
+                  "name": "Haim Rubin"
+                },
+                "wa_id": "972523443433"
+              }
+            ],
+            "messages": [
+              {
+                "from": "972523443433",
+                "id": "wamid.HBgMOTcyNTIzNDQzNDMzFQIAEhgUM0E4RTlCODE4MkFGNkMxOTE0QzIA",
+                "timestamp": "1763743524",
+                "type": "document",
+                "document": {
+                  "filename": "FLIX-Ticket-1067506625.pdf",
+                  "mime_type": "application/pdf",
+                  "sha256": "eW2Qf+kiYoHtnzk5diCpUt5oS1VVpw7/PIfUHqFvXA8=",
+                  "id": "1354168296074267"
+                }
+              }
+            ]
+          },
+          "field": "messages"
+        }
+      ]
+    }
+  ]
+}

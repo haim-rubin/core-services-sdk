@@ -1,0 +1,26 @@
+{
+  "update_id": 895013312,
+  "message": {
+    "message_id": 16,
+    "from": {
+      "id": 59627707,
+      "is_bot": false,
+      "first_name": "Haim",
+      "last_name": "Rubin",
+      "username": "haimrubin",
+      "language_code": "en"
+    },
+    "chat": {
+      "id": 59627707,
+      "first_name": "Haim",
+      "last_name": "Rubin",
+      "username": "haimrubin",
+      "type": "private"
+    },
+    "date": 1763789784,
+    "location": {
+      "latitude": 32.040577,
+      "longitude": 34.857177
+    }
+  }
+}

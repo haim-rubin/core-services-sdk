@@ -1,0 +1,27 @@
+{
+  "update_id": 895013314,
+  "message": {
+    "message_id": 18,
+    "from": {
+      "id": 59627707,
+      "is_bot": false,
+      "first_name": "Haim",
+      "last_name": "Rubin",
+      "username": "haimrubin",
+      "language_code": "en"
+    },
+    "chat": {
+      "id": 59627707,
+      "first_name": "Haim",
+      "last_name": "Rubin",
+      "username": "haimrubin",
+      "type": "private"
+    },
+    "date": 1763789905,
+    "contact": {
+      "phone_number": "31625129658",
+      "first_name": "Ahmad",
+      "user_id": 1594286144
+    }
+  }
+}

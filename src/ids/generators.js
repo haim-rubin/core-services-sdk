@@ -230,3 +230,10 @@ export const generateIncomingEmailId = () =>
  * @returns {string} An Email ID.
  */
 export const generateEmailId = () => generatePrefixedId(ID_PREFIXES.EMAIL)
+
+/**
+ * Generates a resource ID with a `im_` prefix.
+ *
+ * @returns {string} An Instant Message ID.
+ */
+export const generateImId = () => generatePrefixedId(ID_PREFIXES.IM)

@@ -69,4 +69,6 @@ export const ID_PREFIXES: Readonly<{
   RESOURCE: 'res'
   /** Incoming email ID prefix */
   INCOMING_EMAIL: 'ieml'
+  /** Email ID prefix */
+  EMAIL: 'eml'
 }>
