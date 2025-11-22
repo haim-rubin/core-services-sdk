@@ -40,6 +40,7 @@ export function mapMessageWhatsAppContent({
     }
 export function mapMessageTelegram({ imMessage }: { imMessage: any }):
   | {
+      type: string
       text: any
       reply?: undefined
       timestamp: string
@@ -52,11 +53,11 @@ export function mapMessageTelegram({ imMessage }: { imMessage: any }):
         tmId: any
       }
       chatId: any
-      type: string
       chatter: any
       itIsForward: boolean
     }
   | {
+      type: string
       text?: undefined
       reply?: undefined
       timestamp: string
@@ -69,11 +70,11 @@ export function mapMessageTelegram({ imMessage }: { imMessage: any }):
         tmId: any
       }
       chatId: any
-      type: string
       chatter: any
       itIsForward: boolean
     }
   | {
+      type: string
       attachment: string
       animation: any
       text?: undefined
@@ -88,11 +89,11 @@ export function mapMessageTelegram({ imMessage }: { imMessage: any }):
         tmId: any
       }
       chatId: any
-      type: string
       chatter: any
       itIsForward: boolean
     }
   | {
+      type: string
       reply: {
         id: any
         title: any
@@ -108,7 +109,6 @@ export function mapMessageTelegram({ imMessage }: { imMessage: any }):
         tmId: any
       }
       chatId: any
-      type: string
       chatter: any
       itIsForward: boolean
     }
@@ -175,6 +175,7 @@ export function mapMessageTelegramContent({
     }
 export function mapMessageWhatsApp({ imMessage }: { imMessage: any }):
   | {
+      type: any
       text: any
       reply?: undefined
       id: any
@@ -182,7 +183,6 @@ export function mapMessageWhatsApp({ imMessage }: { imMessage: any }):
       imExtraInfo: {
         wbaid: any
       }
-      type: any
       chatter: {
         id: any
         name: any
@@ -192,6 +192,7 @@ export function mapMessageWhatsApp({ imMessage }: { imMessage: any }):
       timestamp: any
     }
   | {
+      type: any
       text?: undefined
       reply?: undefined
       id: any
@@ -199,7 +200,6 @@ export function mapMessageWhatsApp({ imMessage }: { imMessage: any }):
       imExtraInfo: {
         wbaid: any
       }
-      type: any
       chatter: {
         id: any
         name: any
@@ -209,6 +209,7 @@ export function mapMessageWhatsApp({ imMessage }: { imMessage: any }):
       timestamp: any
     }
   | {
+      type: any
       reply: any
       text?: undefined
       id: any
@@ -216,7 +217,6 @@ export function mapMessageWhatsApp({ imMessage }: { imMessage: any }):
       imExtraInfo: {
         wbaid: any
       }
-      type: any
       chatter: {
         id: any
         name: any
@@ -228,6 +228,7 @@ export function mapMessageWhatsApp({ imMessage }: { imMessage: any }):
 export const messageUnifiedMapper: {
   [IM_PLATFORM.TELEGRAM]: ({ imMessage }: { imMessage: any }) =>
     | {
+        type: string
         text: any
         reply?: undefined
         timestamp: string
@@ -240,11 +241,11 @@ export const messageUnifiedMapper: {
           tmId: any
         }
         chatId: any
-        type: string
         chatter: any
         itIsForward: boolean
       }
     | {
+        type: string
         text?: undefined
         reply?: undefined
         timestamp: string
@@ -257,11 +258,11 @@ export const messageUnifiedMapper: {
           tmId: any
         }
         chatId: any
-        type: string
         chatter: any
         itIsForward: boolean
       }
     | {
+        type: string
         attachment: string
         animation: any
         text?: undefined
@@ -276,11 +277,11 @@ export const messageUnifiedMapper: {
           tmId: any
         }
         chatId: any
-        type: string
         chatter: any
         itIsForward: boolean
       }
     | {
+        type: string
         reply: {
           id: any
           title: any
@@ -296,12 +297,12 @@ export const messageUnifiedMapper: {
           tmId: any
         }
         chatId: any
-        type: string
         chatter: any
         itIsForward: boolean
       }
   [IM_PLATFORM.WHATSAPP]: ({ imMessage }: { imMessage: any }) =>
     | {
+        type: any
         text: any
         reply?: undefined
         id: any
@@ -309,7 +310,6 @@ export const messageUnifiedMapper: {
         imExtraInfo: {
           wbaid: any
         }
-        type: any
         chatter: {
           id: any
           name: any
@@ -319,6 +319,7 @@ export const messageUnifiedMapper: {
         timestamp: any
       }
     | {
+        type: any
         text?: undefined
         reply?: undefined
         id: any
@@ -326,7 +327,6 @@ export const messageUnifiedMapper: {
         imExtraInfo: {
           wbaid: any
         }
-        type: any
         chatter: {
           id: any
           name: any
@@ -336,6 +336,7 @@ export const messageUnifiedMapper: {
         timestamp: any
       }
     | {
+        type: any
         reply: any
         text?: undefined
         id: any
@@ -343,7 +344,6 @@ export const messageUnifiedMapper: {
         imExtraInfo: {
           wbaid: any
         }
-        type: any
         chatter: {
           id: any
           name: any

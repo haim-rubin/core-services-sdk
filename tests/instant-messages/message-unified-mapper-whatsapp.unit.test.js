@@ -8,7 +8,10 @@ import {
   mapMessageWhatsApp,
 } from '../../src/instant-messages/message-unified-mapper.js'
 
-import { MESSAGE_MEDIA_TYPE } from '../../src/instant-messages/message-types.js'
+import {
+  MESSAGE_MEDIA_TYPE,
+  MESSAGE_MEDIA_TYPE_MAPPER,
+} from '../../src/instant-messages/message-types.js'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
@@ -40,7 +43,9 @@ describe('WhatsApp unified message mapper – all mock samples', () => {
         expect(unifiedType).toBeTypeOf('string')
 
         // Type must match mapper result
-        expect(unifiedMessage.type).toBe(unifiedType)
+        expect(unifiedMessage.type).toBe(
+          MESSAGE_MEDIA_TYPE_MAPPER[unifiedType] || unifiedType,
+        )
 
         // All unified types must be supported values
         expect(Object.values(MESSAGE_MEDIA_TYPE)).toContain(unifiedType)

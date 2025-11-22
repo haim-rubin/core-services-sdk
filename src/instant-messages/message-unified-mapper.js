@@ -124,8 +124,12 @@ export const mapMessageTelegram = ({ imMessage }) => {
     message,
     imMessage,
   })
-  const messageMapped = { ...messageBase, ...messageContent }
-  return messageMapped
+
+  return {
+    ...messageBase,
+    ...messageContent,
+    type: MESSAGE_MEDIA_TYPE_MAPPER[type] || type,
+  }
 }
 
 export const getWhatsAppMessageType = ({ message }) => {
@@ -238,7 +242,11 @@ export const mapMessageWhatsApp = ({ imMessage }) => {
     context,
   })
 
-  return { ...messageBase, ...messageContent }
+  return {
+    ...messageBase,
+    ...messageContent,
+    type: MESSAGE_MEDIA_TYPE_MAPPER[type] || type,
+  }
 }
 
 export const messageUnifiedMapper = {
