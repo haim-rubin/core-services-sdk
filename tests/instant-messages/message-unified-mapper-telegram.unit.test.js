@@ -39,7 +39,6 @@ describe('Telegram unified message mapper – all mock samples', () => {
 
         expect(unifiedMessage).toBeTypeOf('object')
         expect(unifiedType).toBeTypeOf('string')
-
         expect(unifiedMessage.type).toBe(
           MESSAGE_MEDIA_TYPE_MAPPER[unifiedType] || unifiedType,
         )

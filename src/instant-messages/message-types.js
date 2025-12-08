@@ -7,54 +7,24 @@
  *
  * @readonly
  * @enum {string}
+ * @type {{ [key: string]: string }}
  *
  * @property {"text"} TEXT
- *   Represents plain text content.
- *
  * @property {"poll"} POLL
- *   Represents a Telegram poll (multiple-choice question).
- *
  * @property {"video"} VIDEO
- *   Represents a standard video file.
- *
  * @property {"photo"} PHOTO
- *   Represents a Telegram “photo” array (before mapping to IMAGE).
- *
  * @property {"image"} IMAGE
- *   Represents an image file (after normalization).
- *
  * @property {"voice"} VOICE
- *   Represents Telegram's "voice" messages (OGG encoded voice notes).
- *
  * @property {"audio"} AUDIO
- *   Represents general audio files (WhatsApp voice notes, audio uploads).
- *
  * @property {"sticker"} STICKER
- *   Represents sticker messages (Telegram or WhatsApp).
- *
  * @property {"contact"} CONTACT
- *   Represents a shared contact card.
- *
  * @property {"reaction"} REACTION
- *   Represents WhatsApp/Telegram reactions (emojis on messages).
- *
  * @property {"document"} DOCUMENT
- *   Represents generic uploaded files, including PDFs.
- *
  * @property {"location"} LOCATION
- *   Represents geographic coordinates.
- *
  * @property {"contacts"} CONTACTS
- *   Represents WhatsApp contacts array (before mapping to CONTACT).
- *
  * @property {"video_note"} VIDEO_NOTE
- *   Represents Telegram's circular "video note".
- *
  * @property {"button_click"} BUTTON_CLICK
- *   Represents a button press (interactive replies).
- *
  * @property {"button_click_multiple"} BUTTON_CLICK_MULTIPLE
- *   Represents list/menu selection (e.g., WhatsApp list_reply).
  */
 export const MESSAGE_MEDIA_TYPE = {
   TEXT: 'text',
@@ -75,7 +45,6 @@ export const MESSAGE_MEDIA_TYPE = {
   BUTTON_CLICK: 'button_click',
   BUTTON_CLICK_MULTIPLE: 'button_click_multiple',
 }
-
 /**
  * Additional high-level message categories.
  *
@@ -83,6 +52,7 @@ export const MESSAGE_MEDIA_TYPE = {
  *
  * @readonly
  * @enum {string}
+ * @type {{ [key: string]: string }}
  *
  * @property {"message"} MESSAGE
  *   Regular message container (base type in some providers).
@@ -124,4 +94,28 @@ export const MESSAGE_MEDIA_TYPE_MAPPER = {
   [MESSAGE_MEDIA_TYPE.VOICE]: MESSAGE_MEDIA_TYPE.AUDIO,
   [MESSAGE_MEDIA_TYPE.PHOTO]: MESSAGE_MEDIA_TYPE.IMAGE,
   [MESSAGE_MEDIA_TYPE.CONTACTS]: MESSAGE_MEDIA_TYPE.CONTACT,
+}
+
+/**
+ * Unified message media types based on existing MESSAGE_MEDIA_TYPE and MESSAGE_TYPE.
+ *
+ * This enum flattens and merges all raw message media types
+ * into a single canonical type list.
+ *
+ * VOICE → AUDIO
+ * PHOTO → IMAGE
+ * CONTACTS → CONTACT
+ *
+ * @readonly
+ * @enum {string}
+ * @type {{ [key: string]: string }}
+ */
+export const UNIFIED_MESSAGE_MEDIA_TYPE = {
+  ...MESSAGE_MEDIA_TYPE,
+  ...MESSAGE_TYPE,
+
+  // Normalized equivalents
+  AUDIO: MESSAGE_MEDIA_TYPE.AUDIO,
+  IMAGE: MESSAGE_MEDIA_TYPE.IMAGE,
+  CONTACT: MESSAGE_MEDIA_TYPE.CONTACT,
 }

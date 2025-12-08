@@ -2,37 +2,64 @@
  * *
  */
 export type MESSAGE_MEDIA_TYPE = string
-export namespace MESSAGE_MEDIA_TYPE {
-  let TEXT: string
-  let POLL: string
-  let VIDEO: string
-  let PHOTO: string
-  let IMAGE: string
-  let VOICE: string
-  let AUDIO: string
-  let STICKER: string
-  let CONTACT: string
-  let MESSAGE: string
-  let REACTION: string
-  let DOCUMENT: string
-  let LOCATION: string
-  let CONTACTS: string
-  let VIDEO_NOTE: string
-  let BUTTON_CLICK: string
-  let BUTTON_CLICK_MULTIPLE: string
+/**
+ * Enumerates all supported incoming media/content types
+ * across messaging platforms (Telegram, WhatsApp, etc).
+ *
+ * This is the unified taxonomy used inside the system
+ * after normalization of the raw message payload.
+ *
+ * @readonly
+ * @enum {string}
+ * @type {{ [key: string]: string }}
+ *
+ * @property {"text"} TEXT
+ * @property {"poll"} POLL
+ * @property {"video"} VIDEO
+ * @property {"photo"} PHOTO
+ * @property {"image"} IMAGE
+ * @property {"voice"} VOICE
+ * @property {"audio"} AUDIO
+ * @property {"sticker"} STICKER
+ * @property {"contact"} CONTACT
+ * @property {"reaction"} REACTION
+ * @property {"document"} DOCUMENT
+ * @property {"location"} LOCATION
+ * @property {"contacts"} CONTACTS
+ * @property {"video_note"} VIDEO_NOTE
+ * @property {"button_click"} BUTTON_CLICK
+ * @property {"button_click_multiple"} BUTTON_CLICK_MULTIPLE
+ */
+export const MESSAGE_MEDIA_TYPE: {
+  [key: string]: string
 }
 /**
  * *
  */
 export type MESSAGE_TYPE = string
-export namespace MESSAGE_TYPE {
-  let MESSAGE_1: string
-  export { MESSAGE_1 as MESSAGE }
-  import BUTTON_CLICK_1 = MESSAGE_MEDIA_TYPE.BUTTON_CLICK
-  export { BUTTON_CLICK_1 as BUTTON_CLICK }
-  import BUTTON_CLICK_MULTIPLE_1 = MESSAGE_MEDIA_TYPE.BUTTON_CLICK_MULTIPLE
-  export { BUTTON_CLICK_MULTIPLE_1 as BUTTON_CLICK_MULTIPLE }
-  export let UNKNOWN_MESSAGE_TYPE: string
+/**
+ * Additional high-level message categories.
+ *
+ * These represent logical groupings rather than raw media types.
+ *
+ * @readonly
+ * @enum {string}
+ * @type {{ [key: string]: string }}
+ *
+ * @property {"message"} MESSAGE
+ *   Regular message container (base type in some providers).
+ *
+ * @property {"button_click"} BUTTON_CLICK
+ *   A click on a single interactive button.
+ *
+ * @property {"button_click_multiple"} BUTTON_CLICK_MULTIPLE
+ *   A selection from a list of interactive reply choices.
+ *
+ * @property {"unknown_message_type"} UNKNOWN_MESSAGE_TYPE
+ *   Used when the system cannot identify or normalize the message type.
+ */
+export const MESSAGE_TYPE: {
+  [key: string]: string
 }
 /**
  * *
@@ -59,4 +86,25 @@ export const MESSAGE_MEDIA_TYPE_MAPPER: {
   [MESSAGE_MEDIA_TYPE.VOICE]: string
   [MESSAGE_MEDIA_TYPE.PHOTO]: string
   [MESSAGE_MEDIA_TYPE.CONTACTS]: string
+}
+/**
+ * *
+ */
+export type UNIFIED_MESSAGE_MEDIA_TYPE = string
+/**
+ * Unified message media types based on existing MESSAGE_MEDIA_TYPE and MESSAGE_TYPE.
+ *
+ * This enum flattens and merges all raw message media types
+ * into a single canonical type list.
+ *
+ * VOICE → AUDIO
+ * PHOTO → IMAGE
+ * CONTACTS → CONTACT
+ *
+ * @readonly
+ * @enum {string}
+ * @type {{ [key: string]: string }}
+ */
+export const UNIFIED_MESSAGE_MEDIA_TYPE: {
+  [key: string]: string
 }
