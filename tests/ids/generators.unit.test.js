@@ -29,6 +29,18 @@ import {
   generateDeviceId,
   generateAlertId,
   generateResourceId,
+  generateRoleId,
+  generateAssetId,
+  generateAssetUploadId,
+  generateSupplierId,
+  generateInvoiceId,
+  generateInvoiceItemId,
+  generateInvoiceCorrectionId,
+  generateDocumentDataId,
+  generateEmailId,
+  generateIncomingEmailId,
+  generateImId,
+  generateBotFlowId,
 } from '../../src/ids/generators.js'
 import { ID_PREFIXES } from '../../src/ids/prefixes.js'
 
@@ -169,5 +181,56 @@ describe('generate*Id functions', () => {
 
   it('generateResourceId returns ID with res_ prefix', () => {
     testPrefixFunction(generateResourceId, ID_PREFIXES.RESOURCE)
+  })
+
+  it('generateRoleId returns ID with role_ prefix', () => {
+    testPrefixFunction(generateRoleId, ID_PREFIXES.ROLE)
+  })
+
+  it('generateAssetId returns ID with ast_ prefix', () => {
+    testPrefixFunction(generateAssetId, ID_PREFIXES.ASSET)
+  })
+
+  it('generateAssetUploadId returns ID with aupl_ prefix', () => {
+    testPrefixFunction(generateAssetUploadId, ID_PREFIXES.ASSET_UPLOAD)
+  })
+
+  it('generateSupplierId returns ID with sup_ prefix', () => {
+    testPrefixFunction(generateSupplierId, ID_PREFIXES.SUPPLIER)
+  })
+
+  it('generateInvoiceId returns ID with inv_ prefix', () => {
+    testPrefixFunction(generateInvoiceId, ID_PREFIXES.INVOICE)
+  })
+
+  it('generateInvoiceItemId returns ID with invi_ prefix', () => {
+    testPrefixFunction(generateInvoiceItemId, ID_PREFIXES.INVOICE_ITEM)
+  })
+
+  it('generateInvoiceCorrectionId returns ID with invc_ prefix', () => {
+    testPrefixFunction(
+      generateInvoiceCorrectionId,
+      ID_PREFIXES.INVOICE_CORRECTION,
+    )
+  })
+
+  it('generateDocumentDataId returns ID with docd_ prefix', () => {
+    testPrefixFunction(generateDocumentDataId, ID_PREFIXES.DOCUMENT_DATA)
+  })
+
+  it('generateEmailId returns ID with eml_ prefix', () => {
+    testPrefixFunction(generateEmailId, ID_PREFIXES.EMAIL)
+  })
+
+  it('generateIncomingEmailId returns ID with ieml_ prefix', () => {
+    testPrefixFunction(generateIncomingEmailId, ID_PREFIXES.INCOMING_EMAIL)
+  })
+
+  it('generateImId returns ID with im_ prefix', () => {
+    testPrefixFunction(generateImId, ID_PREFIXES.IM)
+  })
+
+  it('generateBotFlowId returns ID with botf_ prefix', () => {
+    testPrefixFunction(generateBotFlowId, ID_PREFIXES.BOT_FLOW)
   })
 })
