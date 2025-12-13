@@ -6,19 +6,35 @@ import { connectToPg } from './connect-to-pg.js'
  * Checks all provided table names and collects any missing tables.
  * Throws a single error listing all missing tables after validation completes.
  *
- * @param {string|object} connection
+ * @param {Object} params
+ *   Parameters object.
+ *
+ * @param {string|Object} params.connection
  *   Database connection configuration.
  *   Can be a database connection URI or a Knex connection object.
  *
- * @param {string[]} tables
+ * @param {string[]} params.tables
  *   List of required table names to validate.
+ *
+ * @param {Object} [params.log]
+ *   Optional logger object.
+ *
+ * @param {Function} [params.log.info]
+ *   Logger function for informational messages.
+ *
+ * @param {Function} [params.log.error]
+ *   Logger function for error messages.
  *
  * @returns {Promise<void>}
  *
  * @throws {Error}
  *   Throws an error if one or more required tables are missing.
  */
-export async function validateSchema(connection, tables) {
+export async function validateSchema({
+  tables,
+  connection,
+  log = { error: console.error, info: console.info },
+}) {
   const db = connectToPg(connection)
 
   const missingTables = []
@@ -31,9 +47,12 @@ export async function validateSchema(connection, tables) {
   }
 
   if (missingTables.length > 0) {
-    throw new Error(
-      `Missing the following tables: ${missingTables.join(', ')}. ` +
-        `Did you run migrations?`,
-    )
+    const errorMessage = `Missing the following tables: ${missingTables.join(', ')}. Did you run migrations?`
+    log.error(errorMessage)
+    throw new Error(errorMessage)
+  }
+
+  if (tables.length) {
+    log.info(`All required tables are exists: ${tables.join(', ')}`)
   }
 }

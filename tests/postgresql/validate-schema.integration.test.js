@@ -37,18 +37,26 @@ describe('validateSchema', () => {
   })
 
   it('does not throw when all required tables exist', async () => {
-    await expect(validateSchema(DATABASE_URI, ['files'])).resolves.not.toThrow()
+    await expect(
+      validateSchema({ connection: DATABASE_URI, tables: ['files'] }),
+    ).resolves.not.toThrow()
   })
 
   it('throws a single error listing missing tables', async () => {
     await expect(
-      validateSchema(DATABASE_URI, ['files', 'documents', 'attachments']),
+      validateSchema({
+        connection: DATABASE_URI,
+        tables: ['files', 'documents', 'attachments'],
+      }),
     ).rejects.toThrow('Missing the following tables: documents, attachments')
   })
 
   it('throws when all tables are missing', async () => {
     await expect(
-      validateSchema(DATABASE_URI, ['missing_a', 'missing_b']),
+      validateSchema({
+        connection: DATABASE_URI,
+        tables: ['missing_a', 'missing_b'],
+      }),
     ).rejects.toThrow('Missing the following tables: missing_a, missing_b')
   })
 })
