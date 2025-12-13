@@ -1,97 +1,93 @@
 /**
  * Mapping of entity types to their unique ID prefixes.
  *
- * These prefixes are prepended to ULIDs to create consistent and identifiable IDs across the system.
- * For example: 'usr_01HZY3M7K4FJ9A8Q4Y1ZB5NX3T'
+ * Prefixes are prepended to ULIDs to create readable,
+ * sortable, and easily identifiable IDs across the system.
+ *
+ * Example:
+ *   ast_01HZY3M7K4FJ9A8Q4Y1ZB5NX3T
  *
  * @readonly
  * @enum {string}
  */
 export const ID_PREFIXES = Object.freeze({
-  /** User entity ID prefix */
+  //////////////////////////////////////////////////////
+  // Core identity
+  //////////////////////////////////////////////////////
   USER: 'usr',
-
-  /** Tenant entity ID prefix */
   TENANT: 'tnt',
-
-  /** Permission entity ID prefix */
-  PERMISSION: 'prm',
-
-  /** Correlation ID prefix (e.g., for tracing requests) */
-  CORRELATION: 'crln',
-
-  /** Verification entity ID prefix (e.g., email/phone code) */
-  VERIFICATION: 'vrf',
-
-  /** Role-permissions mapping ID prefix */
-  ROLE_PERMISSIONS: 'role',
-
-  /** Onboarding mapping ID prefix */
+  SESSION: 'sess',
   ONBOARDING: 'onb',
 
-  /** Session mapping ID prefix */
-  SESSION: 'sess',
-
-  /** File mapping ID prefix */
-  FILE: 'fil',
-
-  /** Event entity ID prefix */
-  EVENT: 'evt',
-
-  /** Job entity ID prefix */
-  JOB: 'job',
-
-  /** Task entity ID prefix */
-  TASK: 'task',
-
-  /** Queue entity ID prefix */
-  QUEUE: 'que',
-
-  /** Message entity ID prefix */
-  MESSAGE: 'msg',
-
-  /** Notification entity ID prefix */
-  NOTIFICATION: 'ntf',
-
-  /** Log entity ID prefix */
-  LOG: 'log',
-
-  /** Audit entity ID prefix */
-  AUDIT: 'adt',
-
-  /** Config entity ID prefix */
-  CONFIG: 'cfg',
-
-  /** Key entity ID prefix */
-  KEY: 'key',
-
-  /** Metric entity ID prefix */
-  METRIC: 'met',
-
-  /** Tag entity ID prefix */
-  TAG: 'tag',
-
-  /** Policy entity ID prefix */
+  //////////////////////////////////////////////////////
+  // Authorization & access
+  //////////////////////////////////////////////////////
+  ROLE: 'role',
+  PERMISSION: 'prm',
+  ROLE_PERMISSION: 'rprm',
+  VERIFICATION: 'vrf',
   POLICY: 'plc',
-
-  /** Profile entity ID prefix */
   PROFILE: 'prf',
-
-  /** Device entity ID prefix */
   DEVICE: 'dev',
 
-  /** Alert entity ID prefix */
+  //////////////////////////////////////////////////////
+  // Assets & uploads
+  //////////////////////////////////////////////////////
+  ASSET: 'ast',
+  ASSET_UPLOAD: 'aupl',
+
+  // Legacy – kept for backward compatibility
+  FILE: 'fil',
+
+  //////////////////////////////////////////////////////
+  // Accounting domain
+  //////////////////////////////////////////////////////
+  SUPPLIER: 'sup',
+  INVOICE: 'inv',
+  INVOICE_ITEM: 'invi',
+  INVOICE_CORRECTION: 'invc',
+
+  //////////////////////////////////////////////////////
+  // AI / document processing
+  //////////////////////////////////////////////////////
+  DOCUMENT_DATA: 'docd',
+
+  //////////////////////////////////////////////////////
+  // Messaging / jobs / infra
+  //////////////////////////////////////////////////////
+  CORRELATION: 'crln',
+  EVENT: 'evt',
+  JOB: 'job',
+  TASK: 'task',
+  QUEUE: 'que',
+  MESSAGE: 'msg',
+  NOTIFICATION: 'ntf',
+
+  //////////////////////////////////////////////////////
+  // Communication
+  //////////////////////////////////////////////////////
+  EMAIL: 'eml',
+  INCOMING_EMAIL: 'ieml',
+  IM: 'im',
+
+  //////////////////////////////////////////////////////
+  // Observability
+  //////////////////////////////////////////////////////
+  AUDIT: 'adt',
+  LOG: 'log',
+  METRIC: 'met',
+
+  //////////////////////////////////////////////////////
+  // Misc / config
+  //////////////////////////////////////////////////////
+  TAG: 'tag',
+  CONFIG: 'cfg',
+  KEY: 'key',
+  RESOURCE: 'res',
   ALERT: 'alr',
 
-  /** Resource entity ID prefix */
-  RESOURCE: 'res',
-
-  /** Incoming email ID prefix */
-  INCOMING_EMAIL: 'ieml',
-
-  /** Email ID prefix */
-  EMAIL: 'eml',
-
-  /** Instant Message ID prefix */
-  IM: 'im',
+  //////////////////////////////////////////////////////
+  // Bots / automation flows
+  //////////////////////////////////////////////////////
+  BOT_FLOW: 'botf',
 })

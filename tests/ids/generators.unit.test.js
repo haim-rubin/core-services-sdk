@@ -35,6 +35,7 @@ import { ID_PREFIXES } from '../../src/ids/prefixes.js'
 // ULID is a 26-character Base32 string (no I, L, O, U).
 const ULID_REGEX = /^[0-9A-HJKMNP-TV-Z]{26}$/
 
+// @ts-ignore
 const testPrefixFunction = (fn, expectedPrefix) => {
   const id = fn()
   expect(typeof id).toBe('string')
@@ -91,7 +92,7 @@ describe('generate*Id functions', () => {
   })
 
   it('generateRolePermissionsId returns ID with role_ prefix', () => {
-    testPrefixFunction(generateRolePermissionsId, ID_PREFIXES.ROLE_PERMISSIONS)
+    testPrefixFunction(generateRolePermissionsId, ID_PREFIXES.ROLE_PERMISSION)
   })
 
   it('generateSessionId returns ID with sess_ prefix', () => {
