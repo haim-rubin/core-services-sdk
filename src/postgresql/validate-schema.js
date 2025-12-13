@@ -33,7 +33,7 @@ import { connectToPg } from './connect-to-pg.js'
 export async function validateSchema({
   tables,
   connection,
-  log = { error: console.error, info: console.info },
+  log = { info: console.info },
 }) {
   const db = connectToPg(connection)
 
