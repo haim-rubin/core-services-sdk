@@ -47,9 +47,9 @@ export async function validateSchema({
   }
 
   if (missingTables.length > 0) {
-    const errorMessage = `Missing the following tables: ${missingTables.join(', ')}. Did you run migrations?`
-    log.error(errorMessage)
-    throw new Error(errorMessage)
+    throw new Error(
+      `Missing the following tables: ${missingTables.join(', ')}. Did you run migrations?`,
+    )
   }
 
   if (tables.length) {
