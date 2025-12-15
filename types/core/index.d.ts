@@ -1,4 +1,5 @@
 export * from './regex-utils.js'
+export * from './case-mapper.js'
 export * from './otp-generators.js'
 export * from './sanitize-objects.js'
 export * from './normalize-min-max.js'
