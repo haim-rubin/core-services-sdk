@@ -89,17 +89,97 @@ const parseMessage = (msgInfo) => {
 }
 
 /**
- * Subscribes to a queue to receive messages.
+ * Creates an unsubscribe function for a RabbitMQ consumer.
+ *
+ * This is a higher-order function that captures the RabbitMQ channel,
+ * consumerTag, and logger in a closure, and returns an async function
+ * that cancels the consumer when invoked.
+ *
+ * The returned function is idempotent and safe to call multiple times.
+ * If the channel or consumer is already closed, the call is silently ignored.
+ *
+ * Usage:
+ * const unsubscribe = createUnsubscribe({ channel, consumerTag, logger })
+ * await unsubscribe()
+ *
+ * @param {Object} params
+ * @param {import('amqplib').Channel} params.channel
+ *   The RabbitMQ channel on which the consumer was created.
+ *
+ * @param {string} params.consumerTag
+ *   The consumer tag returned by `channel.consume`, uniquely identifying
+ *   the active consumer within the channel.
+ *
+ * @param {import('pino').Logger} params.logger
+ *   Base logger instance used to create a child logger for unsubscribe logs.
+ *
+ * @returns {() => Promise<void>}
+ *   An async function that cancels this specific RabbitMQ consumer.
+ *
+ * @throws {Error}
+ *   Throws for unexpected errors during consumer cancellation.
+ *   Errors caused by an already closed channel are silently ignored.
+ */
+const unsubscribe =
+  ({ channel, consumerTag, logger }) =>
+  async () => {
+    if (!channel || channel.closed) {
+      return
+    }
+
+    const t0 = Date.now()
+    const child = logger.child({ op: 'unsubscribe', consumerTag })
+
+    try {
+      child.debug('start')
+      await channel.cancel(consumerTag)
+      child.info({ event: 'ok', ms: Date.now() - t0 })
+    } catch (err) {
+      if (err?.message?.includes('Channel closed')) {
+        child.debug({
+          event: 'already-closed',
+          reason: 'channel-already-closed',
+        })
+        return
+      }
+
+      child.error(err, {
+        event: 'error',
+        ms: Date.now() - t0,
+      })
+      throw err
+    }
+  }
+
+/**
+ * Subscribes to a RabbitMQ queue and returns an unsubscribe function
+ * that cancels this specific consumer.
+ *
+ * Each call creates an independent consumer with its own consumerTag.
+ * Calling the returned unsubscribe function affects only this consumer
+ * and does not impact other consumers or services.
  *
  * @param {Object} options
- * @param {import('amqplib').Channel} options.channel - RabbitMQ channel
- * @param {string} options.queue - Queue name to subscribe to
- * @param {(data: any, correlationId?: string) => Promise<void>} options.onReceive - Async handler
- * @param {import('pino').Logger} options.log - Base logger
- * @param {boolean} [options.nackOnError=false] - Whether to nack the message on error (default: false)
- * @param {number} [options.prefetch=1] - Max unacked messages per consumer (default: 1)
+ * @param {import('amqplib').Channel} options.channel
+ *   RabbitMQ channel used to create the consumer.
  *
- * @returns {Promise<string>} Returns the consumer tag for later cancellation
+ * @param {string} options.queue
+ *   Queue name to subscribe to.
+ *
+ * @param {(data: any, correlationId?: string) => Promise<void>} options.onReceive
+ *   Async handler invoked for each received message payload.
+ *
+ * @param {import('pino').Logger} options.log
+ *   Base logger instance.
+ *
+ * @param {boolean} [options.nackOnError=false]
+ *   Whether to nack the message on handler error instead of ack.
+ *
+ * @param {number} [options.prefetch=1]
+ *   Maximum number of unacknowledged messages for this consumer.
+ *
+ * @returns {Promise<() => Promise<void>>}
+ *   Resolves to an unsubscribe function that cancels this specific consumer.
  */
 export const subscribeToQueue = async ({
   log,
@@ -113,14 +193,17 @@ export const subscribeToQueue = async ({
 
   try {
     await channel.assertQueue(queue, { durable: true })
-    !!prefetch && (await channel.prefetch(prefetch))
+
+    if (prefetch) {
+      await channel.prefetch(prefetch)
+    }
 
     const { consumerTag } = await channel.consume(queue, async (msgInfo) => {
       if (!msgInfo) {
         return
       }
-      const t0 = Date.now()
 
+      const t0 = Date.now()
       const { msgId, data, correlationId } = parseMessage(msgInfo)
       const child = logger.child({ msgId, correlationId })
 
@@ -131,28 +214,26 @@ export const subscribeToQueue = async ({
         await onReceive(data, correlationId)
         channel.ack(msgInfo)
 
-        child.info({
-          event: 'ok',
-          ms: Date.now() - t0,
-        })
-        return
+        child.info({ event: 'ok', ms: Date.now() - t0 })
       } catch (err) {
-        nackOnError ? channel.nack(msgInfo) : channel.ack(msgInfo)
+        if (nackOnError) {
+          channel.nack(msgInfo)
+        } else {
+          channel.ack(msgInfo)
+        }
 
         child.error(err, {
           event: 'error',
           ms: Date.now() - t0,
         })
-        return
       }
     })
 
     logger.debug({ consumerTag }, 'consumer-started')
-    return consumerTag
+
+    return unsubscribe({ channel, consumerTag, logger })
   } catch (err) {
-    logger.error(err, {
-      event: 'error',
-    })
+    logger.error(err, { event: 'error' })
     throw err
   }
 }

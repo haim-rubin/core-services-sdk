@@ -7,9 +7,11 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "vitest run --coverage",
     "format": "prettier --write .",
+    "test": "vitest run --coverage",
+    "check-format": "prettier --check .",
     "bump": "node ./scripts/bump-version.js",
+    "check": "npm run lint && npm run check-format && npm run test",
     "build:types": "tsc --project tsconfig.json && prettier --write ."
   },
   "repository": {

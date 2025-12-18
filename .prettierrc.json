@@ -4,7 +4,6 @@
   "endOfLine": "lf",
   "requirePragma": false,
   "insertPragma": false,
-  "jsxBracketSameLine": false,
   "jsxSingleQuote": true,
   "printWidth": 80,
   "quoteProps": "consistent",
