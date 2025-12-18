@@ -80,15 +80,13 @@ function isConnected(port) {
  */
 function waitForMongo(port) {
   console.log(`[MongoTest] Waiting for MongoDB to be ready...`)
-  const maxRetries = 20
+  const maxRetries = 60
   let retries = 0
   let connected = false
 
   while (!connected && retries < maxRetries) {
-    try {
-      connected = isConnected(port)
-      retries++
-    } catch {
+    connected = isConnected(port)
+    if (!connected) {
       retries++
       execSync(`sleep 1`)
     }

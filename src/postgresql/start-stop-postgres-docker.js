@@ -124,7 +124,7 @@ export function isPostgresReady(containerName, user, db) {
 export function waitForPostgres(containerName, user, db) {
   console.log(`[PgTest] Waiting for PostgreSQL to be ready...`)
 
-  const maxRetries = 20
+  const maxRetries = 60
   let retries = 0
   let ready = false
 
