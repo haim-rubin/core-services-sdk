@@ -29,7 +29,7 @@ export function subscribeToQueue({
   log: import('pino').Logger
   nackOnError?: boolean
   prefetch?: number
-}): Promise<string>
+}): Promise<() => Promise<void>>
 export function initializeQueue({
   host,
   log,

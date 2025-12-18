@@ -5,7 +5,7 @@ import {
   stopRabbit,
   startRabbit,
   buildRabbitUri,
-} from '../resources/start-stop-rabbitmq.js'
+} from '../../src/rabbit-mq/start-stop-rabbitmq.js'
 
 import { initializeQueue } from '../../src/rabbit-mq/index.js'
 
