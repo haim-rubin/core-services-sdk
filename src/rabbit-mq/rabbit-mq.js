@@ -191,6 +191,18 @@ export const subscribeToQueue = async ({
 }) => {
   const logger = log.child({ op: 'subscribeToQueue', queue })
 
+  if (!queue || !queue.trim()) {
+    const message = 'Cannot subscribe to RabbitMQ with an empty queue name'
+    logger.error({ error: message })
+    throw new Error(message)
+  }
+
+  if (typeof onReceive !== 'function') {
+    const message = `Cannot subscribe to queue "${queue}" because onReceive is not a function`
+    logger.error({ error: message })
+    throw new Error(message)
+  }
+
   try {
     await channel.assertQueue(queue, { durable: true })
 

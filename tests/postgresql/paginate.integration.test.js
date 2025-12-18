@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { describe, it, beforeAll, afterAll, beforeEach, expect } from 'vitest'
 import knex from 'knex'
 
