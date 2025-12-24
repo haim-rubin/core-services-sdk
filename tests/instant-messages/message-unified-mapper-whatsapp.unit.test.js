@@ -7,7 +7,7 @@ import {
   getMessageType,
   mapMessageWhatsApp,
 } from '../../src/instant-messages/message-unified-mapper.js'
-
+import { writeFilesReceiveMapped } from '../resources/create-im-mapp-diff.js'
 import {
   MESSAGE_MEDIA_TYPE,
   MESSAGE_MEDIA_TYPE_MAPPER,
@@ -38,7 +38,7 @@ describe('WhatsApp unified message mapper – all mock samples', () => {
         const unifiedMessage = mapMessageWhatsApp({
           imMessage: raw,
         })
-
+        writeFilesReceiveMapped({ raw, prefix: 'whatsapp', unifiedMessage })
         expect(unifiedMessage).toBeTypeOf('object')
         expect(unifiedType).toBeTypeOf('string')
 

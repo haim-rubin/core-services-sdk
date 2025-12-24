@@ -1,11 +1,11 @@
-import { describe, it, expect } from 'vitest'
-import { readFileSync, readdirSync } from 'fs'
-import { join, extname } from 'path'
 import { fileURLToPath } from 'url'
-import { dirname } from 'path'
-import { mapMessageTelegram } from '../../src/instant-messages/message-unified-mapper.js'
+import { describe, it, expect } from 'vitest'
+import { dirname, join, extname } from 'path'
+import { readFileSync, readdirSync } from 'fs'
 
+import { writeFilesReceiveMapped } from '../resources/create-im-mapp-diff.js'
 import { getTelegramMessageType } from '../../src/instant-messages/message-type.js'
+import { mapMessageTelegram } from '../../src/instant-messages/message-unified-mapper.js'
 
 import {
   MESSAGE_MEDIA_TYPE,
@@ -24,7 +24,7 @@ describe('Telegram unified message mapper – all mock samples', () => {
   if (files.length === 0) {
     throw new Error('No Telegram mock message files found in directory.')
   }
-
+  let i = 1
   for (const file of files) {
     const filePath = join(MOCK_DIR_TELEGRAM, file)
     const raw = JSON.parse(readFileSync(filePath, 'utf8'))
@@ -36,7 +36,7 @@ describe('Telegram unified message mapper – all mock samples', () => {
         const unifiedMessage = mapMessageTelegram({
           imMessage: raw,
         })
-
+        writeFilesReceiveMapped({ raw, prefix: 'telegram', unifiedMessage })
         expect(unifiedMessage).toBeTypeOf('object')
         expect(unifiedType).toBeTypeOf('string')
         expect(unifiedMessage.type).toBe(
