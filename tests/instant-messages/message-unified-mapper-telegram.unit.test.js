@@ -24,7 +24,6 @@ describe('Telegram unified message mapper – all mock samples', () => {
   if (files.length === 0) {
     throw new Error('No Telegram mock message files found in directory.')
   }
-  let i = 1
   for (const file of files) {
     const filePath = join(MOCK_DIR_TELEGRAM, file)
     const raw = JSON.parse(readFileSync(filePath, 'utf8'))
