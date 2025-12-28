@@ -58,6 +58,51 @@ describe('phone normalization', () => {
       expect(out.regionCode).toBe('IL')
     })
 
+    describe('normalizePhoneOrThrow - international input', () => {
+      it('returns full normalized data for international input without defaultRegion', () => {
+        const out = normalizePhoneOrThrow('+972523443413')
+
+        // canonical
+        expect(out.e164).toBe('+972523443413')
+        // clean formats
+
+        expect(out.internationalClean).toBe('972523443413')
+        expect(out.nationalClean).toBe('0523443413')
+
+        // formatted (do not assert exact formatting)
+        expect(typeof out.national).toBe('string')
+        expect(typeof out.international).toBe('string')
+
+        // metadata
+        expect(out.regionCode).toBe('IL')
+        expect(out.countryCode).toBe('972')
+        expect(out.countryCodeE164).toBe('+972')
+        expect(typeof out.type).toBe('number')
+      })
+
+      it('returns identical normalized data when defaultRegion is provided', () => {
+        const out = normalizePhoneOrThrow('+972523443413', {
+          defaultRegion: 'IL',
+        })
+
+        // canonical
+        expect(out.e164).toBe('+972523443413')
+
+        // clean formats
+        expect(out.internationalClean).toBe('972523443413')
+        expect(out.nationalClean).toBe('0523443413')
+
+        // formatted (do not assert exact formatting)
+        expect(typeof out.national).toBe('string')
+        expect(typeof out.international).toBe('string')
+
+        // metadata
+        expect(out.regionCode).toBe('IL')
+        expect(out.countryCode).toBe('972')
+        expect(out.countryCodeE164).toBe('+972')
+        expect(typeof out.type).toBe('number')
+      })
+    })
     it('normalizePhoneOrThrow (smart): throws if national with no defaultRegion', () => {
       expect(() => normalizePhoneOrThrow('054-123-4567')).toThrow(
         /defaultRegion is required/i,

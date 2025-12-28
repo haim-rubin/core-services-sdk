@@ -9,8 +9,8 @@ import { connectToPg } from '../../src/postgresql/connect-to-pg.js'
 import { validateSchema } from '../../src/postgresql/validate-schema.js'
 
 const PG_OPTIONS = {
-  port: 5433,
-  containerName: 'postgres-validate-schema-test',
+  port: 5431,
+  containerName: 'postgres-validate-schema-test-5431',
   user: 'testuser',
   pass: 'testpass',
   db: 'testdb',

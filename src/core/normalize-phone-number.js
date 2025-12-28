@@ -3,7 +3,46 @@
 
 import * as raw from 'google-libphonenumber'
 
-/** Resolve libphonenumber regardless of interop shape */
+/**
+ * @typedef {Object} NormalizedPhone
+ * @property {string} e164
+ * @property {number} type
+ * @property {string} national
+ * @property {number} countryCode
+ * @property {string} nationalClean
+ * @property {string} international
+ * @property {string} countryCodeE164
+ * @property {string} internationalClean
+ * @property {string | undefined} regionCode
+ */
+
+/**
+ * normalize-phone-number.js
+ *
+ * Utilities for parsing, validating, and normalizing phone numbers
+ * using google-libphonenumber.
+ *
+ * Supports both ESM and CJS interop builds.
+ * All normalization outputs are canonical and safe for persistence,
+ * comparison, indexing, and login identifiers.
+ */
+
+/**
+ * Resolve google-libphonenumber exports regardless of ESM / CJS shape.
+ *
+ * Some builds expose:
+ *   - raw.PhoneNumberUtil
+ * Others expose:
+ *   - raw.default.PhoneNumberUtil
+ *
+ * This helper guarantees a consistent API.
+ *
+ * @returns {{
+ *   PhoneNumberUtil: any,
+ *   PhoneNumberFormat: any
+ * }}
+ * @throws {Error} If required exports are missing
+ */
 export function getLib() {
   // Prefer direct (CJS-style or ESM w/ named), else default
   // e.g. raw.PhoneNumberUtil OR raw.default.PhoneNumberUtil
@@ -19,6 +58,15 @@ export function getLib() {
 
 let _util // lazy singleton
 
+/**
+ * Lazy singleton accessor for PhoneNumberUtil.
+ *
+ * Ensures:
+ * - Single instance per process
+ * - No eager initialization cost
+ *
+ * @returns {any} PhoneNumberUtil instance
+ */
 export function phoneUtil() {
   if (!_util) {
     const { PhoneNumberUtil } = getLib()
@@ -27,15 +75,25 @@ export function phoneUtil() {
   return _util
 }
 
+/**
+ * Internal helper returning PhoneNumberFormat enum.
+ *
+ * @returns {any} PhoneNumberFormat enum
+ */
 function formats() {
   const { PhoneNumberFormat } = getLib()
   return PhoneNumberFormat
 }
 
 /**
- * Trim and remove invisible RTL markers.
- * @param {string} input
- * @returns {string}
+ * Cleans user input before parsing:
+ * - Trims whitespace
+ * - Removes invisible RTL/LTR markers
+ *
+ * Does NOT remove digits, plus sign, or formatting characters.
+ *
+ * @param {string} input Raw user input
+ * @returns {string} Cleaned input string
  */
 function clean(input) {
   return String(input)
@@ -44,27 +102,69 @@ function clean(input) {
 }
 
 /**
- * Convert a parsed libphonenumber object into a normalized result.
+ * Converts a parsed google-libphonenumber object into a normalized result.
+ *
+ * Returned formats:
+ * - e164: Canonical phone number in E.164 format.
+ *   Intended for storage, indexing, comparison, login identifiers, and OTP flows.
+ *
+ * - national: Local, human-readable phone number representation.
+ *   May include formatting characters such as dashes or spaces.
+ *
+ * - nationalClean: Local phone number containing digits only.
+ *
+ * - international: Human-readable international representation.
+ *
+ * - internationalClean: International phone number containing digits only,
+ *   without '+' or formatting characters.
+ *
+ * - regionCode: ISO 3166-1 alpha-2 region code (e.g. "IL").
+ *
+ * - countryCallingCode: Numeric international dialing code (e.g. 972).
+ *
+ * - countryCallingCodeE164: International dialing code with '+' prefix (e.g. "+972").
+ *
+ * Notes:
+ * - Only `e164` should be persisted or used for identity comparison.
+ * - All other formats are intended strictly for UI, display, copy, or integrations.
+ *
  * @param {any} parsed
- * @returns {{e164:string,national:string,international:string,regionCode:string|undefined,type:number}}
+ *   Parsed phone number object returned by google-libphonenumber.
+ *
+ * @returns {NormalizedPhone}
  */
+
 function toResult(parsed) {
   const PNF = formats()
   const util = phoneUtil()
-  return {
+
+  const results = {
+    type: util.getNumberType(parsed),
     e164: util.format(parsed, PNF.E164),
     national: util.format(parsed, PNF.NATIONAL),
-    international: util.format(parsed, PNF.INTERNATIONAL),
     regionCode: util.getRegionCodeForNumber(parsed),
-    type: util.getNumberType(parsed),
+    international: util.format(parsed, PNF.INTERNATIONAL),
+  }
+
+  const countryCode = `${parsed.getCountryCode()}`
+
+  return {
+    ...results,
+    countryCode,
+    countryCodeE164: `+${countryCode}`,
+    nationalClean: results.national.replace(/\D/g, ''),
+    internationalClean: results.e164.replace(/\D/g, ''),
   }
 }
 
 /**
- * Parse & validate an international number (must start with '+').
- * @param {string} input
- * @returns {{e164:string,national:string,international:string,regionCode:string|undefined,type:number}}
- * @throws {Error} If the number is invalid
+ * Normalize and validate an international phone number.
+ *
+ * Input MUST start with '+'.
+ *
+ * @param {string} input International phone number (E.164-like)
+ * @returns {NormalizedPhone}
+ * @throws {Error} If the phone number is invalid
  */
 export function normalizePhoneOrThrowIntl(input) {
   try {
@@ -82,11 +182,22 @@ export function normalizePhoneOrThrowIntl(input) {
 }
 
 /**
- * Parse & validate a national number using a region hint.
- * @param {string} input
- * @param {string} defaultRegion
- * @returns {{e164:string,national:string,international:string,regionCode:string|undefined,type:number}}
- * @throws {Error} If the number is invalid
+ * Normalize and validate a national phone number using a region hint.
+ *
+ * Example:
+ *   input: "0523444444"
+ *   defaultRegion: "IL"
+ *
+ * @param {string} input National phone number
+ * @param {string} defaultRegion ISO 3166-1 alpha-2 country code
+ * @returns {{
+ *   e164: string,
+ *   national: string,
+ *   international: string,
+ *   regionCode: string | undefined,
+ *   type: number
+ * }}
+ * @throws {Error} If the phone number is invalid
  */
 export function normalizePhoneOrThrowWithRegion(input, defaultRegion) {
   try {
@@ -104,13 +215,21 @@ export function normalizePhoneOrThrowWithRegion(input, defaultRegion) {
 }
 
 /**
- * Smart normalization:
- * - If input starts with '+', parse as international.
- * - Otherwise require a defaultRegion and parse as national.
- * @param {string} input
- * @param {{ defaultRegion?: string }} [opts]
- * @returns {{e164:string,national:string,international:string,regionCode:string|undefined,type:number}}
- * @throws {Error} If invalid or defaultRegion is missing for non-international input
+ * Smart normalization entry point.
+ *
+ * Behavior:
+ * - If input starts with '+', parses as international
+ * - Otherwise requires defaultRegion and parses as national
+ *
+ * This is the recommended function for login, signup, and verification flows.
+ *
+ * @param {string} input Phone number (international or national)
+ * @param {{
+ *   defaultRegion?: string
+ * }} [opts]
+ *
+ * @returns {NormalizedPhone}
+ * @throws {Error} If invalid or defaultRegion is missing
  */
 export function normalizePhoneOrThrow(input, opts = {}) {
   const cleaned = clean(input)

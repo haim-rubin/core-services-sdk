@@ -11,8 +11,8 @@ import {
 import { sqlPaginate } from '../../src/postgresql/paginate.js'
 
 const PG_OPTIONS = {
-  port: 5443,
-  containerName: 'postgres-paginate-test',
+  port: 5442,
+  containerName: 'postgres-paginate-test-5442',
   user: 'testuser',
   pass: 'testpass',
   db: 'testdb',

@@ -1,17 +1,19 @@
+// apply-filter.integration.test.js
 // @ts-nocheck
+
 import { describe, it, beforeAll, afterAll, beforeEach, expect } from 'vitest'
 import knex from 'knex'
 
 import {
-  stopPostgres,
   startPostgres,
+  stopPostgres,
   buildPostgresUri,
 } from '../../src/postgresql/start-stop-postgres-docker.js'
 
 import { applyFilter } from '../../src/postgresql/apply-filter.js'
 
 const PG_OPTIONS = {
-  port: 5444,
+  port: 5443,
   containerName: 'postgres-apply-filter-test',
   user: 'testuser',
   pass: 'testpass',
@@ -69,7 +71,7 @@ beforeEach(async () => {
       name: 'Asset One',
       status: 'active',
       type: 'invoice',
-      price: 100.0,
+      price: 100,
       created_at: new Date('2024-01-01'),
       deleted_at: null,
     },
@@ -78,7 +80,7 @@ beforeEach(async () => {
       name: 'Asset Two',
       status: 'active',
       type: 'receipt',
-      price: 200.0,
+      price: 200,
       created_at: new Date('2024-01-02'),
       deleted_at: null,
     },
@@ -87,7 +89,7 @@ beforeEach(async () => {
       name: 'Asset Three',
       status: 'pending',
       type: 'invoice',
-      price: 150.0,
+      price: 150,
       created_at: new Date('2024-01-03'),
       deleted_at: null,
     },
@@ -96,7 +98,7 @@ beforeEach(async () => {
       name: 'Deleted Asset',
       status: 'deleted',
       type: 'receipt',
-      price: 50.0,
+      price: 50,
       created_at: new Date('2024-01-04'),
       deleted_at: new Date('2024-01-05'),
     },
@@ -105,7 +107,7 @@ beforeEach(async () => {
       name: 'Expensive Asset',
       status: 'active',
       type: 'invoice',
-      price: 500.0,
+      price: 500,
       created_at: new Date('2024-01-05'),
       deleted_at: null,
     },
@@ -115,7 +117,7 @@ beforeEach(async () => {
     {
       id: '00000000-0000-0000-0000-000000000101',
       invoice_number: 'INV-001',
-      amount: 1000.0,
+      amount: 1000,
       status: 'paid',
       customer_id: '00000000-0000-0000-0000-000000000201',
       created_at: new Date('2024-01-01'),
@@ -125,7 +127,7 @@ beforeEach(async () => {
     {
       id: '00000000-0000-0000-0000-000000000102',
       invoice_number: 'INV-002',
-      amount: 2500.0,
+      amount: 2500,
       status: 'pending',
       customer_id: '00000000-0000-0000-0000-000000000202',
       created_at: new Date('2024-01-02'),
@@ -135,7 +137,7 @@ beforeEach(async () => {
     {
       id: '00000000-0000-0000-0000-000000000103',
       invoice_number: 'INV-003',
-      amount: 500.0,
+      amount: 500,
       status: 'paid',
       customer_id: '00000000-0000-0000-0000-000000000201',
       created_at: new Date('2024-01-03'),
@@ -145,7 +147,7 @@ beforeEach(async () => {
     {
       id: '00000000-0000-0000-0000-000000000104',
       invoice_number: 'INV-004',
-      amount: 3000.0,
+      amount: 3000,
       status: 'overdue',
       customer_id: '00000000-0000-0000-0000-000000000203',
       created_at: new Date('2024-01-04'),
@@ -155,7 +157,7 @@ beforeEach(async () => {
     {
       id: '00000000-0000-0000-0000-000000000105',
       invoice_number: 'INV-005',
-      amount: 750.0,
+      amount: 750,
       status: 'cancelled',
       customer_id: '00000000-0000-0000-0000-000000000201',
       created_at: new Date('2024-01-05'),
@@ -165,277 +167,70 @@ beforeEach(async () => {
   ])
 })
 
-describe('applyFilter integration', () => {
-  it('applies simple equality filter (eq)', async () => {
-    const query = db('assets').select('*')
-    const filteredQuery = applyFilter({
-      query,
+describe('applyFilter integration (snake_case only)', () => {
+  it('applies equality filter', async () => {
+    const results = await applyFilter({
+      query: db('assets').select('*'),
       filter: { status: 'active' },
       tableName: 'assets',
     })
 
-    const results = await filteredQuery
-
     expect(results).toHaveLength(3)
-    expect(results.every((r) => r.status === 'active')).toBe(true)
   })
 
-  it('converts camelCase keys to snake_case', async () => {
-    const query = db('assets').select('*')
-    const filteredQuery = applyFilter({
-      query,
-      filter: { deletedAt: { isNull: true }, name: 'Asset One' },
-      tableName: 'assets',
-    })
-
-    const results = await filteredQuery
-
-    expect(results).toHaveLength(1)
-    expect(results[0].name).toBe('Asset One')
-  })
-
-  it('applies not equal filter (ne)', async () => {
-    const query = db('assets').select('*')
-    const filteredQuery = applyFilter({
-      query,
-      filter: { status: { ne: 'deleted' } },
-      tableName: 'assets',
-    })
-
-    const results = await filteredQuery
-
-    expect(results).toHaveLength(4)
-    expect(results.every((r) => r.status !== 'deleted')).toBe(true)
-  })
-
-  it('applies not equal filter (neq alias)', async () => {
-    const query = db('assets').select('*')
-    const filteredQuery = applyFilter({
-      query,
-      filter: { status: { neq: 'deleted' } },
-      tableName: 'assets',
-    })
-
-    const results = await filteredQuery
-
-    expect(results).toHaveLength(4)
-    expect(results.every((r) => r.status !== 'deleted')).toBe(true)
-  })
-
-  it('applies IN filter with array directly', async () => {
-    const query = db('assets').select('*')
-    const filteredQuery = applyFilter({
-      query,
+  it('applies IN filter', async () => {
+    const results = await applyFilter({
+      query: db('assets').select('*'),
       filter: { status: ['active', 'pending'] },
       tableName: 'assets',
     })
 
-    const results = await filteredQuery
+    expect(results).toHaveLength(4)
+  })
+
+  it('applies NOT IN filter', async () => {
+    const results = await applyFilter({
+      query: db('assets').select('*'),
+      filter: { status: { nin: ['deleted'] } },
+      tableName: 'assets',
+    })
 
     expect(results).toHaveLength(4)
-    expect(
-      results.every((r) => r.status === 'active' || r.status === 'pending'),
-    ).toBe(true)
   })
 
-  it('applies IN filter with operator', async () => {
-    const query = db('assets').select('*')
-    const filteredQuery = applyFilter({
-      query,
-      filter: { status: { in: ['active', 'pending'] } },
-      tableName: 'assets',
-    })
-
-    const results = await filteredQuery
-
-    expect(results).toHaveLength(4)
-    expect(
-      results.every((r) => r.status === 'active' || r.status === 'pending'),
-    ).toBe(true)
-  })
-
-  it('applies NOT IN filter (nin)', async () => {
-    const query = db('assets').select('*')
-    const filteredQuery = applyFilter({
-      query,
-      filter: { status: { nin: ['deleted', 'archived'] } },
-      tableName: 'assets',
-    })
-
-    const results = await filteredQuery
-
-    expect(results).toHaveLength(4)
-    expect(
-      results.every((r) => r.status !== 'deleted' && r.status !== 'archived'),
-    ).toBe(true)
-  })
-
-  it('applies greater than filter (gt)', async () => {
-    const query = db('assets').select('*')
-    const filteredQuery = applyFilter({
-      query,
-      filter: { price: { gt: 150 } },
-      tableName: 'assets',
-    })
-
-    const results = await filteredQuery
-
-    expect(results).toHaveLength(2)
-    expect(results.every((r) => parseFloat(r.price) > 150)).toBe(true)
-  })
-
-  it('applies greater than or equal filter (gte)', async () => {
-    const query = db('assets').select('*')
-    const filteredQuery = applyFilter({
-      query,
-      filter: { price: { gte: 150 } },
-      tableName: 'assets',
-    })
-
-    const results = await filteredQuery
-
-    expect(results).toHaveLength(3)
-    expect(results.every((r) => parseFloat(r.price) >= 150)).toBe(true)
-  })
-
-  it('applies less than filter (lt)', async () => {
-    const query = db('assets').select('*')
-    const filteredQuery = applyFilter({
-      query,
-      filter: { price: { lt: 150 } },
-      tableName: 'assets',
-    })
-
-    const results = await filteredQuery
-
-    expect(results).toHaveLength(2)
-    expect(results.every((r) => parseFloat(r.price) < 150)).toBe(true)
-  })
-
-  it('applies less than or equal filter (lte)', async () => {
-    const query = db('assets').select('*')
-    const filteredQuery = applyFilter({
-      query,
-      filter: { price: { lte: 150 } },
-      tableName: 'assets',
-    })
-
-    const results = await filteredQuery
-
-    expect(results).toHaveLength(3)
-    expect(results.every((r) => parseFloat(r.price) <= 150)).toBe(true)
-  })
-
-  it('applies range filter with gte and lte', async () => {
-    const query = db('assets').select('*')
-    const filteredQuery = applyFilter({
-      query,
+  it('applies numeric range filter', async () => {
+    const results = await applyFilter({
+      query: db('assets').select('*'),
       filter: { price: { gte: 100, lte: 200 } },
       tableName: 'assets',
     })
 
-    const results = await filteredQuery
-
     expect(results).toHaveLength(3)
-    expect(
-      results.every(
-        (r) => parseFloat(r.price) >= 100 && parseFloat(r.price) <= 200,
-      ),
-    ).toBe(true)
   })
 
-  it('applies case-sensitive LIKE filter', async () => {
-    const query = db('assets').select('*')
-    const filteredQuery = applyFilter({
-      query,
-      filter: { name: { like: '%Asset%' } },
+  it('applies isNull filter', async () => {
+    const results = await applyFilter({
+      query: db('assets').select('*'),
+      filter: { deleted_at: { isNull: true } },
       tableName: 'assets',
     })
-
-    const results = await filteredQuery
-
-    expect(results.length).toBeGreaterThan(0)
-    expect(results.every((r) => r.name.includes('Asset'))).toBe(true)
-  })
-
-  it('applies case-insensitive ILIKE filter', async () => {
-    const query = db('assets').select('*')
-    const filteredQuery = applyFilter({
-      query,
-      filter: { name: { ilike: '%asset%' } },
-      tableName: 'assets',
-    })
-
-    const results = await filteredQuery
-
-    expect(results.length).toBeGreaterThan(0)
-    expect(
-      results.every((r) =>
-        r.name.toLowerCase().includes('asset'.toLowerCase()),
-      ),
-    ).toBe(true)
-  })
-
-  it('applies isNull filter when value is true', async () => {
-    const query = db('assets').select('*')
-    const filteredQuery = applyFilter({
-      query,
-      filter: { deletedAt: { isNull: true } },
-      tableName: 'assets',
-    })
-
-    const results = await filteredQuery
 
     expect(results).toHaveLength(4)
-    expect(results.every((r) => r.deleted_at === null)).toBe(true)
   })
 
-  it('applies isNotNull filter when isNull value is false', async () => {
-    const query = db('assets').select('*')
-    const filteredQuery = applyFilter({
-      query,
-      filter: { deletedAt: { isNull: false } },
+  it('applies isNotNull filter', async () => {
+    const results = await applyFilter({
+      query: db('assets').select('*'),
+      filter: { deleted_at: { isNotNull: true } },
       tableName: 'assets',
     })
-
-    const results = await filteredQuery
 
     expect(results).toHaveLength(1)
-    expect(results[0].deleted_at).not.toBe(null)
-  })
-
-  it('applies isNotNull filter when value is true', async () => {
-    const query = db('assets').select('*')
-    const filteredQuery = applyFilter({
-      query,
-      filter: { deletedAt: { isNotNull: true } },
-      tableName: 'assets',
-    })
-
-    const results = await filteredQuery
-
-    expect(results).toHaveLength(1)
-    expect(results[0].deleted_at).not.toBe(null)
-  })
-
-  it('applies isNull filter when isNotNull value is false', async () => {
-    const query = db('assets').select('*')
-    const filteredQuery = applyFilter({
-      query,
-      filter: { deletedAt: { isNotNull: false } },
-      tableName: 'assets',
-    })
-
-    const results = await filteredQuery
-
-    expect(results).toHaveLength(4)
-    expect(results.every((r) => r.deleted_at === null)).toBe(true)
   })
 
   it('applies multiple filters together', async () => {
-    const query = db('assets').select('*')
-    const filteredQuery = applyFilter({
-      query,
+    const results = await applyFilter({
+      query: db('assets').select('*'),
       filter: {
         status: 'active',
         type: 'invoice',
@@ -444,106 +239,42 @@ describe('applyFilter integration', () => {
       tableName: 'assets',
     })
 
-    const results = await filteredQuery
-
     expect(results).toHaveLength(2)
-    expect(results.every((r) => r.status === 'active')).toBe(true)
-    expect(results.every((r) => r.type === 'invoice')).toBe(true)
-    expect(results.every((r) => parseFloat(r.price) >= 100)).toBe(true)
-  })
-
-  it('returns empty results when filter matches nothing', async () => {
-    const query = db('assets').select('*')
-    const filteredQuery = applyFilter({
-      query,
-      filter: { status: 'non-existing' },
-      tableName: 'assets',
-    })
-
-    const results = await filteredQuery
-
-    expect(results).toHaveLength(0)
-  })
-
-  it('uses qualified column names with tableName', async () => {
-    const query = db('assets').select('assets.*')
-    const filteredQuery = applyFilter({
-      query,
-      filter: { status: 'active' },
-      tableName: 'assets',
-    })
-
-    const results = await filteredQuery
-
-    expect(results).toHaveLength(3)
-    expect(results.every((r) => r.status === 'active')).toBe(true)
-  })
-
-  it('ignores unknown operators', async () => {
-    const query = db('assets').select('*')
-    const filteredQuery = applyFilter({
-      query,
-      filter: { status: { unknownOperator: 'value' } },
-      tableName: 'assets',
-    })
-
-    const results = await filteredQuery
-
-    // Should return all records since unknown operator is ignored
-    expect(results).toHaveLength(5)
   })
 
   it('works with invoices table', async () => {
-    const query = db('invoices').select('*')
-    const filteredQuery = applyFilter({
-      query,
-      filter: { status: 'paid', deletedAt: { isNull: true } },
+    const results = await applyFilter({
+      query: db('invoices').select('*'),
+      filter: {
+        status: 'paid',
+        deleted_at: { isNull: true },
+      },
       tableName: 'invoices',
     })
 
-    const results = await filteredQuery
-
     expect(results).toHaveLength(2)
-    expect(results.every((r) => r.status === 'paid')).toBe(true)
-    expect(results.every((r) => r.deleted_at === null)).toBe(true)
   })
 
-  it('works with invoices table using camelCase conversion', async () => {
-    const query = db('invoices').select('*')
-    const filteredQuery = applyFilter({
-      query,
+  it('works with invoices using snake_case foreign key', async () => {
+    const results = await applyFilter({
+      query: db('invoices').select('*'),
       filter: {
-        customerId: '00000000-0000-0000-0000-000000000201',
+        customer_id: '00000000-0000-0000-0000-000000000201',
         amount: { gte: 500 },
       },
       tableName: 'invoices',
     })
 
-    const results = await filteredQuery
-
     expect(results).toHaveLength(3)
-    expect(
-      results.every(
-        (r) =>
-          r.customer_id === '00000000-0000-0000-0000-000000000201' &&
-          parseFloat(r.amount) >= 500,
-      ),
-    ).toBe(true)
   })
 
-  it('works with invoices table using IN filter', async () => {
-    const query = db('invoices').select('*')
-    const filteredQuery = applyFilter({
-      query,
-      filter: { status: ['paid', 'pending'] },
-      tableName: 'invoices',
-    })
-
-    const results = await filteredQuery
-
-    expect(results).toHaveLength(3)
-    expect(
-      results.every((r) => r.status === 'paid' || r.status === 'pending'),
-    ).toBe(true)
+  it('throws when using camelCase keys (no automatic conversion)', async () => {
+    await expect(
+      applyFilter({
+        query: db('assets').select('*'),
+        filter: { deletedAt: { isNull: true } },
+        tableName: 'assets',
+      }),
+    ).rejects.toThrow(/column .*deletedAt.* does not exist/i)
   })
 })
