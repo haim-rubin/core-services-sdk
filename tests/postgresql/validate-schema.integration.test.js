@@ -11,10 +11,10 @@ import { validateSchema } from '../../src/postgresql/validate-schema.js'
 
 const PG_OPTIONS = {
   port: 5431,
-  containerName: 'postgres-validate-schema-test-5431',
+  db: 'testdb',
   user: 'testuser',
   pass: 'testpass',
-  db: 'testdb',
+  containerName: 'postgres-validate-schema-test-5431',
 }
 
 const DATABASE_URI = buildPostgresUri(PG_OPTIONS)

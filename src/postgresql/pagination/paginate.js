@@ -35,14 +35,14 @@ export async function sqlPaginate({
   ])
 
   const totalCount = normalizeNumberOrDefault(countResult?.count || 0)
-  const totalPages = Math.ceil(totalCount / limit)
+  const pages = Math.ceil(totalCount / limit)
 
   return {
+    page,
+    pages,
     totalCount,
-    totalPages,
-    currentPage: page,
     hasPrevious: page > 1,
-    hasNext: page < totalPages,
+    hasNext: page < pages,
     list: mapRow ? rows.map(mapRow) : rows,
   }
 }

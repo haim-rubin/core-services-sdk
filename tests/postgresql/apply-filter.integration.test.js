@@ -3,8 +3,8 @@ import { describe, it, beforeAll, afterAll, beforeEach, expect } from 'vitest'
 import knex from 'knex'
 
 import {
-  startPostgres,
   stopPostgres,
+  startPostgres,
   buildPostgresUri,
 } from '../../src/postgresql/start-stop-postgres-docker.js'
 
@@ -12,10 +12,10 @@ import { applyFilter } from '../../src/postgresql/filters/apply-filter.js'
 
 const PG_OPTIONS = {
   port: 5443,
-  containerName: 'postgres-apply-filter-test',
+  db: 'testdb',
   user: 'testuser',
   pass: 'testpass',
-  db: 'testdb',
+  containerName: 'postgres-apply-filter-test',
 }
 
 const DATABASE_URI = buildPostgresUri(PG_OPTIONS)

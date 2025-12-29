@@ -9,13 +9,14 @@ import {
 } from '../../src/postgresql/start-stop-postgres-docker.js'
 
 import { sqlPaginate } from '../../src/postgresql/pagination/paginate.js'
+import { sub } from 'date-fns'
 
 const PG_OPTIONS = {
   port: 5442,
-  containerName: 'postgres-paginate-test-5442',
+  db: 'testdb',
   user: 'testuser',
   pass: 'testpass',
-  db: 'testdb',
+  containerName: 'postgres-paginate-test-5442',
 }
 
 const DATABASE_URI = buildPostgresUri(PG_OPTIONS)
@@ -34,6 +35,7 @@ beforeAll(async () => {
     table.uuid('id').primary()
     table.string('name').notNullable()
     table.string('type').notNullable()
+    table.bigInteger('age').notNullable()
     table.timestamp('created_at').notNullable()
   })
 })
@@ -47,41 +49,60 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await db('tenants').truncate()
-
-  await db('tenants').insert([
+  const records = [
     {
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Tenant A',
       type: 'business',
-      created_at: new Date('2024-01-01'),
+      age: 2,
+      created_at: new Date('2025-01-01'),
     },
     {
       id: '00000000-0000-0000-0000-000000000002',
       name: 'Tenant B',
+      age: 3,
       type: 'business',
       created_at: new Date('2024-01-02'),
     },
     {
       id: '00000000-0000-0000-0000-000000000003',
       name: 'Tenant C',
+      age: 1,
       type: 'cpa',
-      created_at: new Date('2024-01-03'),
+      created_at: new Date('2023-01-03'),
     },
-  ])
+
+    {
+      id: '00000000-0000-0000-0000-000000000004',
+      name: 'Tenant D',
+      age: 7,
+      type: 'cpa',
+      created_at: new Date('2022-01-03'),
+    },
+
+    {
+      id: '00000000-0000-0000-0000-000000000005',
+      name: 'Tenant E',
+      age: 0,
+      type: 'cpa',
+      created_at: new Date('2021-01-03'),
+    },
+  ]
+  await db('tenants').insert(records)
 })
 
 describe('paginate integration', () => {
   it('returns first page without ordering guarantees', async () => {
     const result = await sqlPaginate({
       baseQuery: db('tenants'),
-      page: 1,
+      page: 2,
       limit: 2,
     })
 
-    expect(result.totalCount).toBe(3)
-    expect(result.totalPages).toBe(2)
-    expect(result.currentPage).toBe(1)
-    expect(result.hasPrevious).toBe(false)
+    expect(result.totalCount).toBe(5)
+    expect(result.pages).toBe(3)
+    expect(result.page).toBe(2)
+    expect(result.hasPrevious).toBe(true)
     expect(result.hasNext).toBe(true)
     expect(result.list).toHaveLength(2)
   })
@@ -93,19 +114,23 @@ describe('paginate integration', () => {
       limit: 2,
     })
 
-    expect(result.totalCount).toBe(3)
-    expect(result.totalPages).toBe(2)
-    expect(result.currentPage).toBe(2)
+    expect(result.totalCount).toBe(5)
+    expect(result.pages).toBe(3)
+    expect(result.page).toBe(2)
     expect(result.hasPrevious).toBe(true)
-    expect(result.hasNext).toBe(false)
-    expect(result.list).toHaveLength(1)
+    expect(result.hasNext).toBe(true)
+    expect(result.list).toHaveLength(2)
   })
 
   it('applies filters correctly', async () => {
+    const minDate = sub(new Date(), { years: 2 })
     const result = await sqlPaginate({
       baseQuery: db('tenants'),
-      filter: { type: 'business' },
+      filter: {
+        createdAt: { lte: new Date(), gte: minDate },
+      },
       limit: 10,
+      page: 1,
     })
 
     expect(result.totalCount).toBe(2)
@@ -118,7 +143,7 @@ describe('paginate integration', () => {
     const result = await sqlPaginate({
       baseQuery: db('tenants'),
       orderBy: {
-        column: 'created_at',
+        column: 'name',
         direction: 'asc',
       },
     })
@@ -127,6 +152,8 @@ describe('paginate integration', () => {
       'Tenant A',
       'Tenant B',
       'Tenant C',
+      'Tenant D',
+      'Tenant E',
     ])
   })
 
@@ -150,7 +177,7 @@ describe('paginate integration', () => {
     })
 
     expect(result.totalCount).toBe(0)
-    expect(result.totalPages).toBe(0)
+    expect(result.pages).toBe(0)
     expect(result.list).toEqual([])
     expect(result.hasNext).toBe(false)
     expect(result.hasPrevious).toBe(false)

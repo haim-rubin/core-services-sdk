@@ -12,10 +12,10 @@ import { applyFilterSnakeCase } from '../../src/postgresql/filters/apply-filter-
 
 const PG_OPTIONS = {
   port: 5444,
-  containerName: 'postgres-apply-filter-test-5444',
+  db: 'testdb',
   user: 'testuser',
   pass: 'testpass',
-  db: 'testdb',
+  containerName: 'postgres-apply-filter-test-5444',
 }
 
 const DATABASE_URI = buildPostgresUri(PG_OPTIONS)

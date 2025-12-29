@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { applyFilter } from '../filters/apply-filter.js'
 import { applyFilterSnakeCase } from '../filters/apply-filter-snake-case.js'
 import { applyOrderBy } from '../modifiers/apply-order-by.js'
@@ -35,14 +36,14 @@ export async function sqlPaginate({
   ])
 
   const totalCount = normalizeNumberOrDefault(countResult?.count || 0)
-  const totalPages = Math.ceil(totalCount / limit)
+  const pages = Math.ceil(totalCount / limit)
 
   return {
     totalCount,
-    totalPages,
+    pages,
     currentPage: page,
     hasPrevious: page > 1,
-    hasNext: page < totalPages,
+    hasNext: page < pages,
     list: mapRow ? rows.map(mapRow) : rows,
   }
 }
