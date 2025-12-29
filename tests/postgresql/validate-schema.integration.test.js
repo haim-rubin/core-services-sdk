@@ -5,6 +5,7 @@ import {
   stopPostgres,
   buildPostgresUri,
 } from '../../src/postgresql/start-stop-postgres-docker.js'
+
 import { connectToPg } from '../../src/postgresql/connect-to-pg.js'
 import { validateSchema } from '../../src/postgresql/validate-schema.js'
 
@@ -18,7 +19,7 @@ const PG_OPTIONS = {
 
 const DATABASE_URI = buildPostgresUri(PG_OPTIONS)
 
-describe('validateSchema', () => {
+describe('validateSchema integration', () => {
   beforeAll(async () => {
     startPostgres(PG_OPTIONS)
 
@@ -32,13 +33,16 @@ describe('validateSchema', () => {
     await db.destroy()
   })
 
-  afterAll(() => {
+  afterAll(async () => {
     stopPostgres(PG_OPTIONS.containerName)
   })
 
   it('does not throw when all required tables exist', async () => {
     await expect(
-      validateSchema({ connection: DATABASE_URI, tables: ['files'] }),
+      validateSchema({
+        connection: DATABASE_URI,
+        tables: ['files'],
+      }),
     ).resolves.not.toThrow()
   })
 

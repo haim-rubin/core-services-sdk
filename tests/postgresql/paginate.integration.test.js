@@ -8,7 +8,7 @@ import {
   buildPostgresUri,
 } from '../../src/postgresql/start-stop-postgres-docker.js'
 
-import { sqlPaginate } from '../../src/postgresql/paginate.js'
+import { sqlPaginate } from '../../src/postgresql/pagination/paginate.js'
 
 const PG_OPTIONS = {
   port: 5442,
@@ -73,8 +73,7 @@ beforeEach(async () => {
 describe('paginate integration', () => {
   it('returns first page without ordering guarantees', async () => {
     const result = await sqlPaginate({
-      db,
-      tableName: 'tenants',
+      baseQuery: db('tenants'),
       page: 1,
       limit: 2,
     })
@@ -84,14 +83,12 @@ describe('paginate integration', () => {
     expect(result.currentPage).toBe(1)
     expect(result.hasPrevious).toBe(false)
     expect(result.hasNext).toBe(true)
-
     expect(result.list).toHaveLength(2)
   })
 
   it('returns second page without ordering guarantees', async () => {
     const result = await sqlPaginate({
-      db,
-      tableName: 'tenants',
+      baseQuery: db('tenants'),
       page: 2,
       limit: 2,
     })
@@ -101,14 +98,12 @@ describe('paginate integration', () => {
     expect(result.currentPage).toBe(2)
     expect(result.hasPrevious).toBe(true)
     expect(result.hasNext).toBe(false)
-
     expect(result.list).toHaveLength(1)
   })
 
-  it('applies filters correctly without ordering guarantees', async () => {
+  it('applies filters correctly', async () => {
     const result = await sqlPaginate({
-      db,
-      tableName: 'tenants',
+      baseQuery: db('tenants'),
       filter: { type: 'business' },
       limit: 10,
     })
@@ -121,8 +116,7 @@ describe('paginate integration', () => {
 
   it('supports custom ordering', async () => {
     const result = await sqlPaginate({
-      db,
-      tableName: 'tenants',
+      baseQuery: db('tenants'),
       orderBy: {
         column: 'created_at',
         direction: 'asc',
@@ -138,8 +132,7 @@ describe('paginate integration', () => {
 
   it('supports row mapping', async () => {
     const result = await sqlPaginate({
-      db,
-      tableName: 'tenants',
+      baseQuery: db('tenants'),
       mapRow: (row) => ({
         ...row,
         mapped: true,
@@ -152,8 +145,7 @@ describe('paginate integration', () => {
 
   it('returns empty list when no records match filter', async () => {
     const result = await sqlPaginate({
-      db,
-      tableName: 'tenants',
+      baseQuery: db('tenants'),
       filter: { type: 'non-existing' },
     })
 

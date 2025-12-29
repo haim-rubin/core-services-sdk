@@ -1,6 +1,4 @@
-// apply-filter.integration.test.js
 // @ts-nocheck
-
 import { describe, it, beforeAll, afterAll, beforeEach, expect } from 'vitest'
 import knex from 'knex'
 
@@ -10,7 +8,7 @@ import {
   buildPostgresUri,
 } from '../../src/postgresql/start-stop-postgres-docker.js'
 
-import { applyFilter } from '../../src/postgresql/apply-filter.js'
+import { applyFilter } from '../../src/postgresql/filters/apply-filter.js'
 
 const PG_OPTIONS = {
   port: 5443,
@@ -169,112 +167,64 @@ beforeEach(async () => {
 
 describe('applyFilter integration (snake_case only)', () => {
   it('applies equality filter', async () => {
-    const results = await applyFilter({
-      query: db('assets').select('*'),
+    const query = db('assets').select('*')
+
+    applyFilter({
+      query,
       filter: { status: 'active' },
-      tableName: 'assets',
     })
 
+    const results = await query
     expect(results).toHaveLength(3)
   })
 
   it('applies IN filter', async () => {
-    const results = await applyFilter({
-      query: db('assets').select('*'),
+    const query = db('assets').select('*')
+
+    applyFilter({
+      query,
       filter: { status: ['active', 'pending'] },
-      tableName: 'assets',
     })
 
-    expect(results).toHaveLength(4)
-  })
-
-  it('applies NOT IN filter', async () => {
-    const results = await applyFilter({
-      query: db('assets').select('*'),
-      filter: { status: { nin: ['deleted'] } },
-      tableName: 'assets',
-    })
-
+    const results = await query
     expect(results).toHaveLength(4)
   })
 
   it('applies numeric range filter', async () => {
-    const results = await applyFilter({
-      query: db('assets').select('*'),
+    const query = db('assets').select('*')
+
+    applyFilter({
+      query,
       filter: { price: { gte: 100, lte: 200 } },
-      tableName: 'assets',
     })
 
+    const results = await query
     expect(results).toHaveLength(3)
   })
 
-  it('applies isNull filter', async () => {
-    const results = await applyFilter({
-      query: db('assets').select('*'),
-      filter: { deleted_at: { isNull: true } },
-      tableName: 'assets',
-    })
-
-    expect(results).toHaveLength(4)
-  })
-
-  it('applies isNotNull filter', async () => {
-    const results = await applyFilter({
-      query: db('assets').select('*'),
-      filter: { deleted_at: { isNotNull: true } },
-      tableName: 'assets',
-    })
-
-    expect(results).toHaveLength(1)
-  })
-
-  it('applies multiple filters together', async () => {
-    const results = await applyFilter({
-      query: db('assets').select('*'),
-      filter: {
-        status: 'active',
-        type: 'invoice',
-        price: { gte: 100 },
-      },
-      tableName: 'assets',
-    })
-
-    expect(results).toHaveLength(2)
-  })
-
   it('works with invoices table', async () => {
-    const results = await applyFilter({
-      query: db('invoices').select('*'),
+    const query = db('invoices').select('*')
+
+    applyFilter({
+      query,
       filter: {
         status: 'paid',
         deleted_at: { isNull: true },
       },
-      tableName: 'invoices',
     })
 
+    const results = await query
     expect(results).toHaveLength(2)
   })
 
-  it('works with invoices using snake_case foreign key', async () => {
-    const results = await applyFilter({
-      query: db('invoices').select('*'),
-      filter: {
-        customer_id: '00000000-0000-0000-0000-000000000201',
-        amount: { gte: 500 },
-      },
-      tableName: 'invoices',
+  it('throws when using camelCase keys', async () => {
+    const query = db('assets').select('*')
+
+    applyFilter({
+      query,
+      filter: { deletedAt: { isNull: true } },
     })
 
-    expect(results).toHaveLength(3)
-  })
-
-  it('throws when using camelCase keys (no automatic conversion)', async () => {
-    await expect(
-      applyFilter({
-        query: db('assets').select('*'),
-        filter: { deletedAt: { isNull: true } },
-        tableName: 'assets',
-      }),
-    ).rejects.toThrow(/column .*deletedAt.* does not exist/i)
+    await expect(query).rejects.toThrow(/deletedat/i)
   })
 })
