@@ -81,7 +81,7 @@ describe('phone normalization', () => {
       })
 
       it('returns identical normalized data when defaultRegion is provided', () => {
-        const out = normalizePhoneOrThrow('+972523443413', {
+        const out = normalizePhoneOrThrow('0523443413', {
           defaultRegion: 'IL',
         })
 
