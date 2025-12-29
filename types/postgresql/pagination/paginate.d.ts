@@ -20,9 +20,9 @@ export function sqlPaginate({
   filter?: {}
   snakeCase?: boolean
 }): Promise<{
+  page: number
+  pages: number
   totalCount: number
-  totalPages: number
-  currentPage: number
   hasPrevious: boolean
   hasNext: boolean
   list: any
