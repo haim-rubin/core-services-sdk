@@ -9,7 +9,6 @@ import {
 } from '../../src/postgresql/start-stop-postgres-docker.js'
 
 import { sqlPaginate } from '../../src/postgresql/pagination/paginate.js'
-import { sub } from 'date-fns'
 
 const PG_OPTIONS = {
   port: 5442,
@@ -123,7 +122,7 @@ describe('paginate integration', () => {
   })
 
   it('applies filters correctly', async () => {
-    const minDate = sub(new Date(), { years: 2 })
+    const minDate = new Date('2024-01-01')
     const result = await sqlPaginate({
       baseQuery: db('tenants'),
       filter: {
