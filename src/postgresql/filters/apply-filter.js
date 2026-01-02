@@ -1,6 +1,7 @@
 import { getTableNameFromQuery } from '../core/get-table-name.js'
 import { OPERATORS } from './operators.js'
 import { applyFilterObject } from './apply-filter-object.js'
+import { applyOrFilter } from './apply-or-filter.js'
 
 /**
  * Applies MongoDB-style filters to a Knex QueryBuilder.
@@ -10,7 +11,7 @@ import { applyFilterObject } from './apply-filter-object.js'
  * @param {Object} [params.filter]
  * @returns {import('knex').Knex.QueryBuilder}
  */
-export function applyFilter({ query, filter = {} }) {
+export function applyFilter({ query, filter = {}, snakeCase = false }) {
   const tableName = getTableNameFromQuery(query)
 
   if (!filter || Object.keys(filter).length === 0) {
@@ -18,6 +19,10 @@ export function applyFilter({ query, filter = {} }) {
   }
 
   return Object.entries(filter).reduce((q, [key, value]) => {
+    if (key === 'or' && Array.isArray(value)) {
+      return applyOrFilter(q, value, tableName, snakeCase)
+    }
+
     const qualifiedKey = tableName ? `${tableName}.${key}` : key
 
     if (value && typeof value === 'object' && !Array.isArray(value)) {

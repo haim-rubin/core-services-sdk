@@ -12,5 +12,6 @@ export function applyFilterSnakeCase({ query, filter }) {
   return applyFilter({
     query,
     filter: toSnakeCase(filter),
+    snakeCase: true,
   })
 }
