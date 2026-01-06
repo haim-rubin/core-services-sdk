@@ -1,14 +1,10 @@
 /**
- * @typedef {Function} OperatorFunction
- * @param {import('knex').Knex.QueryBuilder} q
- * @param {string} key
- * @param {*} value
- * @returns {import('knex').Knex.QueryBuilder}
- */
-/**
+ * Map of filter operators to their corresponding Knex query builder methods.
+ * Each operator function applies a WHERE condition to the query.
+ *
  * @type {Object<string, OperatorFunction>}
+ * @private
  */
 export const OPERATORS: {
-  [x: string]: Function
+  [x: string]: OperatorFunction
 }
-export type OperatorFunction = Function

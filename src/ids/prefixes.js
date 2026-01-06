@@ -46,6 +46,17 @@ export const ID_PREFIXES = Object.freeze({
   INVOICE: 'inv',
   INVOICE_ITEM: 'invi',
   INVOICE_CORRECTION: 'invc',
+  CUSTOMER: 'cust',
+  PAYMENT: 'pay',
+  TRANSACTION: 'txn',
+  RECEIPT: 'rcp',
+  INVOICE_RECEIPT: 'invrcp',
+  CREDIT_NOTE: 'crn',
+  DEBIT_NOTE: 'dbn',
+  PROFORMA_INVOICE: 'pfi',
+  DELIVERY_NOTE: 'dln',
+  ORDER: 'ord',
+  QUOTE: 'qte',
 
   //////////////////////////////////////////////////////
   // AI / document processing

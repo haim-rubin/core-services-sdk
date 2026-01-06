@@ -5,44 +5,76 @@ import { ID_PREFIXES } from '../../src/ids/prefixes.js'
 describe('ID_PREFIXES', () => {
   it('contains expected keys and values', () => {
     expect(ID_PREFIXES).toEqual({
-      ALERT: 'alr',
-      ASSET: 'ast',
-      ASSET_UPLOAD: 'aupl',
-      AUDIT: 'adt',
-      BOT_FLOW: 'botf',
-      CONFIG: 'cfg',
-      CORRELATION: 'crln',
-      DEVICE: 'dev',
-      DOCUMENT_DATA: 'docd',
-      EMAIL: 'eml',
-      EVENT: 'evt',
-      FILE: 'fil',
-      IM: 'im',
-      INCOMING_EMAIL: 'ieml',
-      INVOICE: 'inv',
-      INVOICE_CORRECTION: 'invc',
-      INVOICE_ITEM: 'invi',
-      JOB: 'job',
-      KEY: 'key',
-      LOG: 'log',
-      MESSAGE: 'msg',
-      METRIC: 'met',
-      NOTIFICATION: 'ntf',
+      // Core identity
+      USER: 'usr',
+      TENANT: 'tnt',
+      SESSION: 'sess',
       ONBOARDING: 'onb',
+
+      // Authorization & access
+      ROLE: 'role',
       PERMISSION: 'prm',
+      ROLE_PERMISSION: 'rprm',
+      VERIFICATION: 'vrf',
       POLICY: 'plc',
       PROFILE: 'prf',
-      QUEUE: 'que',
-      RESOURCE: 'res',
-      ROLE: 'role',
-      ROLE_PERMISSION: 'rprm',
-      SESSION: 'sess',
+      DEVICE: 'dev',
+
+      // Assets & uploads
+      ASSET: 'ast',
+      ASSET_UPLOAD: 'aupl',
+
+      // Legacy
+      FILE: 'fil',
+
+      // Accounting domain
       SUPPLIER: 'sup',
-      TAG: 'tag',
+      INVOICE: 'inv',
+      INVOICE_ITEM: 'invi',
+      INVOICE_CORRECTION: 'invc',
+      CUSTOMER: 'cust',
+      PAYMENT: 'pay',
+      TRANSACTION: 'txn',
+      RECEIPT: 'rcp',
+      INVOICE_RECEIPT: 'invrcp',
+      CREDIT_NOTE: 'crn',
+      DEBIT_NOTE: 'dbn',
+      PROFORMA_INVOICE: 'pfi',
+      DELIVERY_NOTE: 'dln',
+      ORDER: 'ord',
+      QUOTE: 'qte',
+
+      // AI / document processing
+      DOCUMENT_DATA: 'docd',
+
+      // Messaging / jobs / infra
+      CORRELATION: 'crln',
+      EVENT: 'evt',
+      JOB: 'job',
       TASK: 'task',
-      TENANT: 'tnt',
-      USER: 'usr',
-      VERIFICATION: 'vrf',
+      QUEUE: 'que',
+      MESSAGE: 'msg',
+      NOTIFICATION: 'ntf',
+
+      // Communication
+      EMAIL: 'eml',
+      INCOMING_EMAIL: 'ieml',
+      IM: 'im',
+
+      // Observability
+      AUDIT: 'adt',
+      LOG: 'log',
+      METRIC: 'met',
+
+      // Misc / config
+      TAG: 'tag',
+      CONFIG: 'cfg',
+      KEY: 'key',
+      RESOURCE: 'res',
+      ALERT: 'alr',
+
+      // Bots / automation flows
+      BOT_FLOW: 'botf',
     })
   })
 
@@ -61,11 +93,10 @@ describe('ID_PREFIXES', () => {
   it('is frozen (immutable)', () => {
     expect(Object.isFrozen(ID_PREFIXES)).toBe(true)
 
-    // Try to mutate
     try {
       ID_PREFIXES.USER = 'hacked'
     } catch {
-      // Ignore error in strict mode
+      // ignore
     }
 
     expect(ID_PREFIXES.USER).toBe('usr')

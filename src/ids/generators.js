@@ -64,8 +64,91 @@ export const generateAssetUploadId = () =>
 export const generateFileId = () => generatePrefixedId(ID_PREFIXES.FILE)
 
 /* =========================
- * Accounting
+ * Accounting documents
  * ========================= */
+
+/**
+ * Generates a receipt ID.
+ *
+ * @returns {string}
+ */
+export const generateReceiptId = () => generatePrefixedId(ID_PREFIXES.RECEIPT)
+
+/**
+ * Generates an invoice-receipt ID.
+ *
+ * @returns {string}
+ */
+export const generateInvoiceReceiptId = () =>
+  generatePrefixedId(ID_PREFIXES.INVOICE_RECEIPT)
+
+/**
+ * Generates a credit note ID.
+ *
+ * @returns {string}
+ */
+export const generateCreditNoteId = () =>
+  generatePrefixedId(ID_PREFIXES.CREDIT_NOTE)
+
+/**
+ * Generates a debit note ID.
+ *
+ * @returns {string}
+ */
+export const generateDebitNoteId = () =>
+  generatePrefixedId(ID_PREFIXES.DEBIT_NOTE)
+
+/**
+ * Generates a proforma invoice ID.
+ *
+ * @returns {string}
+ */
+export const generateProformaInvoiceId = () =>
+  generatePrefixedId(ID_PREFIXES.PROFORMA_INVOICE)
+
+/**
+ * Generates a delivery note ID.
+ *
+ * @returns {string}
+ */
+export const generateDeliveryNoteId = () =>
+  generatePrefixedId(ID_PREFIXES.DELIVERY_NOTE)
+
+/**
+ * Generates an order ID.
+ *
+ * @returns {string}
+ */
+export const generateOrderId = () => generatePrefixedId(ID_PREFIXES.ORDER)
+
+/**
+ * Generates a quote ID.
+ *
+ * @returns {string}
+ */
+export const generateQuoteId = () => generatePrefixedId(ID_PREFIXES.QUOTE)
+
+/**
+ * Generates a customer ID.
+ *
+ * @returns {string}
+ */
+export const generateCustomerId = () => generatePrefixedId(ID_PREFIXES.CUSTOMER)
+
+/**
+ * Generates a payment ID.
+ *
+ * @returns {string}
+ */
+export const generatePaymentId = () => generatePrefixedId(ID_PREFIXES.PAYMENT)
+
+/**
+ * Generates a transaction ID.
+ *
+ * @returns {string}
+ */
+export const generateTransactionId = () =>
+  generatePrefixedId(ID_PREFIXES.TRANSACTION)
 
 export const generateSupplierId = () => generatePrefixedId(ID_PREFIXES.SUPPLIER)
 

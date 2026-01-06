@@ -2,55 +2,93 @@ import { describe, it, expect } from 'vitest'
 
 import {
   generateId,
+  generatePrefixedId,
+
+  // Core
   generateUserId,
   generateTenantId,
-  generatePrefixedId,
-  generatePermissionId,
-  generateOnboardingId,
-  generateCorrelationId,
-  generateVerificationId,
-  generateRolePermissionsId,
   generateSessionId,
+  generateOnboardingId,
+
+  // Authorization
+  generatePermissionId,
+  generateRoleId,
+  generateRolePermissionsId,
+  generateVerificationId,
+  generatePolicyId,
+  generateProfileId,
+  generateDeviceId,
+
+  // Assets
+  generateAssetId,
+  generateAssetUploadId,
   generateFileId,
+
+  // Accounting
+  generateSupplierId,
+  generateCustomerId,
+  generateInvoiceId,
+  generateInvoiceItemId,
+  generateInvoiceCorrectionId,
+  generatePaymentId,
+  generateTransactionId,
+  generateReceiptId,
+  generateInvoiceReceiptId,
+  generateCreditNoteId,
+  generateDebitNoteId,
+  generateProformaInvoiceId,
+  generateDeliveryNoteId,
+  generateOrderId,
+  generateQuoteId,
+
+  // AI / docs
+  generateDocumentDataId,
+
+  // Messaging / infra
+  generateCorrelationId,
   generateEventId,
   generateJobId,
   generateTaskId,
   generateQueueId,
   generateMessageId,
   generateNotificationId,
-  generateLogId,
-  generateAuditId,
-  generateConfigId,
-  generateKeyId,
-  generateMetricId,
-  generateTagId,
-  generatePolicyId,
-  generateProfileId,
-  generateDeviceId,
-  generateAlertId,
-  generateResourceId,
-  generateRoleId,
-  generateAssetId,
-  generateAssetUploadId,
-  generateSupplierId,
-  generateInvoiceId,
-  generateInvoiceItemId,
-  generateInvoiceCorrectionId,
-  generateDocumentDataId,
+
+  // Communication
   generateEmailId,
   generateIncomingEmailId,
   generateImId,
+
+  // Observability
+  generateLogId,
+  generateAuditId,
+  generateMetricId,
+
+  // Misc
+  generateConfigId,
+  generateKeyId,
+  generateTagId,
+  generateAlertId,
+  generateResourceId,
+
+  // Bots
   generateBotFlowId,
 } from '../../src/ids/generators.js'
+
 import { ID_PREFIXES } from '../../src/ids/prefixes.js'
 
 // ULID is a 26-character Base32 string (no I, L, O, U).
 const ULID_REGEX = /^[0-9A-HJKMNP-TV-Z]{26}$/
 
-// @ts-ignore
+/**
+ * Helper to test prefixed ID generators.
+ *
+ * @param {Function} fn
+ * @param {string} expectedPrefix
+ */
 const testPrefixFunction = (fn, expectedPrefix) => {
   const id = fn()
   expect(typeof id).toBe('string')
+
   const [prefix, ulid] = id.split('_')
   expect(prefix).toBe(expectedPrefix)
   expect(ulid).toMatch(ULID_REGEX)
@@ -59,7 +97,6 @@ const testPrefixFunction = (fn, expectedPrefix) => {
 describe('generateId', () => {
   it('generates a valid ULID', () => {
     const id = generateId()
-    expect(typeof id).toBe('string')
     expect(id).toMatch(ULID_REGEX)
   })
 
@@ -70,167 +107,95 @@ describe('generateId', () => {
 })
 
 describe('generatePrefixedId', () => {
-  it('generates an ID with the correct prefix', () => {
-    const prefixed = generatePrefixedId('test')
-    const [prefix, ulid] = prefixed.split('_')
+  it('generates an ID with the given prefix', () => {
+    const id = generatePrefixedId('test')
+    const [prefix, ulid] = id.split('_')
+
     expect(prefix).toBe('test')
     expect(ulid).toMatch(ULID_REGEX)
   })
 })
 
 describe('generate*Id functions', () => {
-  it('generateUserId returns ID with usr_ prefix', () => {
+  it('core identity', () => {
     testPrefixFunction(generateUserId, ID_PREFIXES.USER)
-  })
-
-  it('generateTenantId returns ID with tnt_ prefix', () => {
     testPrefixFunction(generateTenantId, ID_PREFIXES.TENANT)
-  })
-
-  it('generateOnboardingId returns ID with onb_ prefix', () => {
+    testPrefixFunction(generateSessionId, ID_PREFIXES.SESSION)
     testPrefixFunction(generateOnboardingId, ID_PREFIXES.ONBOARDING)
   })
 
-  it('generatePermissionId returns ID with prm_ prefix', () => {
+  it('authorization & access', () => {
     testPrefixFunction(generatePermissionId, ID_PREFIXES.PERMISSION)
-  })
-
-  it('generateCorrelationId returns ID with crln_ prefix', () => {
-    testPrefixFunction(generateCorrelationId, ID_PREFIXES.CORRELATION)
-  })
-
-  it('generateVerificationId returns ID with vrf_ prefix', () => {
-    testPrefixFunction(generateVerificationId, ID_PREFIXES.VERIFICATION)
-  })
-
-  it('generateRolePermissionsId returns ID with role_ prefix', () => {
+    testPrefixFunction(generateRoleId, ID_PREFIXES.ROLE)
     testPrefixFunction(generateRolePermissionsId, ID_PREFIXES.ROLE_PERMISSION)
-  })
-
-  it('generateSessionId returns ID with sess_ prefix', () => {
-    testPrefixFunction(generateSessionId, ID_PREFIXES.SESSION)
-  })
-
-  it('generateFileId returns ID with fil_ prefix', () => {
-    testPrefixFunction(generateFileId, ID_PREFIXES.FILE)
-  })
-
-  it('generateEventId returns ID with evt_ prefix', () => {
-    testPrefixFunction(generateEventId, ID_PREFIXES.EVENT)
-  })
-
-  it('generateJobId returns ID with job_ prefix', () => {
-    testPrefixFunction(generateJobId, ID_PREFIXES.JOB)
-  })
-
-  it('generateTaskId returns ID with task_ prefix', () => {
-    testPrefixFunction(generateTaskId, ID_PREFIXES.TASK)
-  })
-
-  it('generateQueueId returns ID with que_ prefix', () => {
-    testPrefixFunction(generateQueueId, ID_PREFIXES.QUEUE)
-  })
-
-  it('generateMessageId returns ID with msg_ prefix', () => {
-    testPrefixFunction(generateMessageId, ID_PREFIXES.MESSAGE)
-  })
-
-  it('generateNotificationId returns ID with ntf_ prefix', () => {
-    testPrefixFunction(generateNotificationId, ID_PREFIXES.NOTIFICATION)
-  })
-
-  it('generateLogId returns ID with log_ prefix', () => {
-    testPrefixFunction(generateLogId, ID_PREFIXES.LOG)
-  })
-
-  it('generateAuditId returns ID with adt_ prefix', () => {
-    testPrefixFunction(generateAuditId, ID_PREFIXES.AUDIT)
-  })
-
-  it('generateConfigId returns ID with cfg_ prefix', () => {
-    testPrefixFunction(generateConfigId, ID_PREFIXES.CONFIG)
-  })
-
-  it('generateKeyId returns ID with key_ prefix', () => {
-    testPrefixFunction(generateKeyId, ID_PREFIXES.KEY)
-  })
-
-  it('generateMetricId returns ID with met_ prefix', () => {
-    testPrefixFunction(generateMetricId, ID_PREFIXES.METRIC)
-  })
-
-  it('generateTagId returns ID with tag_ prefix', () => {
-    testPrefixFunction(generateTagId, ID_PREFIXES.TAG)
-  })
-
-  it('generatePolicyId returns ID with plc_ prefix', () => {
+    testPrefixFunction(generateVerificationId, ID_PREFIXES.VERIFICATION)
     testPrefixFunction(generatePolicyId, ID_PREFIXES.POLICY)
-  })
-
-  it('generateProfileId returns ID with prf_ prefix', () => {
     testPrefixFunction(generateProfileId, ID_PREFIXES.PROFILE)
-  })
-
-  it('generateDeviceId returns ID with dev_ prefix', () => {
     testPrefixFunction(generateDeviceId, ID_PREFIXES.DEVICE)
   })
 
-  it('generateAlertId returns ID with alr_ prefix', () => {
-    testPrefixFunction(generateAlertId, ID_PREFIXES.ALERT)
-  })
-
-  it('generateResourceId returns ID with res_ prefix', () => {
-    testPrefixFunction(generateResourceId, ID_PREFIXES.RESOURCE)
-  })
-
-  it('generateRoleId returns ID with role_ prefix', () => {
-    testPrefixFunction(generateRoleId, ID_PREFIXES.ROLE)
-  })
-
-  it('generateAssetId returns ID with ast_ prefix', () => {
+  it('assets & files', () => {
     testPrefixFunction(generateAssetId, ID_PREFIXES.ASSET)
-  })
-
-  it('generateAssetUploadId returns ID with aupl_ prefix', () => {
     testPrefixFunction(generateAssetUploadId, ID_PREFIXES.ASSET_UPLOAD)
+    testPrefixFunction(generateFileId, ID_PREFIXES.FILE)
   })
 
-  it('generateSupplierId returns ID with sup_ prefix', () => {
+  it('accounting domain', () => {
     testPrefixFunction(generateSupplierId, ID_PREFIXES.SUPPLIER)
-  })
-
-  it('generateInvoiceId returns ID with inv_ prefix', () => {
+    testPrefixFunction(generateCustomerId, ID_PREFIXES.CUSTOMER)
     testPrefixFunction(generateInvoiceId, ID_PREFIXES.INVOICE)
-  })
-
-  it('generateInvoiceItemId returns ID with invi_ prefix', () => {
     testPrefixFunction(generateInvoiceItemId, ID_PREFIXES.INVOICE_ITEM)
-  })
-
-  it('generateInvoiceCorrectionId returns ID with invc_ prefix', () => {
     testPrefixFunction(
       generateInvoiceCorrectionId,
       ID_PREFIXES.INVOICE_CORRECTION,
     )
+    testPrefixFunction(generatePaymentId, ID_PREFIXES.PAYMENT)
+    testPrefixFunction(generateTransactionId, ID_PREFIXES.TRANSACTION)
+    testPrefixFunction(generateReceiptId, ID_PREFIXES.RECEIPT)
+    testPrefixFunction(generateInvoiceReceiptId, ID_PREFIXES.INVOICE_RECEIPT)
+    testPrefixFunction(generateCreditNoteId, ID_PREFIXES.CREDIT_NOTE)
+    testPrefixFunction(generateDebitNoteId, ID_PREFIXES.DEBIT_NOTE)
+    testPrefixFunction(generateProformaInvoiceId, ID_PREFIXES.PROFORMA_INVOICE)
+    testPrefixFunction(generateDeliveryNoteId, ID_PREFIXES.DELIVERY_NOTE)
+    testPrefixFunction(generateOrderId, ID_PREFIXES.ORDER)
+    testPrefixFunction(generateQuoteId, ID_PREFIXES.QUOTE)
   })
 
-  it('generateDocumentDataId returns ID with docd_ prefix', () => {
+  it('ai / document processing', () => {
     testPrefixFunction(generateDocumentDataId, ID_PREFIXES.DOCUMENT_DATA)
   })
 
-  it('generateEmailId returns ID with eml_ prefix', () => {
+  it('messaging / infra', () => {
+    testPrefixFunction(generateCorrelationId, ID_PREFIXES.CORRELATION)
+    testPrefixFunction(generateEventId, ID_PREFIXES.EVENT)
+    testPrefixFunction(generateJobId, ID_PREFIXES.JOB)
+    testPrefixFunction(generateTaskId, ID_PREFIXES.TASK)
+    testPrefixFunction(generateQueueId, ID_PREFIXES.QUEUE)
+    testPrefixFunction(generateMessageId, ID_PREFIXES.MESSAGE)
+    testPrefixFunction(generateNotificationId, ID_PREFIXES.NOTIFICATION)
+  })
+
+  it('communication', () => {
     testPrefixFunction(generateEmailId, ID_PREFIXES.EMAIL)
-  })
-
-  it('generateIncomingEmailId returns ID with ieml_ prefix', () => {
     testPrefixFunction(generateIncomingEmailId, ID_PREFIXES.INCOMING_EMAIL)
-  })
-
-  it('generateImId returns ID with im_ prefix', () => {
     testPrefixFunction(generateImId, ID_PREFIXES.IM)
   })
 
-  it('generateBotFlowId returns ID with botf_ prefix', () => {
+  it('observability', () => {
+    testPrefixFunction(generateLogId, ID_PREFIXES.LOG)
+    testPrefixFunction(generateAuditId, ID_PREFIXES.AUDIT)
+    testPrefixFunction(generateMetricId, ID_PREFIXES.METRIC)
+  })
+
+  it('misc / config', () => {
+    testPrefixFunction(generateConfigId, ID_PREFIXES.CONFIG)
+    testPrefixFunction(generateKeyId, ID_PREFIXES.KEY)
+    testPrefixFunction(generateTagId, ID_PREFIXES.TAG)
+    testPrefixFunction(generateAlertId, ID_PREFIXES.ALERT)
+    testPrefixFunction(generateResourceId, ID_PREFIXES.RESOURCE)
+  })
+
+  it('bots / automation', () => {
     testPrefixFunction(generateBotFlowId, ID_PREFIXES.BOT_FLOW)
   })
 })

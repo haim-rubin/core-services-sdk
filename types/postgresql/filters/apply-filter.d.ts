@@ -9,6 +9,7 @@
 export function applyFilter({
   query,
   filter,
+  snakeCase,
 }: {
   query: import('knex').Knex.QueryBuilder
   filter?: any

@@ -11,6 +11,17 @@ export function generateVerificationId(): string
 export function generateAssetId(): string
 export function generateAssetUploadId(): string
 export function generateFileId(): string
+export function generateReceiptId(): string
+export function generateInvoiceReceiptId(): string
+export function generateCreditNoteId(): string
+export function generateDebitNoteId(): string
+export function generateProformaInvoiceId(): string
+export function generateDeliveryNoteId(): string
+export function generateOrderId(): string
+export function generateQuoteId(): string
+export function generateCustomerId(): string
+export function generatePaymentId(): string
+export function generateTransactionId(): string
 export function generateSupplierId(): string
 export function generateInvoiceId(): string
 export function generateInvoiceItemId(): string
