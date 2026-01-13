@@ -50,6 +50,7 @@ export const ID_PREFIXES: Readonly<{
   DELIVERY_NOTE: 'dln'
   ORDER: 'ord'
   QUOTE: 'qte'
+  COUNTERPARTY: 'ctp'
   DOCUMENT_DATA: 'docd'
   CORRELATION: 'crln'
   EVENT: 'evt'

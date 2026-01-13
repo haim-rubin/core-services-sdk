@@ -57,7 +57,7 @@ export const ID_PREFIXES = Object.freeze({
   DELIVERY_NOTE: 'dln',
   ORDER: 'ord',
   QUOTE: 'qte',
-
+  COUNTERPARTY: 'ctp',
   //////////////////////////////////////////////////////
   // AI / document processing
   //////////////////////////////////////////////////////

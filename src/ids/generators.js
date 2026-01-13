@@ -160,6 +160,14 @@ export const generateInvoiceItemId = () =>
 export const generateInvoiceCorrectionId = () =>
   generatePrefixedId(ID_PREFIXES.INVOICE_CORRECTION)
 
+/**
+ * Generates a counterparty ID.
+ *
+ * @returns {string}
+ */
+export const generateCounterpartyId = () =>
+  generatePrefixedId(ID_PREFIXES.COUNTERPARTY)
+
 /* =========================
  * AI / document processing
  * ========================= */

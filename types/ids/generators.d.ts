@@ -26,6 +26,7 @@ export function generateSupplierId(): string
 export function generateInvoiceId(): string
 export function generateInvoiceItemId(): string
 export function generateInvoiceCorrectionId(): string
+export function generateCounterpartyId(): string
 export function generateDocumentDataId(): string
 export function generateBotFlowId(): string
 export function generateCorrelationId(): string

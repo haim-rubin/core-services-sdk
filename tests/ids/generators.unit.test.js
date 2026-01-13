@@ -72,6 +72,7 @@ import {
 
   // Bots
   generateBotFlowId,
+  generateCounterpartyId,
 } from '../../src/ids/generators.js'
 
 import { ID_PREFIXES } from '../../src/ids/prefixes.js'
@@ -143,6 +144,7 @@ describe('generate*Id functions', () => {
   it('accounting domain', () => {
     testPrefixFunction(generateSupplierId, ID_PREFIXES.SUPPLIER)
     testPrefixFunction(generateCustomerId, ID_PREFIXES.CUSTOMER)
+    testPrefixFunction(generateCounterpartyId, ID_PREFIXES.COUNTERPARTY)
     testPrefixFunction(generateInvoiceId, ID_PREFIXES.INVOICE)
     testPrefixFunction(generateInvoiceItemId, ID_PREFIXES.INVOICE_ITEM)
     testPrefixFunction(
@@ -197,5 +199,11 @@ describe('generate*Id functions', () => {
 
   it('bots / automation', () => {
     testPrefixFunction(generateBotFlowId, ID_PREFIXES.BOT_FLOW)
+  })
+})
+
+it('all prefixes are lowercase and reasonably short', () => {
+  Object.values(ID_PREFIXES).forEach((prefix) => {
+    expect(prefix).toMatch(/^[a-z0-9]{2,6}$/)
   })
 })

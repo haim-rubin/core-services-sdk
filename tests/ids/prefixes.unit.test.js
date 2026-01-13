@@ -29,10 +29,11 @@ describe('ID_PREFIXES', () => {
 
       // Accounting domain
       SUPPLIER: 'sup',
+      CUSTOMER: 'cust',
+      COUNTERPARTY: 'ctp',
       INVOICE: 'inv',
       INVOICE_ITEM: 'invi',
       INVOICE_CORRECTION: 'invc',
-      CUSTOMER: 'cust',
       PAYMENT: 'pay',
       TRANSACTION: 'txn',
       RECEIPT: 'rcp',
