@@ -51,6 +51,73 @@ describe('applyOrderBy', () => {
     expect(query.orderBy).toHaveBeenCalledWith('assets.created_at', 'desc')
   })
 
+  it('throws an error for invalid order direction', () => {
+    const query = {
+      orderBy: vi.fn(),
+      _single: { table: 'assets' },
+    }
+
+    expect(() =>
+      applyOrderBy({
+        query,
+        orderBy: { column: 'created_at', direction: 'up' },
+      }),
+    ).toThrow('Invalid order direction: up')
+
+    expect(query.orderBy).not.toHaveBeenCalled()
+  })
+
+  it('falls back to asc when direction is undefined', () => {
+    const query = {
+      orderBy: vi.fn(() => query),
+      _single: { table: 'assets' },
+    }
+
+    applyOrderBy({
+      query,
+      orderBy: { column: 'created_at', direction: undefined },
+    })
+
+    expect(query.orderBy).toHaveBeenCalledWith('assets.created_at', 'asc')
+  })
+
+  it('applies multiple ORDER BY clauses from array', () => {
+    const query = {
+      orderBy: vi.fn(() => query),
+      _single: { table: 'assets' },
+    }
+
+    applyOrderBy({
+      query,
+      orderBy: [{ column: 'created_at', direction: 'desc' }, { column: 'id' }],
+    })
+
+    expect(query.orderBy).toHaveBeenNthCalledWith(
+      1,
+      'assets.created_at',
+      'desc',
+    )
+
+    expect(query.orderBy).toHaveBeenNthCalledWith(2, 'assets.id', 'asc')
+  })
+
+  it('throws on invalid direction inside orderBy array', () => {
+    const query = {
+      orderBy: vi.fn(() => query),
+      _single: { table: 'assets' },
+    }
+
+    expect(() =>
+      applyOrderBy({
+        query,
+        orderBy: [
+          { column: 'created_at', direction: 'desc' },
+          { column: 'id', direction: 'sideways' },
+        ],
+      }),
+    ).toThrow('Invalid order direction: sideways')
+  })
+
   it('uses unqualified column when table name cannot be resolved', () => {
     const query = {
       orderBy: vi.fn(() => query),
