@@ -155,3 +155,68 @@ export function formatEnvReport(report: {
     errors?: string[]
   }>
 }): string
+/**
+ * Validates environment variables end-to-end and builds a full report.
+ *
+ * This function:
+ * - validates values using the schema definition
+ * - builds a structured report (including masking secrets)
+ * - formats a printable output
+ *
+ * @param {Record<string, Object>} definition
+ *   Environment schema definition.
+ *
+ * @param {Record<string, any>} values
+ *   Raw environment values (e.g. process.env).
+ *
+ * @param {{
+ *   mask?: (value: any) => string
+ * }} [options]
+ *
+ * @returns {{
+ *   success: boolean,
+ *   validation: {
+ *     success: boolean,
+ *     data?: Record<string, any>,
+ *     summary?: Record<string, string[]>
+ *   },
+ *   report: {
+ *     success: boolean,
+ *     params: Array<{
+ *       key: string,
+ *       value: any,
+ *       displayValue: string,
+ *       secret: boolean,
+ *       valid: boolean,
+ *       errors?: string[]
+ *     }>
+ *   },
+ *   output: string
+ * }}
+ */
+export function validateAndReportEnv(
+  definition: Record<string, any>,
+  values: Record<string, any>,
+  options?: {
+    mask?: (value: any) => string
+  },
+): {
+  success: boolean
+  validation: {
+    success: boolean
+    data?: Record<string, any>
+    summary?: Record<string, string[]>
+  }
+  report: {
+    success: boolean
+    params: Array<{
+      key: string
+      value: any
+      displayValue: string
+      secret: boolean
+      valid: boolean
+      errors?: string[]
+    }>
+  }
+  output: string
+}
