@@ -361,3 +361,51 @@ export function validateAndReportEnv(definition, values, options = {}) {
     output,
   }
 }
+
+/**
+ * Validates environment variables and prepares
+ * a printable table output.
+ *
+ * No side effects. Does NOT print.
+ *
+ * @param {Record<string, Object>} definition
+ * @param {Record<string, any>} values
+ * @param {{
+ *   mask?: (value: any) => string
+ * }} [options]
+ *
+ * @returns {{
+ *   success: boolean,
+ *   table: string,
+ *   validation: {
+ *     success: boolean,
+ *     data?: Record<string, any>,
+ *     summary?: Record<string, string[]>
+ *   },
+ *   report: {
+ *     success: boolean,
+ *     params: Array<{
+ *       key: string,
+ *       value: any,
+ *       displayValue: string,
+ *       secret: boolean,
+ *       valid: boolean,
+ *       errors?: string[]
+ *     }>
+ *   }
+ * }}
+ */
+export function prepareEnvValidation(definition, values, options = {}) {
+  const { mask } = options
+
+  const validation = validateEnv(definition, values)
+  const report = buildEnvReport(definition, values, validation, mask)
+  const table = formatEnvReport(report)
+
+  return {
+    success: validation.success,
+    table,
+    validation,
+    report,
+  }
+}
