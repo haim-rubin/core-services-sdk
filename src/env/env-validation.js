@@ -409,3 +409,82 @@ export function prepareEnvValidation(definition, values, options = {}) {
     report,
   }
 }
+
+/**
+ * Builds a console-ready table output for environment validation.
+ *
+ * Always includes all variables.
+ * NOTES column always has a value:
+ * - 'OK' for valid variables
+ * - error message(s) for invalid variables
+ *
+ * @param {{
+ *   params: Array<{
+ *     key: string,
+ *     displayValue: string,
+ *     valid: boolean,
+ *     errors?: string[]
+ *   }>
+ * }} report
+ *
+ * @returns {string}
+ */
+export function buildConsoleOutput(report) {
+  const headers = ['STATUS', 'KEY', 'VALUE', 'NOTES']
+
+  const rows = report.params.map((p) => {
+    const status = p.valid ? 'OK' : 'ERROR'
+    const notes = p.valid ? 'OK' : p.errors?.join('; ') || 'Invalid value'
+
+    return [status, p.key, p.displayValue, notes]
+  })
+
+  const allRows = [headers, ...rows]
+
+  const colWidths = headers.map((_, i) =>
+    Math.max(...allRows.map((row) => String(row[i]).length)),
+  )
+
+  const formatRow = (row) =>
+    row.map((cell, i) => String(cell).padEnd(colWidths[i])).join('  ')
+
+  return [
+    'Environment variables',
+    '',
+    ...allRows.map(formatRow),
+    '',
+    report.params.every((p) => p.valid)
+      ? 'All variables are valid.'
+      : 'Some variables are invalid.',
+  ].join('\n')
+}
+
+/**
+ * Validates environment variables and prepares
+ * a fully printable console output.
+ *
+ * @param {Record<string, Object>} definition
+ * @param {Record<string, any>} values
+ * @param {{
+ *   mask?: (value: any) => string
+ * }} [options]
+ *
+ * @returns {{
+ *   success: boolean,
+ *   output: string,
+ *   report: any
+ * }}
+ */
+export function validateEnvForConsole(definition, values, options = {}) {
+  const { mask } = options
+
+  const validation = validateEnv(definition, values)
+  const report = buildEnvReport(definition, values, validation, mask)
+  const output = buildConsoleOutput(report)
+
+  return {
+    output,
+    report,
+    success: validation.success,
+  }
+}

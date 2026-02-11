@@ -279,3 +279,57 @@ export function prepareEnvValidation(
     }>
   }
 }
+/**
+ * Builds a console-ready table output for environment validation.
+ *
+ * Always includes all variables.
+ * NOTES column always has a value:
+ * - 'OK' for valid variables
+ * - error message(s) for invalid variables
+ *
+ * @param {{
+ *   params: Array<{
+ *     key: string,
+ *     displayValue: string,
+ *     valid: boolean,
+ *     errors?: string[]
+ *   }>
+ * }} report
+ *
+ * @returns {string}
+ */
+export function buildConsoleOutput(report: {
+  params: Array<{
+    key: string
+    displayValue: string
+    valid: boolean
+    errors?: string[]
+  }>
+}): string
+/**
+ * Validates environment variables and prepares
+ * a fully printable console output.
+ *
+ * @param {Record<string, Object>} definition
+ * @param {Record<string, any>} values
+ * @param {{
+ *   mask?: (value: any) => string
+ * }} [options]
+ *
+ * @returns {{
+ *   success: boolean,
+ *   output: string,
+ *   report: any
+ * }}
+ */
+export function validateEnvForConsole(
+  definition: Record<string, any>,
+  values: Record<string, any>,
+  options?: {
+    mask?: (value: any) => string
+  },
+): {
+  success: boolean
+  output: string
+  report: any
+}

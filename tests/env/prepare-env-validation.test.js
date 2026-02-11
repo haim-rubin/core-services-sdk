@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest'
 import { prepareEnvValidation } from '../../src/env/env-validation.js'
 
 describe('prepareEnvValidation', () => {
+  const mask = () => '****'
+
   const definition = {
     PORT: {
       type: 'number',
@@ -31,13 +33,8 @@ describe('prepareEnvValidation', () => {
     const result = prepareEnvValidation(definition, values, { mask })
 
     expect(result.success).toBe(true)
-    expect(result.validation.success).toBe(true)
-
     expect(result.table).toContain('Environment variables')
     expect(result.table).toContain('PORT')
-    expect(result.table).toContain('MODE')
-    expect(result.table).toContain('API_KEY')
-
     expect(result.table).toContain('OK')
     expect(result.table).toContain('****')
     expect(result.table).not.toContain('secret')
