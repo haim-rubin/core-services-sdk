@@ -64,6 +64,7 @@ describe('prepareEnvValidation', () => {
     const result = prepareEnvValidation(definition, values)
 
     expect(result.success).toBe(true)
+    // @ts-ignore
     expect(result.validation.data.PORT).toBe(8080)
   })
 

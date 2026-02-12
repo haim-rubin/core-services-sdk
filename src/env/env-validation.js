@@ -240,7 +240,7 @@ export function buildEnvReport(definition, values, validationResult, mask) {
       ? validationResult.data[key]
       : rawValue
 
-    const displayValue = isSecret ? maskValue(value) : String(value)
+    const displayValue = isSecret ? maskValue(value, '.', 3) : String(value)
 
     const errors = validationResult.success
       ? undefined
