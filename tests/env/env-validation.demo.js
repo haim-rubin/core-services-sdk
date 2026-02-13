@@ -77,7 +77,6 @@ for (const scenario of scenarios) {
 
   const result = prepareEnvValidation(definition, scenario.values, { mask })
 
-  // פה הבחירה שלך מה לעשות עם זה
   console.log(result.table)
 
   if (!result.success) {
