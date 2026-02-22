@@ -30,8 +30,12 @@ vi.mock('@sendgrid/mail', () => {
 // ---------------- Mock AWS SESv2 ----------------
 vi.mock('@aws-sdk/client-sesv2', () => {
   const mockSesInstance = { mocked: true }
-  const SESv2Client = vi.fn(() => mockSesInstance)
-  const SendEmailCommand = vi.fn(() => 'mocked-command')
+  const SESv2Client = vi.fn(function () {
+    Object.assign(this, mockSesInstance)
+  })
+  const SendEmailCommand = vi.fn(function () {
+    return 'mocked-command'
+  })
 
   globalThis.__mockedSesv2Client__ = SESv2Client
   globalThis.__mockedSesv2Instance__ = mockSesInstance
@@ -137,12 +141,10 @@ describe('TransportFactory', () => {
     })
 
     const args = nodemailer.createTransport.mock.calls[0][0]
-    expect(args).toEqual({
-      SES: {
-        sesClient: globalThis.__mockedSesv2Instance__,
-        SendEmailCommand: globalThis.__mockedSendEmailCommand__,
-      },
-    })
+    expect(args.SES.sesClient).toBeInstanceOf(globalThis.__mockedSesv2Client__)
+    expect(args.SES.SendEmailCommand).toBe(
+      globalThis.__mockedSendEmailCommand__,
+    )
 
     expect(transport.type).toBe('mock-transport')
   })
@@ -162,12 +164,10 @@ describe('TransportFactory', () => {
     })
 
     const args = nodemailer.createTransport.mock.calls[0][0]
-    expect(args).toEqual({
-      SES: {
-        sesClient: globalThis.__mockedSesv2Instance__,
-        SendEmailCommand: globalThis.__mockedSendEmailCommand__,
-      },
-    })
+    expect(args.SES.sesClient).toBeInstanceOf(globalThis.__mockedSesv2Client__)
+    expect(args.SES.SendEmailCommand).toBe(
+      globalThis.__mockedSendEmailCommand__,
+    )
 
     expect(transport.type).toBe('mock-transport')
   })

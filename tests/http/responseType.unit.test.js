@@ -7,6 +7,7 @@ describe('ResponseType', () => {
   it('should contain correct response type mappings', () => {
     expect(ResponseType).toEqual({
       xml: 'xml',
+      raw: 'raw',
       json: 'json',
       text: 'text',
       file: 'file',
@@ -32,7 +33,7 @@ describe('ResponseType', () => {
 
   it('should include expected keys', () => {
     const keys = Object.keys(ResponseType)
-    expect(keys).toEqual(['xml', 'json', 'text', 'file'])
+    expect(keys).toEqual(['xml', 'raw', 'json', 'text', 'file'])
   })
 
   it('should include expected values', () => {
@@ -41,5 +42,6 @@ describe('ResponseType', () => {
     expect(values).toContain('xml')
     expect(values).toContain('text')
     expect(values).toContain('file')
+    expect(values).toContain('raw')
   })
 })

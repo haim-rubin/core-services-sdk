@@ -7,6 +7,50 @@
  * @module http
  */
 
+/**
+ * @typedef {'json' | 'xml' | 'text' | 'raw' | 'file'} ResponseTypeValue
+ */
+
+/**
+ * @typedef {Object} HttpGetOptions
+ * @property {string} url - The URL to send the request to.
+ * @property {Record<string, string>} [headers] - Optional HTTP headers.
+ * @property {RequestInit} [extraParams] - Additional fetch options.
+ * @property {ResponseTypeValue} [expectedType] - Expected response type.
+ */
+
+/**
+ * @typedef {Object} HttpPostOptions
+ * @property {string} url - The URL to send the request to.
+ * @property {any} body - The request body to send.
+ * @property {Record<string, string>} [headers] - Optional HTTP headers.
+ * @property {ResponseTypeValue} [expectedType] - Expected response type.
+ */
+
+/**
+ * @typedef {Object} HttpPutOptions
+ * @property {string} url - The URL to send the request to.
+ * @property {any} body - The request body to send.
+ * @property {Record<string, string>} [headers] - Optional HTTP headers.
+ * @property {ResponseTypeValue} [expectedType] - Expected response type.
+ */
+
+/**
+ * @typedef {Object} HttpPatchOptions
+ * @property {string} url - The URL to send the request to.
+ * @property {any} body - The request body to send.
+ * @property {Record<string, string>} [headers] - Optional HTTP headers.
+ * @property {ResponseTypeValue} [expectedType] - Expected response type.
+ */
+
+/**
+ * @typedef {Object} HttpDeleteOptions
+ * @property {string} url - The URL to send the request to.
+ * @property {any} [body] - Optional request body to send.
+ * @property {Record<string, string>} [headers] - Optional HTTP headers.
+ * @property {ResponseTypeValue} [expectedType] - Expected response type.
+ */
+
 import httpStatus from 'http-status'
 import { parseStringPromise } from 'xml2js'
 
@@ -130,6 +174,10 @@ const getResponsePayload = async (response, responseType) => {
 
 /**
  * Sends an HTTP GET request.
+ *
+ * @param {HttpGetOptions} options - The request options.
+ * @returns {Promise<any>} The parsed response based on expectedType.
+ * @throws {HttpError} If the response status is not successful.
  */
 export const get = async ({
   url,
@@ -148,6 +196,10 @@ export const get = async ({
 
 /**
  * Sends an HTTP POST request.
+ *
+ * @param {HttpPostOptions} options - The request options.
+ * @returns {Promise<any>} The parsed response based on expectedType.
+ * @throws {HttpError} If the response status is not successful.
  */
 export const post = async ({
   url,
@@ -166,6 +218,10 @@ export const post = async ({
 
 /**
  * Sends an HTTP PUT request.
+ *
+ * @param {HttpPutOptions} options - The request options.
+ * @returns {Promise<any>} The parsed response based on expectedType.
+ * @throws {HttpError} If the response status is not successful.
  */
 export const put = async ({
   url,
@@ -184,6 +240,10 @@ export const put = async ({
 
 /**
  * Sends an HTTP PATCH request.
+ *
+ * @param {HttpPatchOptions} options - The request options.
+ * @returns {Promise<any>} The parsed response based on expectedType.
+ * @throws {HttpError} If the response status is not successful.
  */
 export const patch = async ({
   url,
@@ -202,6 +262,10 @@ export const patch = async ({
 
 /**
  * Sends an HTTP DELETE request.
+ *
+ * @param {HttpDeleteOptions} options - The request options.
+ * @returns {Promise<any>} The parsed response based on expectedType.
+ * @throws {HttpError} If the response status is not successful.
  */
 export const deleteApi = async ({
   url,
@@ -219,7 +283,15 @@ export const deleteApi = async ({
 }
 
 /**
- * Consolidated HTTP client.
+ * Consolidated HTTP client with methods for common HTTP operations.
+ *
+ * @type {{
+ *   get: (options: HttpGetOptions) => Promise<any>,
+ *   put: (options: HttpPutOptions) => Promise<any>,
+ *   post: (options: HttpPostOptions) => Promise<any>,
+ *   patch: (options: HttpPatchOptions) => Promise<any>,
+ *   deleteApi: (options: HttpDeleteOptions) => Promise<any>
+ * }}
  */
 export const http = {
   get,

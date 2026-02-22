@@ -17,9 +17,9 @@ vi.mock('../../src/mailer/transport.factory.js', async () => {
 
 // Mock Mailer class
 vi.mock('../../src/mailer/mailer.service.js', async () => {
-  const Mailer = vi.fn().mockImplementation((transport) => ({
-    send: vi.fn((opts) => transport.sendMail(opts)),
-  }))
+  const Mailer = vi.fn(function (transport) {
+    this.send = vi.fn((opts) => transport.sendMail(opts))
+  })
   return { Mailer }
 })
 
