@@ -17,7 +17,9 @@ export const maskSingle = (
   if (value == null) {
     return ''
   }
+
   const str = String(value)
+
   if (str.length === 0) {
     return ''
   }
@@ -25,16 +27,20 @@ export const maskSingle = (
   if (typeof value === 'boolean') {
     return str
   }
-  const m =
-    null === maskLen ? Math.max(1, str.length - (right + left)) : maskLen
+
+  // default: max 3 mask characters
+  const calculated = Math.max(1, str.length - (left + right))
+  const m = maskLen == null ? Math.min(3, calculated) : Math.max(0, maskLen)
 
   if (str.length <= left + right) {
     if (str.length === 1) {
       return fill
     }
+
     if (str.length === 2) {
-      return str[0] + fill.repeat(1) // "ab" -> "a.."
+      return str[0] + fill
     }
+
     return str.slice(0, 1) + fill.repeat(m) + str.slice(-1)
   }
 

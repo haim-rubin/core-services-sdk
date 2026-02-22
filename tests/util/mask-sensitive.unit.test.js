@@ -5,11 +5,11 @@ import { mask, maskSingle } from '../../src/util/index.js'
 describe('maskSingle', () => {
   it('masks middle of a regular string (length == left+right)', () => {
     const value = maskSingle('abcdefgh')
-    expect(value).toBe('ab....gh')
+    expect(value).toBe('ab...gh')
   })
 
   it('masks numbers with default settings', () => {
-    expect(maskSingle(12345678)).toBe('12....78')
+    expect(maskSingle(12345678)).toBe('12...78')
   })
 
   it('masks booleans', () => {
@@ -45,8 +45,8 @@ describe('maskSingle', () => {
 
 describe('mask', () => {
   it('masks primitives (string, number, boolean)', () => {
-    expect(mask('abcdefgh')).toBe('ab....gh')
-    expect(mask(12345678)).toBe('12....78')
+    expect(mask('abcdefgh')).toBe('ab...gh')
+    expect(mask(12345678)).toBe('12...78')
     const trueValue = mask(true)
     expect(trueValue).toBe('true')
     expect(mask(false)).toBe('false')
@@ -59,20 +59,20 @@ describe('mask', () => {
 
   it('masks arrays recursively', () => {
     const value = mask(['abcdefgh', 12345678])
-    expect(value).toEqual(['ab....gh', '12....78'])
+    expect(value).toEqual(['ab...gh', '12...78'])
   })
 
   it('masks objects recursively', () => {
     expect(mask({ a: 'abcdefgh', b: 12345678 })).toEqual({
-      a: 'ab....gh',
-      b: '12....78',
+      a: 'ab...gh',
+      b: '12...78',
     })
   })
 
   it('masks nested objects/arrays recursively', () => {
     const input = { arr: ['abcdefgh', { num: 12345678 }] }
     const expected = { arr: ['ab....gh', { num: '12....78' }] }
-    const value = mask(input)
+    const value = mask(input, undefined, 4)
     expect(value).toEqual(expected)
   })
 
@@ -95,5 +95,26 @@ describe('mask', () => {
     const expected = { val: 'ab***gh' }
     const value = mask(input, '*', 3)
     expect(value).toEqual(expected)
+  })
+
+  it('limits default mask to max 3 characters', () => {
+    const value = maskSingle('abcdefghijklmnop')
+    expect(value).toBe('ab...op')
+  })
+
+  it('does not exceed available middle length', () => {
+    const value = maskSingle('abcde') // left=2 right=2 → middle=1
+    expect(value).toBe('ab.de')
+  })
+
+  it('allows maskLen = 0', () => {
+    const value = maskSingle('abcdefgh', '.', 0)
+    expect(value).toBe('abgh')
+  })
+
+  it('handles Date inside object', () => {
+    const d = new Date('2025-01-01T00:00:00.000Z')
+    const value = mask({ date: d })
+    expect(value).toEqual({ date: d.toISOString() })
   })
 })

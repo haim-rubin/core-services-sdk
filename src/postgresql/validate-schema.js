@@ -35,24 +35,33 @@ export async function validateSchema({
   connection,
   log = { info: console.info },
 }) {
-  const db = connectToPg(connection)
+  const db = connectToPg(connection, {
+    pool: {
+      min: 0,
+      max: 1,
+    },
+  })
 
-  const missingTables = []
+  try {
+    const missingTables = []
 
-  for (const table of tables) {
-    const exists = await db.schema.hasTable(table)
-    if (!exists) {
-      missingTables.push(table)
+    for (const table of tables) {
+      const exists = await db.schema.hasTable(table)
+      if (!exists) {
+        missingTables.push(table)
+      }
     }
-  }
 
-  if (missingTables.length > 0) {
-    throw new Error(
-      `Missing the following tables: ${missingTables.join(', ')}. Did you run migrations?`,
-    )
-  }
+    if (missingTables.length > 0) {
+      throw new Error(
+        `Missing the following tables: ${missingTables.join(', ')}. Did you run migrations?`,
+      )
+    }
 
-  if (tables.length) {
-    log.info(`All required tables are exists: ${tables.join(', ')}`)
+    if (tables.length) {
+      log.info(`All required tables are exists: ${tables.join(', ')}`)
+    }
+  } finally {
+    await db.destroy()
   }
 }

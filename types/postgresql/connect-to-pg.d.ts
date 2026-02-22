@@ -1,1 +1,6 @@
-export function connectToPg(connection: object | string): import('knex').Knex
+export function connectToPg(
+  connection: object | string,
+  options?: {
+    pool?: object
+  },
+): import('knex').Knex
