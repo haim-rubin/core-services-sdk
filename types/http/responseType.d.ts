@@ -14,6 +14,7 @@ export type ResponseType = string
  */
 export const ResponseType: Readonly<{
   xml: 'xml'
+  raw: 'raw'
   json: 'json'
   text: 'text'
   file: 'file'

@@ -149,5 +149,39 @@ describe('http client (native fetch)', () => {
 
       expect(result).toHaveProperty('note')
     })
+
+    it('should return raw response object if expectedType is raw', async () => {
+      const mockResponse = createMockResponse({ body: 'raw data', status: 200 })
+      mockFetch.mockResolvedValueOnce(mockResponse)
+
+      const result = await http.get({
+        url: 'http://test.com',
+        expectedType: ResponseType.raw,
+      })
+
+      expect(result).toBe(mockResponse)
+      expect(result.status).toBe(200)
+    })
+  })
+
+  describe('PUT with non-JSON body', () => {
+    it('should not stringify body when expectedType is not json', async () => {
+      const rawBody = 'plain text body'
+      mockFetch.mockResolvedValueOnce(createMockResponse({ body: 'OK' }))
+
+      await http.put({
+        url: 'http://test.com',
+        body: rawBody,
+        expectedType: ResponseType.text,
+      })
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://test.com',
+        expect.objectContaining({
+          method: 'PUT',
+          body: rawBody,
+        }),
+      )
+    })
   })
 })

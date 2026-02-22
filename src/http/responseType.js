@@ -10,6 +10,7 @@
  */
 export const ResponseType = Object.freeze({
   xml: 'xml',
+  raw: 'raw',
   json: 'json',
   text: 'text',
   file: 'file',

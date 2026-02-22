@@ -25,7 +25,7 @@ const JSON_HEADER = {
  * @returns {boolean}
  */
 const isOkStatus = ({ status }) =>
-  status >= httpStatus.OK && status < httpStatus.MULTIPLE_CHOICES
+  status >= httpStatus.OK && status < httpStatus.BAD_REQUEST
 
 /**
  * Ensures the response has a successful status, otherwise throws HttpError.
@@ -121,6 +121,8 @@ const getResponsePayload = async (response, responseType) => {
       return tryGetJsonResponse(response)
     case ResponseType.xml:
       return tryGetXmlResponse(response)
+    case ResponseType.raw:
+      return response
     default:
       return getTextResponse(response)
   }
@@ -132,9 +134,11 @@ const getResponsePayload = async (response, responseType) => {
 export const get = async ({
   url,
   headers = {},
+  extraParams = {},
   expectedType = ResponseType.json,
 }) => {
   const response = await fetch(url, {
+    ...extraParams,
     method: HTTP_METHODS.GET,
     headers: { ...JSON_HEADER, ...headers },
   })
@@ -172,7 +176,7 @@ export const put = async ({
   const response = await fetch(url, {
     method: HTTP_METHODS.PUT,
     headers: { ...JSON_HEADER, ...headers },
-    body: JSON.stringify(body),
+    body: expectedType === ResponseType.json ? JSON.stringify(body) : body,
   })
   await checkStatus(response)
   return getResponsePayload(response, expectedType)

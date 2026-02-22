@@ -1,10 +1,12 @@
 export function get({
   url,
   headers,
+  extraParams,
   expectedType,
 }: {
   url: any
   headers?: {}
+  extraParams?: {}
   expectedType?: 'json'
 }): Promise<any>
 export function post({
