@@ -75,7 +75,7 @@ export async function sqlPaginate({
   limit = 10,
   filter = {},
   snakeCase = true,
-  distinctOn, 
+  distinctOn,
 }) {
   const listQuery = baseQuery.clone()
   const countQuery = baseQuery.clone()
