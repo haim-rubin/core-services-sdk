@@ -75,6 +75,7 @@ export async function sqlPaginate({
   limit = 10,
   filter = {},
   snakeCase = true,
+  distinctOn, 
 }) {
   const listQuery = baseQuery.clone()
   const countQuery = baseQuery.clone()
@@ -89,7 +90,9 @@ export async function sqlPaginate({
 
   const [rows, countResult] = await Promise.all([
     listQuery.select('*'),
-    countQuery.count('* as count').first(),
+    distinctOn
+      ? countQuery.countDistinct(`${distinctOn} as count`).first()
+      : countQuery.count('* as count').first(),
   ])
 
   const totalCount = normalizeNumberOrDefault(countResult?.count || 0)
