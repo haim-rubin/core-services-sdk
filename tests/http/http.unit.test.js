@@ -185,3 +185,73 @@ describe('http client (native fetch)', () => {
     })
   })
 })
+
+describe('extraParams support', () => {
+  it('should pass extraParams to fetch in GET', async () => {
+    mockFetch.mockResolvedValueOnce(
+      createMockResponse({ body: JSON.stringify({ ok: true }) }),
+    )
+
+    const controller = new AbortController()
+
+    await http.get({
+      url: 'http://test.com',
+      extraParams: {
+        signal: controller.signal,
+        redirect: 'follow',
+      },
+    })
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://test.com',
+      expect.objectContaining({
+        method: HTTP_METHODS.GET,
+        signal: controller.signal,
+        redirect: 'follow',
+      }),
+    )
+  })
+
+  it('should pass extraParams to fetch in POST', async () => {
+    mockFetch.mockResolvedValueOnce(
+      createMockResponse({ body: JSON.stringify({ ok: true }) }),
+    )
+
+    await http.post({
+      url: 'http://test.com',
+      body: { a: 1 },
+      extraParams: {
+        credentials: 'include',
+      },
+    })
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://test.com',
+      expect.objectContaining({
+        method: HTTP_METHODS.POST,
+        credentials: 'include',
+      }),
+    )
+  })
+
+  it('should pass extraParams to fetch in DELETE', async () => {
+    mockFetch.mockResolvedValueOnce(
+      createMockResponse({ body: JSON.stringify({ ok: true }) }),
+    )
+
+    await http.deleteApi({
+      url: 'http://test.com',
+      extraParams: {
+        keepalive: true,
+      },
+    })
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://test.com',
+      expect.objectContaining({
+        method: HTTP_METHODS.DELETE,
+        keepalive: true,
+      }),
+    )
+  })
+})

@@ -69,6 +69,7 @@ export function sqlPaginate({
   limit,
   filter,
   snakeCase,
+  distinctOn,
 }: {
   baseQuery: import('knex').Knex.QueryBuilder
   filter?: any

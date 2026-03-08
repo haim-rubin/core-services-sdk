@@ -24,6 +24,7 @@
  * @property {string} url - The URL to send the request to.
  * @property {any} body - The request body to send.
  * @property {Record<string, string>} [headers] - Optional HTTP headers.
+ * @property {RequestInit} [extraParams] - Additional fetch options.
  * @property {ResponseTypeValue} [expectedType] - Expected response type.
  */
 
@@ -32,6 +33,7 @@
  * @property {string} url - The URL to send the request to.
  * @property {any} body - The request body to send.
  * @property {Record<string, string>} [headers] - Optional HTTP headers.
+ * @property {RequestInit} [extraParams] - Additional fetch options.
  * @property {ResponseTypeValue} [expectedType] - Expected response type.
  */
 
@@ -40,6 +42,7 @@
  * @property {string} url - The URL to send the request to.
  * @property {any} body - The request body to send.
  * @property {Record<string, string>} [headers] - Optional HTTP headers.
+ * @property {RequestInit} [extraParams] - Additional fetch options.
  * @property {ResponseTypeValue} [expectedType] - Expected response type.
  */
 
@@ -48,6 +51,7 @@
  * @property {string} url - The URL to send the request to.
  * @property {any} [body] - Optional request body to send.
  * @property {Record<string, string>} [headers] - Optional HTTP headers.
+ * @property {RequestInit} [extraParams] - Additional fetch options.
  * @property {ResponseTypeValue} [expectedType] - Expected response type.
  */
 
@@ -205,9 +209,11 @@ export const post = async ({
   url,
   body,
   headers = {},
+  extraParams = {},
   expectedType = ResponseType.json,
 }) => {
   const response = await fetch(url, {
+    ...extraParams,
     method: HTTP_METHODS.POST,
     headers: { ...JSON_HEADER, ...headers },
     body: JSON.stringify(body),
@@ -227,9 +233,11 @@ export const put = async ({
   url,
   body,
   headers = {},
+  extraParams = {},
   expectedType = ResponseType.json,
 }) => {
   const response = await fetch(url, {
+    ...extraParams,
     method: HTTP_METHODS.PUT,
     headers: { ...JSON_HEADER, ...headers },
     body: expectedType === ResponseType.json ? JSON.stringify(body) : body,
@@ -249,9 +257,11 @@ export const patch = async ({
   url,
   body,
   headers = {},
+  extraParams = {},
   expectedType = ResponseType.json,
 }) => {
   const response = await fetch(url, {
+    ...extraParams,
     method: HTTP_METHODS.PATCH,
     headers: { ...JSON_HEADER, ...headers },
     body: JSON.stringify(body),
@@ -271,9 +281,11 @@ export const deleteApi = async ({
   url,
   body,
   headers = {},
+  extraParams = {},
   expectedType = ResponseType.json,
 }) => {
   const response = await fetch(url, {
+    ...extraParams,
     method: HTTP_METHODS.DELETE,
     headers: { ...JSON_HEADER, ...headers },
     ...(body ? { body: JSON.stringify(body) } : {}),
