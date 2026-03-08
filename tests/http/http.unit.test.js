@@ -20,6 +20,7 @@ const createMockResponse = ({
     statusText,
     text: vi.fn().mockResolvedValue(body),
     headers: {
+      // @ts-ignore
       get: vi.fn().mockImplementation((k) => headers[k]),
     },
   }
@@ -251,6 +252,146 @@ describe('extraParams support', () => {
       expect.objectContaining({
         method: HTTP_METHODS.DELETE,
         keepalive: true,
+      }),
+    )
+  })
+})
+
+describe('HEAD', () => {
+  it('should send a HEAD request and return response object', async () => {
+    const mockResponse = createMockResponse({
+      status: 200,
+      headers: { 'content-length': '1234' },
+    })
+
+    mockFetch.mockResolvedValueOnce(mockResponse)
+
+    const result = await http.head({
+      url: 'http://test.com',
+    })
+
+    expect(result).toBe(mockResponse)
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://test.com',
+      expect.objectContaining({
+        method: HTTP_METHODS.HEAD,
+      }),
+    )
+  })
+
+  it('should expose response headers', async () => {
+    const mockResponse = createMockResponse({
+      headers: { etag: 'abc123' },
+    })
+
+    mockFetch.mockResolvedValueOnce(mockResponse)
+
+    const result = await http.head({
+      url: 'http://test.com',
+    })
+
+    expect(result.headers.get('etag')).toBe('abc123')
+  })
+
+  it('should throw HttpError on non-2xx status', async () => {
+    mockFetch.mockResolvedValueOnce(
+      createMockResponse({
+        status: 500,
+        body: 'server error',
+      }),
+    )
+
+    await expect(
+      http.head({
+        url: 'http://test.com',
+      }),
+    ).rejects.toThrow(HttpError)
+  })
+})
+
+describe('edge cases', () => {
+  it('should fallback to text when JSON parsing fails', async () => {
+    const invalidJson = '{invalid json'
+
+    mockFetch.mockResolvedValueOnce(createMockResponse({ body: invalidJson }))
+
+    const result = await http.get({
+      url: 'http://test.com',
+      expectedType: ResponseType.json,
+    })
+
+    expect(result).toBe(invalidJson)
+  })
+
+  it('should fallback to text when XML parsing fails', async () => {
+    const invalidXml = '<note><invalid></note>'
+
+    mockFetch.mockResolvedValueOnce(createMockResponse({ body: invalidXml }))
+
+    const result = await http.get({
+      url: 'http://test.com',
+      expectedType: ResponseType.xml,
+    })
+
+    expect(result).toBe(invalidXml)
+  })
+
+  it('should allow overriding headers', async () => {
+    mockFetch.mockResolvedValueOnce(
+      createMockResponse({ body: JSON.stringify({ ok: true }) }),
+    )
+
+    await http.get({
+      url: 'http://test.com',
+      headers: {
+        Authorization: 'Bearer token123',
+      },
+    })
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://test.com',
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Authorization: 'Bearer token123',
+        }),
+      }),
+    )
+  })
+
+  it('should send DELETE request without body', async () => {
+    mockFetch.mockResolvedValueOnce(
+      createMockResponse({ body: JSON.stringify({ ok: true }) }),
+    )
+
+    await http.deleteApi({
+      url: 'http://test.com',
+    })
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://test.com',
+      expect.objectContaining({
+        method: HTTP_METHODS.DELETE,
+      }),
+    )
+  })
+
+  it('should include default JSON content-type header', async () => {
+    mockFetch.mockResolvedValueOnce(
+      createMockResponse({ body: JSON.stringify({ ok: true }) }),
+    )
+
+    await http.post({
+      url: 'http://test.com',
+      body: { a: 1 },
+    })
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://test.com',
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          'Content-Type': 'application/json',
+        }),
       }),
     )
   })

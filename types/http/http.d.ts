@@ -32,6 +32,11 @@ export function deleteApi({
   extraParams,
   expectedType,
 }: HttpDeleteOptions): Promise<any>
+export function head({
+  url,
+  headers,
+  extraParams,
+}: HttpHeadOptions): Promise<Response>
 /**
  * Consolidated HTTP client with methods for common HTTP operations.
  *
@@ -40,7 +45,8 @@ export function deleteApi({
  *   put: (options: HttpPutOptions) => Promise<any>,
  *   post: (options: HttpPostOptions) => Promise<any>,
  *   patch: (options: HttpPatchOptions) => Promise<any>,
- *   deleteApi: (options: HttpDeleteOptions) => Promise<any>
+ *   deleteApi: (options: HttpDeleteOptions) => Promise<any>,
+ *   head: (options: HttpHeadOptions) => Promise<Response>
  * }}
  */
 export const http: {
@@ -49,6 +55,7 @@ export const http: {
   post: (options: HttpPostOptions) => Promise<any>
   patch: (options: HttpPatchOptions) => Promise<any>
   deleteApi: (options: HttpDeleteOptions) => Promise<any>
+  head: (options: HttpHeadOptions) => Promise<Response>
 }
 export type ResponseTypeValue = 'json' | 'xml' | 'text' | 'raw' | 'file'
 export type HttpGetOptions = {
@@ -156,4 +163,18 @@ export type HttpDeleteOptions = {
    * - Expected response type.
    */
   expectedType?: ResponseTypeValue
+}
+export type HttpHeadOptions = {
+  /**
+   * - The URL to send the request to.
+   */
+  url: string
+  /**
+   * - Optional HTTP headers.
+   */
+  headers?: Record<string, string>
+  /**
+   * - Additional fetch options.
+   */
+  extraParams?: RequestInit
 }

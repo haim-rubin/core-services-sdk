@@ -1,7 +1,8 @@
 export const HTTP_METHODS: Readonly<{
   GET: 'GET'
-  POST: 'POST'
   PUT: 'PUT'
+  HEAD: 'HEAD'
+  POST: 'POST'
   PATCH: 'PATCH'
   DELETE: 'DELETE'
 }>

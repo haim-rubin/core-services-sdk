@@ -55,6 +55,13 @@
  * @property {ResponseTypeValue} [expectedType] - Expected response type.
  */
 
+/**
+ * @typedef {Object} HttpHeadOptions
+ * @property {string} url - The URL to send the request to.
+ * @property {Record<string, string>} [headers] - Optional HTTP headers.
+ * @property {RequestInit} [extraParams] - Additional fetch options.
+ */
+
 import httpStatus from 'http-status'
 import { parseStringPromise } from 'xml2js'
 
@@ -295,6 +302,25 @@ export const deleteApi = async ({
 }
 
 /**
+ * Sends an HTTP HEAD request.
+ *
+ * @param {HttpHeadOptions} options - The request options.
+ * @returns {Promise<Response>} The raw fetch response (headers only).
+ * @throws {HttpError} If the response status is not successful.
+ */
+export const head = async ({ url, headers = {}, extraParams = {} }) => {
+  const response = await fetch(url, {
+    ...extraParams,
+    method: HTTP_METHODS.HEAD,
+    headers: { ...JSON_HEADER, ...headers },
+  })
+
+  await checkStatus(response)
+
+  return response
+}
+
+/**
  * Consolidated HTTP client with methods for common HTTP operations.
  *
  * @type {{
@@ -302,13 +328,16 @@ export const deleteApi = async ({
  *   put: (options: HttpPutOptions) => Promise<any>,
  *   post: (options: HttpPostOptions) => Promise<any>,
  *   patch: (options: HttpPatchOptions) => Promise<any>,
- *   deleteApi: (options: HttpDeleteOptions) => Promise<any>
+ *   deleteApi: (options: HttpDeleteOptions) => Promise<any>,
+ *   head: (options: HttpHeadOptions) => Promise<Response>
  * }}
  */
+
 export const http = {
   get,
   put,
   post,
   patch,
   deleteApi,
+  head,
 }

@@ -6,9 +6,10 @@ import { HTTP_METHODS } from '../../src/http/http-method.js'
 describe('HTTP_METHODS constant', () => {
   it('should include all standard HTTP methods', () => {
     expect(HTTP_METHODS).toEqual({
-      GET: 'GET',
-      POST: 'POST',
       PUT: 'PUT',
+      GET: 'GET',
+      HEAD: 'HEAD',
+      POST: 'POST',
       PATCH: 'PATCH',
       DELETE: 'DELETE',
     })
