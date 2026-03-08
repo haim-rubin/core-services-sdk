@@ -10,9 +10,10 @@
  * Does NOT enforce tenant isolation.
  */
 export class BaseRepository {
-  constructor({ db, log, baseQueryBuilder }?: {})
+  constructor({ db, log, columns, baseQueryBuilder }?: {})
   db: any
   log: any
+  _columns: any
   _baseQueryBuilder: any
   /**
    * Each concrete repository must define:
@@ -29,22 +30,24 @@ export class BaseRepository {
    */
   find({
     page,
+    columns,
     limit,
     filter,
-    orderBy,
     options,
     mapRow,
+    orderBy,
     ...restParams
   }: {
     [x: string]: any
     page?: number
+    columns: any
     limit?: number
     filter?: {}
+    options?: {}
+    mapRow?: (row: any) => any
     orderBy?: {
       column: string
       direction: string
     }
-    options?: {}
-    mapRow?: (row: any) => any
   }): Promise<any>
 }

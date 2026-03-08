@@ -67,6 +67,7 @@ export function sqlPaginate({
   page,
   baseQuery,
   limit,
+  columns,
   filter,
   snakeCase,
   distinctOn,

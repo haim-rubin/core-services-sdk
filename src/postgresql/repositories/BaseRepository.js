@@ -14,13 +14,14 @@ import { toSnakeCase } from '../../core/case-mapper.js'
  */
 
 export class BaseRepository {
-  constructor({ db, log, baseQueryBuilder } = {}) {
+  constructor({ db, log, columns, baseQueryBuilder } = {}) {
     if (!db) {
       throw new Error('BaseRepository requires db instance')
     }
 
     this.db = db
     this.log = log
+    this._columns = columns ?? '*'
     this._baseQueryBuilder = baseQueryBuilder
   }
 
@@ -48,7 +49,7 @@ export class BaseRepository {
 
     if (this._baseQueryBuilder) {
       // Pass full params for optional dynamic shaping
-      return this._baseQueryBuilder(qb, params)
+      this._baseQueryBuilder(qb, params)
     }
 
     return qb
@@ -59,11 +60,12 @@ export class BaseRepository {
    */
   async find({
     page = 1,
+    columns,
     limit = 10,
     filter = {},
-    orderBy = { column: 'created_at', direction: 'desc' },
     options = {},
     mapRow = (row) => row,
+    orderBy = { column: 'created_at', direction: 'desc' },
     ...restParams
   }) {
     try {
@@ -79,10 +81,11 @@ export class BaseRepository {
       return await sqlPaginate({
         page,
         limit,
+        mapRow,
         orderBy,
         baseQuery: qb,
-        mapRow,
         filter: toSnakeCase(filter),
+        columns: columns ?? this._columns,
       })
     } catch (error) {
       if (this.log) {

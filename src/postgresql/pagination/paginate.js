@@ -73,6 +73,7 @@ export async function sqlPaginate({
   page = 1,
   baseQuery,
   limit = 10,
+  columns = '*',
   filter = {},
   snakeCase = true,
   distinctOn,
@@ -89,7 +90,7 @@ export async function sqlPaginate({
   applyPagination({ query: listQuery, page, limit })
 
   const [rows, countResult] = await Promise.all([
-    listQuery.select('*'),
+    listQuery.select(columns),
     distinctOn
       ? countQuery.countDistinct(`${distinctOn} as count`).first()
       : countQuery.count('* as count').first(),

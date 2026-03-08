@@ -1,21 +1,14 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { BaseRepository } from '../../src/postgresql/repositories/BaseRepository.js'
 
-// 🔥 mock dependencies
+// mock paginate
 vi.mock('../../src/postgresql/pagination/paginate.js', () => ({
-  sqlPaginate: vi.fn().mockResolvedValue({ page: 1 }),
+  sqlPaginate: vi.fn(),
 }))
 
-vi.mock('../../filters/apply-filter-snake-case.js', () => ({
-  applyFilterSnakeCase: vi.fn(),
-}))
-
-vi.mock('../../filters/apply-filter.js', () => ({
-  applyFilter: vi.fn(),
-}))
-
-vi.mock('../../core/normalize-premitives-types-or-default.js', () => ({
-  normalizeNumberOrDefault: vi.fn((v) => Number(v)),
+// mock snakeCase mapper
+vi.mock('../../src/core/case-mapper.js', () => ({
+  toSnakeCase: vi.fn((v) => v),
 }))
 
 // import AFTER mocks
@@ -24,6 +17,7 @@ import { toSnakeCase } from '../../src/core/case-mapper.js'
 
 describe('BaseRepository', () => {
   let dbMock
+  let qbMock
   let logMock
 
   class TestRepo extends BaseRepository {
@@ -31,13 +25,21 @@ describe('BaseRepository', () => {
   }
 
   beforeEach(() => {
-    dbMock = vi.fn(() => ({
-      clone: vi.fn(),
-    }))
+    qbMock = {
+      clone: vi.fn().mockReturnThis(),
+    }
+
+    dbMock = vi.fn(() => qbMock)
 
     logMock = {
       error: vi.fn(),
     }
+
+    sqlPaginate.mockResolvedValue({ page: 1 })
+  })
+
+  afterEach(() => {
+    vi.clearAllMocks()
   })
 
   it('throws if db not provided', () => {
@@ -58,7 +60,7 @@ describe('BaseRepository', () => {
   })
 
   it('baseQuery uses trx when provided', () => {
-    const trxMock = vi.fn()
+    const trxMock = vi.fn(() => qbMock)
     const repo = new TestRepo({ db: dbMock })
 
     repo.baseQuery({ trx: trxMock })
@@ -68,7 +70,8 @@ describe('BaseRepository', () => {
   })
 
   it('baseQuery applies baseQueryBuilder', () => {
-    const builderMock = vi.fn((qb) => qb)
+    const builderMock = vi.fn()
+
     const repo = new TestRepo({
       db: dbMock,
       baseQueryBuilder: builderMock,
@@ -76,7 +79,7 @@ describe('BaseRepository', () => {
 
     repo.baseQuery({}, { some: 'param' })
 
-    expect(builderMock).toHaveBeenCalled()
+    expect(builderMock).toHaveBeenCalledWith(qbMock, { some: 'param' })
   })
 
   it('find calls sqlPaginate with correct params', async () => {
@@ -88,17 +91,65 @@ describe('BaseRepository', () => {
       filter: { a: 1 },
     })
 
-    expect(sqlPaginate).toHaveBeenCalled()
+    expect(toSnakeCase).toHaveBeenCalledWith({ a: 1 })
+
+    expect(sqlPaginate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        page: 2,
+        limit: 5,
+        baseQuery: qbMock,
+      }),
+    )
   })
 
   it('logs error if sqlPaginate throws', async () => {
-    // @ts-ignore
     sqlPaginate.mockRejectedValueOnce(new Error('fail'))
 
     const repo = new TestRepo({ db: dbMock, log: logMock })
 
-    await expect(repo.find({ filter: {} })).rejects.toThrow()
+    await expect(repo.find({ filter: {} })).rejects.toThrow('fail')
 
     expect(logMock.error).toHaveBeenCalled()
+  })
+
+  it('find uses columns passed to find()', async () => {
+    const repo = new TestRepo({ db: dbMock })
+
+    await repo.find({
+      columns: ['id', 'name'],
+    })
+
+    expect(sqlPaginate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        columns: ['id', 'name'],
+      }),
+    )
+  })
+
+  it('find falls back to constructor columns', async () => {
+    const repo = new TestRepo({
+      db: dbMock,
+      columns: ['id', 'email'],
+    })
+
+    await repo.find({})
+
+    expect(sqlPaginate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        columns: ['id', 'email'],
+      }),
+    )
+  })
+
+  it('find falls back to "*" when no columns provided', async () => {
+    const repo = new TestRepo({ db: dbMock })
+
+    await repo.find({})
+
+    expect(sqlPaginate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        columns: '*',
+      }),
+    )
   })
 })
