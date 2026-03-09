@@ -49,5 +49,12 @@ export class BaseRepository {
       column: string
       direction: string
     }
-  }): Promise<any>
+  }): Promise<{
+    page: number
+    pages: number
+    totalCount: number
+    hasPrevious: boolean
+    hasNext: boolean
+    list: any
+  }>
 }

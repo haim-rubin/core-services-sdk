@@ -67,6 +67,11 @@ import { normalizeNumberOrDefault } from '../../core/normalize-premitives-types-
  *   The list of records for the current page.
  *   Rows are mapped using `mapRow` if provided.
  */
+/**
+ * Generic SQL pagination helper that works with joins.
+ *
+ * @async
+ */
 export async function sqlPaginate({
   mapRow,
   orderBy,
@@ -76,24 +81,28 @@ export async function sqlPaginate({
   columns = '*',
   filter = {},
   snakeCase = true,
-  distinctOn,
 }) {
-  const listQuery = baseQuery.clone()
-  const countQuery = baseQuery.clone()
-
   const applyFilterFn = snakeCase ? applyFilterSnakeCase : applyFilter
 
-  applyFilterFn({ query: listQuery, filter })
-  applyFilterFn({ query: countQuery, filter })
+  const filteredQuery = baseQuery.clone()
+
+  applyFilterFn({ query: filteredQuery, filter })
+
+  const listQuery = filteredQuery.clone()
+  const countQuery = filteredQuery.clone()
 
   applyOrderBy({ query: listQuery, orderBy })
   applyPagination({ query: listQuery, page, limit })
 
+  const wrappedCountQuery = baseQuery.client
+    .queryBuilder()
+    .count('* as count')
+    .from(countQuery.as('t'))
+    .first()
+
   const [rows, countResult] = await Promise.all([
     listQuery.select(columns),
-    distinctOn
-      ? countQuery.countDistinct(`${distinctOn} as count`).first()
-      : countQuery.count('* as count').first(),
+    wrappedCountQuery,
   ])
 
   const totalCount = normalizeNumberOrDefault(countResult?.count || 0)

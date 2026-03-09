@@ -61,6 +61,11 @@
  *   The list of records for the current page.
  *   Rows are mapped using `mapRow` if provided.
  */
+/**
+ * Generic SQL pagination helper that works with joins.
+ *
+ * @async
+ */
 export function sqlPaginate({
   mapRow,
   orderBy,
@@ -70,13 +75,20 @@ export function sqlPaginate({
   columns,
   filter,
   snakeCase,
-  distinctOn,
 }: {
-  baseQuery: import('knex').Knex.QueryBuilder
-  filter?: any
-  snakeCase?: boolean
-  orderBy?: any | any[]
+  mapRow: any
+  orderBy: any
   page?: number
+  baseQuery: any
   limit?: number
-  mapRow?: Function
-}): Promise<any>
+  columns?: string
+  filter?: {}
+  snakeCase?: boolean
+}): Promise<{
+  page: number
+  pages: number
+  totalCount: number
+  hasPrevious: boolean
+  hasNext: boolean
+  list: any
+}>

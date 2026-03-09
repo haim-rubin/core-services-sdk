@@ -1,13 +1,18 @@
 /**
  * Applies ORDER BY clause(s) to a Knex query builder.
  *
- * Supports a single orderBy object or an array of orderBy objects.
- * Validates order direction to prevent invalid SQL.
+ * Supports single or multiple order definitions.
+ *
+ * Column handling:
+ *   - SQL expressions (e.g. "lower(name)", "count(*)") → orderByRaw, never quoted
+ *   - Already-qualified columns (e.g. "tenants.name") → orderBy as-is
+ *   - Plain column names (e.g. "name") → auto-prefixed with base table name
+ *     to avoid ambiguity in joined queries, matching applyFilter behaviour
  *
  * @param {Object} params
- * @param {import('knex').Knex.QueryBuilder} params.query - Knex query builder instance
- * @param {OrderByItem | OrderByItem[]} params.orderBy - Order by definition(s)
- * @returns {import('knex').Knex.QueryBuilder} The modified query builder
+ * @param {import('knex').Knex.QueryBuilder} params.query
+ * @param {OrderByItem | OrderByItem[]} params.orderBy
+ * @returns {import('knex').Knex.QueryBuilder}
  */
 export function applyOrderBy({
   query,
@@ -17,12 +22,6 @@ export function applyOrderBy({
   orderBy: OrderByItem | OrderByItem[]
 }): import('knex').Knex.QueryBuilder
 export type OrderByItem = {
-  /**
-   * - Column name to order by
-   */
   column: string
-  /**
-   * - Order direction
-   */
   direction?: 'asc' | 'desc'
 }
