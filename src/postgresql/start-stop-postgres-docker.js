@@ -39,6 +39,16 @@ export function startPostgres({
 
   stopPostgres(containerName)
 
+  // Kill any container that might still be holding the port
+  try {
+    const containerId = execSync(`docker ps -q --filter "publish=${port}"`, {
+      encoding: 'utf8',
+    }).trim()
+    if (containerId) {
+      execSync(`docker rm -f ${containerId}`, { stdio: 'ignore' })
+    }
+  } catch {}
+
   execSync(
     `docker run -d \
       --name ${containerName} \

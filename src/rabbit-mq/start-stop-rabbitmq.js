@@ -35,6 +35,18 @@ export function startRabbit({ containerName, ...rest }) {
     execSync(`docker rm -f ${containerName}`, { stdio: 'ignore' })
   } catch {}
 
+  // Kill any containers that might still be holding the ports
+  for (const port of [rest.amqpPort, rest.uiPort]) {
+    try {
+      const id = execSync(`docker ps -q --filter "publish=${port}"`, {
+        encoding: 'utf8',
+      }).trim()
+      if (id) {
+        execSync(`docker rm -f ${id}`, { stdio: 'ignore' })
+      }
+    } catch {}
+  }
+
   execSync(
     `docker run -d \
         --name ${containerName} \
@@ -42,6 +54,7 @@ export function startRabbit({ containerName, ...rest }) {
         -e RABBITMQ_DEFAULT_PASS=${rest.pass} \
         -p ${rest.amqpPort}:5672 \
         -p ${rest.uiPort}:15672 \
+        --tmpfs /var/lib/rabbitmq \
         --health-cmd="rabbitmq-diagnostics -q ping" \
         --health-interval=5s \
         --health-timeout=5s \

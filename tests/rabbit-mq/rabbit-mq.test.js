@@ -20,7 +20,7 @@ const log = pino({
   level: 'silent',
 })
 // @ts-ignore
-async function waitForRabbitConnection({ uri, log, timeoutMs = 10000 }) {
+async function waitForRabbitConnection({ uri, log, timeoutMs = 30000 }) {
   const start = Date.now()
 
   while (Date.now() - start < timeoutMs) {

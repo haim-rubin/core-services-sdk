@@ -11,11 +11,11 @@ import {
 import { TenantScopedRepository } from '../../src/postgresql/repositories/TenantScopedRepository.js'
 
 const PG_OPTIONS = {
-  port: 5446,
+  port: 5448,
   db: 'testdb',
   user: 'testuser',
   pass: 'testpass',
-  containerName: 'postgres-tenant-repo-test-5446',
+  containerName: 'postgres-tenant-repo-test-5448',
 }
 
 const DATABASE_URI = buildPostgresUri(PG_OPTIONS)

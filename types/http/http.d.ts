@@ -45,8 +45,9 @@ export function head({
  *   put: (options: HttpPutOptions) => Promise<any>,
  *   post: (options: HttpPostOptions) => Promise<any>,
  *   patch: (options: HttpPatchOptions) => Promise<any>,
- *   deleteApi: (options: HttpDeleteOptions) => Promise<any>,
- *   head: (options: HttpHeadOptions) => Promise<Response>
+ *   head: (options: HttpHeadOptions) => Promise<Response>,
+ *   deleteApi: (options: HttpDeleteOptions) => Promise<any>
+ *
  * }}
  */
 export const http: {
@@ -54,8 +55,8 @@ export const http: {
   put: (options: HttpPutOptions) => Promise<any>
   post: (options: HttpPostOptions) => Promise<any>
   patch: (options: HttpPatchOptions) => Promise<any>
-  deleteApi: (options: HttpDeleteOptions) => Promise<any>
   head: (options: HttpHeadOptions) => Promise<Response>
+  deleteApi: (options: HttpDeleteOptions) => Promise<any>
 }
 export type ResponseTypeValue = 'json' | 'xml' | 'text' | 'raw' | 'file'
 export type HttpGetOptions = {

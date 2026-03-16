@@ -184,6 +184,45 @@ const getResponsePayload = async (response, responseType) => {
 }
 
 /**
+ * Normalizes the request body before sending it via fetch.
+ *
+ * Ensures backward compatibility while allowing additional body types.
+ * - undefined/null → no body sent
+ * - string → sent as-is
+ * - URLSearchParams → sent as-is (fetch serializes automatically)
+ * - FormData → sent as-is (fetch sets multipart boundary automatically)
+ * - ArrayBuffer / Blob → sent as-is
+ * - object / array → JSON.stringify applied and Content-Type ensured
+ *
+ * @param {any} body
+ * @param {Record<string,string>} headers
+ * @returns {{ body:any, headers:Record<string,string> }}
+ */
+const prepareRequestBody = (body, headers = {}) => {
+  if (body === undefined || body === null) {
+    return { body: undefined, headers }
+  }
+
+  if (
+    typeof body === 'string' ||
+    body instanceof URLSearchParams ||
+    body instanceof FormData ||
+    body instanceof ArrayBuffer ||
+    body instanceof Blob
+  ) {
+    return { body, headers }
+  }
+
+  return {
+    body: JSON.stringify(body),
+    headers: {
+      'Content-Type': 'application/json',
+      ...headers,
+    },
+  }
+}
+
+/**
  * Sends an HTTP GET request.
  *
  * @param {HttpGetOptions} options - The request options.
@@ -219,11 +258,15 @@ export const post = async ({
   extraParams = {},
   expectedType = ResponseType.json,
 }) => {
+  const { body: preparedBody, headers: preparedHeaders } = prepareRequestBody(
+    body,
+    headers,
+  )
   const response = await fetch(url, {
     ...extraParams,
     method: HTTP_METHODS.POST,
-    headers: { ...JSON_HEADER, ...headers },
-    body: JSON.stringify(body),
+    headers: { ...JSON_HEADER, ...preparedHeaders },
+    body: preparedBody,
   })
   await checkStatus(response)
   return getResponsePayload(response, expectedType)
@@ -243,11 +286,15 @@ export const put = async ({
   extraParams = {},
   expectedType = ResponseType.json,
 }) => {
+  const { body: preparedBody, headers: preparedHeaders } = prepareRequestBody(
+    body,
+    headers,
+  )
   const response = await fetch(url, {
     ...extraParams,
     method: HTTP_METHODS.PUT,
-    headers: { ...JSON_HEADER, ...headers },
-    body: expectedType === ResponseType.json ? JSON.stringify(body) : body,
+    headers: { ...JSON_HEADER, ...preparedHeaders },
+    body: preparedBody,
   })
   await checkStatus(response)
   return getResponsePayload(response, expectedType)
@@ -267,11 +314,15 @@ export const patch = async ({
   extraParams = {},
   expectedType = ResponseType.json,
 }) => {
+  const { body: preparedBody, headers: preparedHeaders } = prepareRequestBody(
+    body,
+    headers,
+  )
   const response = await fetch(url, {
     ...extraParams,
     method: HTTP_METHODS.PATCH,
-    headers: { ...JSON_HEADER, ...headers },
-    body: JSON.stringify(body),
+    headers: { ...JSON_HEADER, ...preparedHeaders },
+    body: preparedBody,
   })
   await checkStatus(response)
   return getResponsePayload(response, expectedType)
@@ -291,11 +342,15 @@ export const deleteApi = async ({
   extraParams = {},
   expectedType = ResponseType.json,
 }) => {
+  const { body: preparedBody, headers: preparedHeaders } = prepareRequestBody(
+    body,
+    headers,
+  )
   const response = await fetch(url, {
     ...extraParams,
     method: HTTP_METHODS.DELETE,
-    headers: { ...JSON_HEADER, ...headers },
-    ...(body ? { body: JSON.stringify(body) } : {}),
+    headers: { ...JSON_HEADER, ...preparedHeaders },
+    ...(preparedBody ? { body: preparedBody } : {}),
   })
   await checkStatus(response)
   return getResponsePayload(response, expectedType)
@@ -328,8 +383,9 @@ export const head = async ({ url, headers = {}, extraParams = {} }) => {
  *   put: (options: HttpPutOptions) => Promise<any>,
  *   post: (options: HttpPostOptions) => Promise<any>,
  *   patch: (options: HttpPatchOptions) => Promise<any>,
- *   deleteApi: (options: HttpDeleteOptions) => Promise<any>,
- *   head: (options: HttpHeadOptions) => Promise<Response>
+ *   head: (options: HttpHeadOptions) => Promise<Response>,
+ *   deleteApi: (options: HttpDeleteOptions) => Promise<any>
+ *
  * }}
  */
 
@@ -337,7 +393,7 @@ export const http = {
   get,
   put,
   post,
+  head,
   patch,
   deleteApi,
-  head,
 }

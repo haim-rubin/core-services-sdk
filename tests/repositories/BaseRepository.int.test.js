@@ -11,11 +11,11 @@ import {
 import { BaseRepository } from '../../src/postgresql/repositories/BaseRepository.js'
 
 const PG_OPTIONS = {
-  port: 5445,
+  port: 5449,
   db: 'testdb',
   user: 'testuser',
   pass: 'testpass',
-  containerName: 'postgres-base-repo-test-5445',
+  containerName: 'postgres-base-repo-test-5449',
 }
 
 const DATABASE_URI = buildPostgresUri(PG_OPTIONS)
