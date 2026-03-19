@@ -184,6 +184,26 @@ const getResponsePayload = async (response, responseType) => {
 }
 
 /**
+ * Checks if value is a Node.js Readable stream.
+ *
+ * @param {any} value
+ * @returns {boolean}
+ */
+const isReadableStream = (value) => {
+  return value && typeof value === 'object' && typeof value.pipe === 'function'
+}
+
+/**
+ * Checks if value is a TypedArray (Uint8Array, etc).
+ *
+ * @param {any} value
+ * @returns {boolean}
+ */
+const isTypedArray = (value) => {
+  return ArrayBuffer.isView(value)
+}
+
+/**
  * Normalizes the request body before sending it via fetch.
  *
  * Ensures backward compatibility while allowing additional body types.
@@ -192,6 +212,9 @@ const getResponsePayload = async (response, responseType) => {
  * - URLSearchParams → sent as-is (fetch serializes automatically)
  * - FormData → sent as-is (fetch sets multipart boundary automatically)
  * - ArrayBuffer / Blob → sent as-is
+ * - Buffer → sent as-is
+ * - TypedArray → sent as-is
+ * - Readable stream → sent as-is
  * - object / array → JSON.stringify applied and Content-Type ensured
  *
  * @param {any} body
@@ -203,22 +226,89 @@ const prepareRequestBody = (body, headers = {}) => {
     return { body: undefined, headers }
   }
 
-  if (
-    typeof body === 'string' ||
-    body instanceof URLSearchParams ||
-    body instanceof FormData ||
-    body instanceof ArrayBuffer ||
-    body instanceof Blob
-  ) {
+  if (typeof body === 'string') {
     return { body, headers }
   }
 
+  if (body instanceof URLSearchParams) {
+    return { body, headers }
+  }
+
+  if (body instanceof FormData) {
+    return { body, headers }
+  }
+
+  if (Buffer.isBuffer(body)) {
+    return { body, headers }
+  }
+
+  if (body instanceof ArrayBuffer) {
+    return { body, headers }
+  }
+
+  if (isTypedArray(body)) {
+    return { body, headers }
+  }
+
+  if (typeof Blob !== 'undefined' && body instanceof Blob) {
+    return { body, headers }
+  }
+
+  if (isReadableStream(body)) {
+    return { body, headers }
+  }
+
+  if (typeof body === 'object') {
+    return {
+      body: JSON.stringify(body),
+      headers: {
+        'Content-Type': 'application/json',
+        ...headers,
+      },
+    }
+  }
+
+  return { body, headers }
+}
+
+/**
+ * Resolves headers safely based on body type.
+ *
+ * Adds default headers only when no Content-Type is provided
+ * AND the body is a plain JSON object or array.
+ *
+ * @param {Record<string,string>} preparedHeaders
+ * @param {any} body
+ * @param {Record<string,string>} defaultHeaders
+ * @returns {Record<string,string>}
+ */
+const resolveHeaders = (
+  preparedHeaders = {},
+  body,
+  defaultHeaders = JSON_HEADER,
+) => {
+  const hasContentType = Object.keys(preparedHeaders).some(
+    (key) => key.toLowerCase() === 'content-type',
+  )
+
+  if (hasContentType) {
+    return preparedHeaders
+  }
+
+  const isPlainObject =
+    body !== null && typeof body === 'object' && body.constructor === Object
+
+  const isArray = Array.isArray(body)
+
+  const isJsonCandidate = isPlainObject || isArray
+
+  if (!isJsonCandidate) {
+    return preparedHeaders
+  }
+
   return {
-    body: JSON.stringify(body),
-    headers: {
-      'Content-Type': 'application/json',
-      ...headers,
-    },
+    ...defaultHeaders,
+    ...preparedHeaders,
   }
 }
 
@@ -238,7 +328,10 @@ export const get = async ({
   const response = await fetch(url, {
     ...extraParams,
     method: HTTP_METHODS.GET,
-    headers: { ...JSON_HEADER, ...headers },
+    headers: {
+      Accept: 'application/json',
+      ...headers,
+    },
   })
   await checkStatus(response)
   return getResponsePayload(response, expectedType)
@@ -265,7 +358,7 @@ export const post = async ({
   const response = await fetch(url, {
     ...extraParams,
     method: HTTP_METHODS.POST,
-    headers: { ...JSON_HEADER, ...preparedHeaders },
+    headers: resolveHeaders(preparedHeaders, body),
     body: preparedBody,
   })
   await checkStatus(response)
@@ -293,7 +386,7 @@ export const put = async ({
   const response = await fetch(url, {
     ...extraParams,
     method: HTTP_METHODS.PUT,
-    headers: { ...JSON_HEADER, ...preparedHeaders },
+    headers: resolveHeaders(preparedHeaders, body),
     body: preparedBody,
   })
   await checkStatus(response)
@@ -321,7 +414,7 @@ export const patch = async ({
   const response = await fetch(url, {
     ...extraParams,
     method: HTTP_METHODS.PATCH,
-    headers: { ...JSON_HEADER, ...preparedHeaders },
+    headers: resolveHeaders(preparedHeaders, body),
     body: preparedBody,
   })
   await checkStatus(response)
@@ -349,7 +442,7 @@ export const deleteApi = async ({
   const response = await fetch(url, {
     ...extraParams,
     method: HTTP_METHODS.DELETE,
-    headers: { ...JSON_HEADER, ...preparedHeaders },
+    headers: resolveHeaders(preparedHeaders, body),
     ...(preparedBody ? { body: preparedBody } : {}),
   })
   await checkStatus(response)
@@ -367,7 +460,7 @@ export const head = async ({ url, headers = {}, extraParams = {} }) => {
   const response = await fetch(url, {
     ...extraParams,
     method: HTTP_METHODS.HEAD,
-    headers: { ...JSON_HEADER, ...headers },
+    headers,
   })
 
   await checkStatus(response)

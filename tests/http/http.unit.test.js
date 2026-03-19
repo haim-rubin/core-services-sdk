@@ -166,14 +166,13 @@ describe('http client (native fetch)', () => {
   })
 
   describe('PUT with non-JSON body', () => {
-    it('should not stringify body when expectedType is not json', async () => {
+    it('should not stringify string body', async () => {
       const rawBody = 'plain text body'
       mockFetch.mockResolvedValueOnce(createMockResponse({ body: 'OK' }))
 
       await http.put({
         url: 'http://test.com',
         body: rawBody,
-        expectedType: ResponseType.text,
       })
 
       expect(mockFetch).toHaveBeenCalledWith(
@@ -392,6 +391,106 @@ describe('edge cases', () => {
         headers: expect.objectContaining({
           'Content-Type': 'application/json',
         }),
+      }),
+    )
+  })
+
+  it('should NOT add JSON content-type for Buffer', async () => {
+    const buffer = Buffer.from('binary')
+
+    mockFetch.mockResolvedValueOnce(
+      createMockResponse({ body: JSON.stringify({ ok: true }) }),
+    )
+
+    await http.post({
+      url: 'http://test.com',
+      body: buffer,
+    })
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://test.com',
+      expect.objectContaining({
+        headers: expect.not.objectContaining({
+          'Content-Type': 'application/json',
+        }),
+      }),
+    )
+  })
+
+  it('should NOT add JSON content-type for TypedArray', async () => {
+    const uint8 = new Uint8Array([1, 2, 3])
+
+    mockFetch.mockResolvedValueOnce(
+      createMockResponse({ body: JSON.stringify({ ok: true }) }),
+    )
+
+    await http.post({
+      url: 'http://test.com',
+      body: uint8,
+    })
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://test.com',
+      expect.objectContaining({
+        headers: expect.not.objectContaining({
+          'Content-Type': 'application/json',
+        }),
+      }),
+    )
+  })
+
+  it('should NOT add JSON content-type for ArrayBuffer', async () => {
+    const buffer = new Uint8Array([1, 2]).buffer
+
+    mockFetch.mockResolvedValueOnce(
+      createMockResponse({ body: JSON.stringify({ ok: true }) }),
+    )
+
+    await http.post({
+      url: 'http://test.com',
+      body: buffer,
+    })
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://test.com',
+      expect.objectContaining({
+        headers: expect.not.objectContaining({
+          'Content-Type': 'application/json',
+        }),
+      }),
+    )
+  })
+
+  it('should include default Accept header in GET', async () => {
+    mockFetch.mockResolvedValueOnce(
+      createMockResponse({ body: JSON.stringify({ ok: true }) }),
+    )
+
+    await http.get({
+      url: 'http://test.com',
+    })
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://test.com',
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Accept: 'application/json',
+        }),
+      }),
+    )
+  })
+
+  it('HEAD should NOT include content-type header', async () => {
+    mockFetch.mockResolvedValueOnce(createMockResponse())
+
+    await http.head({
+      url: 'http://test.com',
+    })
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://test.com',
+      expect.objectContaining({
+        headers: {},
       }),
     )
   })
