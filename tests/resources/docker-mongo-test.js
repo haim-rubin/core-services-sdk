@@ -15,7 +15,7 @@ export function startMongo(port = 27027, containerName = 'mongo-test') {
     stdio: 'inherit',
   })
 
-  waitForMongo(port)
+  waitForMongo(port, containerName)
 }
 
 /**
@@ -40,7 +40,7 @@ export function startMongoReplicaSet(
       { stdio: 'inherit' },
     )
 
-    waitForMongo(port)
+    waitForMongo(port, containerName)
 
     // Initialize replica set
     console.log(`[MongoTest] Initializing replica set "${replSet}"...`)
@@ -60,15 +60,16 @@ export function startMongoReplicaSet(
 export function stopMongo(containerName = 'mongo-test') {
   console.log(`[MongoTest] Stopping MongoDB...`)
   try {
-    execSync(`docker rm -f ${containerName}`, { stdio: 'ignore' })
+    execSync(`docker rm -fv ${containerName}`, { stdio: 'ignore' })
   } catch {}
 }
 
-function isConnected(port) {
+function isConnected(port, containerName) {
   try {
-    execSync(`mongosh --port ${port} --eval "db.runCommand({ ping: 1 })"`, {
-      stdio: 'ignore',
-    })
+    execSync(
+      `docker exec ${containerName} mongosh --port 27017 --eval "db.runCommand({ ping: 1 })"`,
+      { stdio: 'ignore' },
+    )
     return true
   } catch {
     return false
@@ -78,14 +79,14 @@ function isConnected(port) {
  * Wait until MongoDB is ready to accept connections
  * @param {number} port
  */
-function waitForMongo(port) {
+function waitForMongo(port, containerName) {
   console.log(`[MongoTest] Waiting for MongoDB to be ready...`)
   const maxRetries = 60
   let retries = 0
   let connected = false
 
   while (!connected && retries < maxRetries) {
-    connected = isConnected(port)
+    connected = isConnected(port, containerName)
     if (!connected) {
       retries++
       execSync(`sleep 1`)

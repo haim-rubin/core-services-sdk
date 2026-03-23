@@ -31,39 +31,24 @@ import { execSync } from 'node:child_process'
 export function startRabbit({ containerName, ...rest }) {
   console.log(`[RabbitTest] Starting RabbitMQ...`)
 
-  try {
-    execSync(`docker rm -f ${containerName}`, { stdio: 'ignore' })
-  } catch {}
-
-  // Kill any containers that might still be holding the ports
-  for (const port of [rest.amqpPort, rest.uiPort]) {
-    try {
-      const id = execSync(`docker ps -q --filter "publish=${port}"`, {
-        encoding: 'utf8',
-      }).trim()
-      if (id) {
-        execSync(`docker rm -f ${id}`, { stdio: 'ignore' })
-      }
-    } catch {}
-  }
-
-  execSync(
-    `docker run -d \
+  const dockerRunCmd = `docker run -d \
         --name ${containerName} \
         -e RABBITMQ_DEFAULT_USER=${rest.user} \
         -e RABBITMQ_DEFAULT_PASS=${rest.pass} \
         -p ${rest.amqpPort}:5672 \
         -p ${rest.uiPort}:15672 \
-        --tmpfs /var/lib/rabbitmq \
         --health-cmd="rabbitmq-diagnostics -q ping" \
         --health-interval=5s \
         --health-timeout=5s \
         --health-retries=10 \
-        rabbitmq:3-management`,
-    { stdio: 'inherit' },
-  )
+        rabbitmq:3-management`
 
-  waitForRabbitHealthy(containerName)
+  cleanupContainer(containerName, [rest.amqpPort, rest.uiPort])
+  execSync(dockerRunCmd, { stdio: 'ignore' })
+  waitForRabbitHealthy(containerName, dockerRunCmd, [
+    rest.amqpPort,
+    rest.uiPort,
+  ])
 }
 
 /**
@@ -79,53 +64,92 @@ export function startRabbit({ containerName, ...rest }) {
 export function stopRabbit(containerName = 'rabbit-test') {
   console.log(`[RabbitTest] Stopping RabbitMQ...`)
   try {
-    execSync(`docker rm -f ${containerName}`, { stdio: 'ignore' })
+    execSync(`docker rm -fv ${containerName}`, { stdio: 'ignore' })
   } catch (error) {
     console.error(`[RabbitTest] Failed to stop RabbitMQ: ${error}`)
+  }
+}
+
+function cleanupContainer(containerName, ports = []) {
+  try {
+    execSync(`docker rm -fv ${containerName}`, { stdio: 'ignore' })
+  } catch {}
+
+  for (const port of ports) {
+    try {
+      const id = execSync(`docker ps -q --filter "publish=${port}"`, {
+        encoding: 'utf8',
+      }).trim()
+      if (id) {
+        execSync(`docker rm -fv ${id}`, { stdio: 'ignore' })
+      }
+    } catch {}
   }
 }
 
 /**
  * Waits until the RabbitMQ Docker container reports a healthy status.
  *
- * Polls the container health status using `docker inspect` and retries
- * for a fixed amount of time before failing.
+ * If the container crashes (e.g. due to Docker volume initialization race
+ * on macOS), it is automatically recreated and retried.
  *
  * @param {string} containerName
  *   Docker container name.
+ *
+ * @param {string} dockerRunCmd
+ *   The docker run command to recreate the container if it crashes.
+ *
+ * @param {number[]} ports
+ *   Host ports to clean up when recreating.
  *
  * @returns {void}
  *
  * @throws {Error}
  *   Throws if the container does not become healthy within the timeout.
  */
-function waitForRabbitHealthy(containerName) {
+function waitForRabbitHealthy(containerName, dockerRunCmd, ports) {
   console.log(`[RabbitTest] Waiting for RabbitMQ to be healthy...`)
 
-  const maxRetries = 60
+  const maxRetries = 90
+  const maxRestarts = 3
   let retries = 0
+  let restarts = 0
 
   while (retries < maxRetries) {
+    // Check if the container has crashed
     try {
-      const output = execSync(
-        `docker inspect --format='{{.State.Health.Status}}' ${containerName}`,
+      const status = execSync(
+        `docker inspect --format='{{.State.Status}}' ${containerName}`,
         { encoding: 'utf8' },
       ).trim()
 
-      if (output === 'healthy') {
-        console.log(`[RabbitTest] RabbitMQ is ready.`)
-        return
-      }
-
-      if (retries % 10 === 0 && retries > 0) {
+      if (status === 'exited' || status === 'dead') {
+        if (restarts >= maxRestarts) {
+          break
+        }
+        restarts++
         console.log(
-          `[RabbitTest] Still waiting... Status: ${output} (${retries}/${maxRetries})`,
+          `[RabbitTest] Container crashed, restarting (${restarts}/${maxRestarts})...`,
         )
+        cleanupContainer(containerName, ports)
+        execSync(dockerRunCmd, { stdio: 'ignore' })
+        execSync('sleep 2')
+        retries++
+        continue
       }
+    } catch {}
+
+    try {
+      execSync(
+        `docker exec ${containerName} rabbitmq-diagnostics -q ping`,
+        { stdio: 'ignore' },
+      )
+      console.log(`[RabbitTest] RabbitMQ is ready.`)
+      return
     } catch {
       if (retries % 10 === 0 && retries > 0) {
         console.log(
-          `[RabbitTest] Container not ready yet (${retries}/${maxRetries})`,
+          `[RabbitTest] Still waiting... (${retries}/${maxRetries})`,
         )
       }
     }

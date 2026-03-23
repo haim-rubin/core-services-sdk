@@ -14,11 +14,13 @@ const AMQP_PORT = 5679
 const UI_PORT = 15679
 const USER = 'test'
 const PASS = 'test'
-const QUEUE = 'integration-test-queue'
 
 const log = pino({
   level: 'silent',
 })
+
+const uniqueQueue = (name) => `${name}-${Date.now()}-${Math.random()}`
+
 // @ts-ignore
 async function waitForRabbitConnection({ uri, log, timeoutMs = 30000 }) {
   const start = Date.now()
@@ -36,12 +38,7 @@ async function waitForRabbitConnection({ uri, log, timeoutMs = 30000 }) {
 }
 
 describe('RabbitMQ integration', () => {
-  // @ts-ignore
   let rabbit
-  // @ts-ignore
-  let unsubscribe
-  // @ts-ignore
-  let receivedMessages
 
   beforeAll(async () => {
     startRabbit({
@@ -66,11 +63,6 @@ describe('RabbitMQ integration', () => {
 
   afterAll(async () => {
     try {
-      // @ts-ignore
-      if (unsubscribe) {
-        await unsubscribe()
-      }
-      // @ts-ignore
       if (rabbit) {
         await rabbit.close()
       }
@@ -80,42 +72,81 @@ describe('RabbitMQ integration', () => {
   })
 
   it('should publish, consume, unsubscribe, and stop consuming', async () => {
-    receivedMessages = []
+    const queue = uniqueQueue('integration')
+    const receivedMessages = []
 
-    // @ts-ignore
-    unsubscribe = await rabbit.subscribe({
-      queue: QUEUE,
-      // @ts-ignore
+    const unsubscribe = await rabbit.subscribe({
+      queue,
       onReceive: async (data) => {
         receivedMessages.push(data)
       },
     })
 
-    // @ts-ignore
-    await rabbit.publish(QUEUE, { step: 1 })
+    await rabbit.publish(queue, { step: 1 })
     await waitFor(() => receivedMessages.length === 1)
 
-    // @ts-ignore
     expect(receivedMessages).toEqual([{ step: 1 }])
 
     await unsubscribe()
 
-    // @ts-ignore
-    await rabbit.publish(QUEUE, { step: 2 })
+    await rabbit.publish(queue, { step: 2 })
 
-    await sleep(1000)
+    await sleep(500)
 
-    // @ts-ignore
     expect(receivedMessages).toEqual([{ step: 1 }])
+  })
+
+  describe('RabbitMQ queue name validation', () => {
+    it('should throw when subscribing with invalid queues', async () => {
+      const cases = [undefined, '', '   ']
+
+      for (const queue of cases) {
+        await expect(
+          rabbit.subscribe({
+            queue,
+            onReceive: async () => {},
+          }),
+        ).rejects.toThrow('Invalid queue name')
+      }
+    })
+
+    it('should throw when publishing with invalid queues', async () => {
+      const cases = [undefined, '', '   ']
+
+      for (const queue of cases) {
+        await expect(rabbit.publish(queue, { test: true })).rejects.toThrow(
+          'Invalid queue name',
+        )
+      }
+    })
+
+    it('should not affect valid queue when invalid publish is attempted', async () => {
+      const queue = uniqueQueue('validation')
+      const messages = []
+
+      const unsub = await rabbit.subscribe({
+        queue,
+        onReceive: async (data) => {
+          messages.push(data)
+        },
+      })
+
+      await rabbit.publish(queue, { ok: true })
+      await waitFor(() => messages.length === 1)
+
+      expect(messages).toEqual([{ ok: true }])
+
+      await expect(rabbit.publish(undefined, { bad: true })).rejects.toThrow()
+
+      await sleep(300)
+
+      expect(messages).toEqual([{ ok: true }])
+
+      await unsub()
+    })
   })
 })
 
-/**
- * Waits until a condition becomes true or times out.
- *
- * @param {() => boolean} predicate
- * @param {number} timeoutMs
- */
 async function waitFor(predicate, timeoutMs = 5000) {
   const start = Date.now()
 
@@ -129,11 +160,6 @@ async function waitFor(predicate, timeoutMs = 5000) {
   throw new Error('Condition not met within timeout')
 }
 
-/**
- * Sleeps for the given number of milliseconds.
- *
- * @param {number} ms
- */
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }

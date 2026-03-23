@@ -14,6 +14,18 @@ import { mask } from '../util/mask-sensitive.js'
 const generateMsgId = () => `rbt_${ulid()}`
 
 /**
+ * Validates a RabbitMQ queue name.
+ *
+ * @param {string} queue
+ * @throws {Error} If queue name is invalid
+ */
+const assertValidQueueName = (queue) => {
+  if (!queue || typeof queue !== 'string' || !queue.trim()) {
+    throw new Error(`Invalid queue name: "${queue}"`)
+  }
+}
+
+/**
  * Connects to a RabbitMQ server.
  *
  * @param {{ host: string, log: import('pino').Logger }} options
@@ -191,19 +203,15 @@ export const subscribeToQueue = async ({
 }) => {
   const logger = log.child({ op: 'subscribeToQueue', queue })
 
-  if (!queue || !queue.trim()) {
-    const message = 'Cannot subscribe to RabbitMQ with an empty queue name'
-    logger.error({ error: message })
-    throw new Error(message)
-  }
-
-  if (typeof onReceive !== 'function') {
-    const message = `Cannot subscribe to queue "${queue}" because onReceive is not a function`
-    logger.error({ error: message })
-    throw new Error(message)
-  }
-
   try {
+    assertValidQueueName(queue)
+
+    if (typeof onReceive !== 'function') {
+      const message = `Cannot subscribe to queue "${queue}" because onReceive is not a function`
+      logger.error({ error: message })
+      throw new Error(message)
+    }
+
     await channel.assertQueue(queue, { durable: true })
 
     if (prefetch) {
@@ -282,6 +290,8 @@ export const initializeQueue = async ({ host, log }) => {
    * @returns {Promise<boolean>} True if the message was sent successfully
    */
   const publish = async (queue, data, correlationId) => {
+    assertValidQueueName(queue)
+
     const msgId = generateMsgId()
     const t0 = Date.now()
     const logChild = logger.child({
@@ -296,6 +306,7 @@ export const initializeQueue = async ({ host, log }) => {
 
       await channel.assertQueue(queue, { durable: true })
       const payload = { msgId, data, correlationId }
+
       const sent = channel.sendToQueue(
         queue,
         Buffer.from(JSON.stringify(payload)),
