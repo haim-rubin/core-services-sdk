@@ -140,17 +140,14 @@ function waitForRabbitHealthy(containerName, dockerRunCmd, ports) {
     } catch {}
 
     try {
-      execSync(
-        `docker exec ${containerName} rabbitmq-diagnostics -q ping`,
-        { stdio: 'ignore' },
-      )
+      execSync(`docker exec ${containerName} rabbitmq-diagnostics -q ping`, {
+        stdio: 'ignore',
+      })
       console.log(`[RabbitTest] RabbitMQ is ready.`)
       return
     } catch {
       if (retries % 10 === 0 && retries > 0) {
-        console.log(
-          `[RabbitTest] Still waiting... (${retries}/${maxRetries})`,
-        )
+        console.log(`[RabbitTest] Still waiting... (${retries}/${maxRetries})`)
       }
     }
 
