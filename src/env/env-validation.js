@@ -4,6 +4,10 @@ import { mask as defaultMask } from '../util/mask-sensitive.js'
 /**
  * Converts a single field definition into a Zod schema.
  *
+ * NOTE: This function does NOT apply .default() — defaults are handled
+ * manually in validateEnv so that they work correctly even when other
+ * fields fail validation.
+ *
  * @param {Object} def
  * @param {'string'|'number'|'boolean'} def.type
  *
@@ -130,10 +134,6 @@ export function defToZod(def) {
     }
   }
 
-  if (def.default !== undefined) {
-    schema = schema.default(def.default)
-  }
-
   if (!def.required) {
     schema = schema.optional()
   }
@@ -163,39 +163,54 @@ export function createZodSchema(definition) {
 /**
  * Validates values using a JSON definition and Zod.
  *
+ * Defaults are applied manually (not via Zod .default()) so that:
+ * - defaults fill in when value is undefined
+ * - existing values are always validated (never replaced by defaults)
+ * - invalid values are kept in data (with errors reported)
+ * - data is ALWAYS returned, even on failure
+ *
  * @param {Record<string, Object>} definition
  * @param {Record<string, any>} values
  *
  * @returns {{
- *   success: true,
- *   data: Record<string, any>
- * } | {
- *   success: false,
- *   summary: Record<string, string[]>
+ *   success: boolean,
+ *   data: Record<string, any>,
+ *   summary?: Record<string, string[]>
  * }}
  */
 export function validateEnv(definition, values) {
-  const schema = createZodSchema(definition)
-  const result = schema.safeParse(values)
+  const data = {}
+  const summary = {}
 
-  if (result.success) {
-    return {
-      success: true,
-      data: result.data,
+  for (const [key, def] of Object.entries(definition)) {
+    const raw = values[key]
+
+    // Apply default when value is undefined
+    if (raw === undefined && def.default !== undefined) {
+      data[key] = def.default
+      continue
+    }
+
+    // Validate the field individually using its Zod schema
+    const fieldSchema = defToZod(def)
+    const result = fieldSchema.safeParse(raw)
+
+    if (result.success) {
+      data[key] = result.data
+    } else {
+      // Keep original value in data, record errors
+      data[key] = raw
+      summary[key] = result.error.issues.map((issue) => issue.message)
     }
   }
 
-  const summary = result.error.issues.reduce((acc, issue) => {
-    const key = issue.path[0] || 'root'
-    acc[key] = acc[key] || []
-    acc[key].push(issue.message)
-    return acc
-  }, {})
+  const success = Object.keys(summary).length === 0
 
-  return {
-    success: false,
-    summary,
+  if (success) {
+    return { success: true, data }
   }
+
+  return { success: false, data, summary }
 }
 
 /**
@@ -232,13 +247,11 @@ export function buildEnvReport(definition, values, validationResult, mask) {
     const def = definition[key]
     const isSecret = Boolean(def.secret)
 
-    // value precedence:
-    // 1. validated & parsed value
-    // 2. raw input value
-    const rawValue = values[key]
-    const value = validationResult.success
+    // Always prefer validated data (includes defaults and parsed values)
+    // Fall back to raw values only for backward compat when data is missing
+    const value = validationResult.data
       ? validationResult.data[key]
-      : rawValue
+      : values[key]
 
     const displayValue = isSecret ? maskValue(value, '.', 3) : String(value)
 
@@ -330,7 +343,7 @@ export function formatEnvReport(report) {
  *   success: boolean,
  *   validation: {
  *     success: boolean,
- *     data?: Record<string, any>,
+ *     data: Record<string, any>,
  *     summary?: Record<string, string[]>
  *   },
  *   report: {
@@ -379,7 +392,7 @@ export function validateAndReportEnv(definition, values, options = {}) {
  *   table: string,
  *   validation: {
  *     success: boolean,
- *     data?: Record<string, any>,
+ *     data: Record<string, any>,
  *     summary?: Record<string, string[]>
  *   },
  *   report: {
@@ -392,7 +405,8 @@ export function validateAndReportEnv(definition, values, options = {}) {
  *       valid: boolean,
  *       errors?: string[]
  *     }>
- *   }
+ *   },
+ *   env: Record<string, any>
  * }}
  */
 export function prepareEnvValidation(definition, values, options = {}) {
@@ -407,6 +421,7 @@ export function prepareEnvValidation(definition, values, options = {}) {
     table,
     validation,
     report,
+    env: validation.data,
   }
 }
 

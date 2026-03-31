@@ -278,6 +278,7 @@ export function prepareEnvValidation(
       errors?: string[]
     }>
   }
+  env: Record<string, any>
 }
 /**
  * Builds a console-ready table output for environment validation.

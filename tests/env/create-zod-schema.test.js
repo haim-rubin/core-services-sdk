@@ -18,18 +18,19 @@ describe('createZodSchema', () => {
   it('parses valid values successfully', () => {
     const definition = {
       PORT: { type: 'number', required: true, min: 1 },
-      DEBUG: { type: 'boolean', default: false },
+      DEBUG: { type: 'boolean' },
     }
 
     const schema = createZodSchema(definition)
 
     const result = schema.parse({
       PORT: '3000',
+      DEBUG: true,
     })
 
     expect(result).toEqual({
       PORT: 3000,
-      DEBUG: false,
+      DEBUG: true,
     })
   })
 
