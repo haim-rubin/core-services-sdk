@@ -185,14 +185,16 @@ export function validateEnv(definition, values) {
   for (const [key, def] of Object.entries(definition)) {
     const raw = values[key]
 
+    // Validate the field individually using its Zod schema
+    const fieldSchema = defToZod(def)
+
     // Apply default when value is undefined
     if (raw === undefined && def.default !== undefined) {
-      data[key] = def.default
+      const defaultResult = fieldSchema.safeParse(def.default)
+      data[key] = defaultResult.success ? defaultResult.data : def.default
       continue
     }
 
-    // Validate the field individually using its Zod schema
-    const fieldSchema = defToZod(def)
     const result = fieldSchema.safeParse(raw)
 
     if (result.success) {
