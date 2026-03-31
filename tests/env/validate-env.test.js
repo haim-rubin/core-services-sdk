@@ -90,6 +90,121 @@ describe('validateEnv', () => {
     expect(result.summary).toHaveProperty('NODE_ENV')
   })
 
+  it('always returns data even when validation fails', () => {
+    const definition = {
+      PORT: { type: 'number', default: 3000 },
+      HOST: { type: 'string', format: 'url' },
+    }
+
+    const values = {
+      HOST: 'invalid-url',
+    }
+
+    const result = validateEnv(definition, values)
+
+    expect(result.success).toBe(false)
+    expect(result.data).toBeDefined()
+    expect(result.data.PORT).toBe(3000)
+    expect(result.data.HOST).toBe('invalid-url')
+    expect(result.summary).toHaveProperty('HOST')
+  })
+
+  it('applies default when value is undefined', () => {
+    const definition = {
+      PORT: { type: 'number', default: 3000 },
+      DEBUG: { type: 'boolean', default: false },
+    }
+
+    const values = {}
+
+    const result = validateEnv(definition, values)
+
+    expect(result.success).toBe(true)
+    expect(result.data.PORT).toBe(3000)
+    expect(result.data.DEBUG).toBe(false)
+  })
+
+  it('does not replace existing value with default', () => {
+    const definition = {
+      PORT: { type: 'number', default: 3000 },
+    }
+
+    const values = { PORT: '8080' }
+
+    const result = validateEnv(definition, values)
+
+    expect(result.success).toBe(true)
+    expect(result.data.PORT).toBe(8080)
+  })
+
+  it('does not replace invalid value with default', () => {
+    const definition = {
+      PORT: { type: 'number', min: 1, default: 3000 },
+    }
+
+    const values = { PORT: 'not-a-number' }
+
+    const result = validateEnv(definition, values)
+
+    expect(result.success).toBe(false)
+    expect(result.data.PORT).toBe('not-a-number')
+    expect(result.summary).toHaveProperty('PORT')
+  })
+
+  it('parses boolean string "false" to false', () => {
+    const definition = {
+      ENABLED: { type: 'boolean' },
+    }
+
+    const values = { ENABLED: 'false' }
+
+    const result = validateEnv(definition, values)
+
+    expect(result.success).toBe(true)
+    expect(result.data.ENABLED).toBe(false)
+  })
+
+  it('parses boolean string "true" to true', () => {
+    const definition = {
+      ENABLED: { type: 'boolean' },
+    }
+
+    const values = { ENABLED: 'true' }
+
+    const result = validateEnv(definition, values)
+
+    expect(result.success).toBe(true)
+    expect(result.data.ENABLED).toBe(true)
+  })
+
+  it('parses boolean string "1" to true and "0" to false', () => {
+    const definition = {
+      A: { type: 'boolean' },
+      B: { type: 'boolean' },
+    }
+
+    const values = { A: '1', B: '0' }
+
+    const result = validateEnv(definition, values)
+
+    expect(result.success).toBe(true)
+    expect(result.data.A).toBe(true)
+    expect(result.data.B).toBe(false)
+  })
+
+  it('parses boolean default string "false" to false', () => {
+    const definition = {
+      DIGITAL_SIGNING_ENABLED: { type: 'boolean', default: 'false' },
+    }
+
+    const values = {}
+
+    const result = validateEnv(definition, values)
+
+    expect(result.success).toBe(true)
+    expect(result.data.DIGITAL_SIGNING_ENABLED).toBe(false)
+  })
+
   it('does not include summary when validation succeeds', () => {
     const definition = {
       PORT: { type: 'number', required: true },

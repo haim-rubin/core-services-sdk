@@ -1,6 +1,10 @@
 /**
  * Converts a single field definition into a Zod schema.
  *
+ * NOTE: This function does NOT apply .default() — defaults are handled
+ * manually in validateEnv so that they work correctly even when other
+ * fields fail validation.
+ *
  * @param {Object} def
  * @param {'string'|'number'|'boolean'} def.type
  *
@@ -59,29 +63,29 @@ export function createZodSchema(
 /**
  * Validates values using a JSON definition and Zod.
  *
+ * Defaults are applied manually (not via Zod .default()) so that:
+ * - defaults fill in when value is undefined
+ * - existing values are always validated (never replaced by defaults)
+ * - invalid values are kept in data (with errors reported)
+ * - data is ALWAYS returned, even on failure
+ *
  * @param {Record<string, Object>} definition
  * @param {Record<string, any>} values
  *
  * @returns {{
- *   success: true,
- *   data: Record<string, any>
- * } | {
- *   success: false,
- *   summary: Record<string, string[]>
+ *   success: boolean,
+ *   data: Record<string, any>,
+ *   summary?: Record<string, string[]>
  * }}
  */
 export function validateEnv(
   definition: Record<string, any>,
   values: Record<string, any>,
-):
-  | {
-      success: true
-      data: Record<string, any>
-    }
-  | {
-      success: false
-      summary: Record<string, string[]>
-    }
+): {
+  success: boolean
+  data: Record<string, any>
+  summary?: Record<string, string[]>
+}
 /**
  * Builds a structured environment validation report.
  *
@@ -177,7 +181,7 @@ export function formatEnvReport(report: {
  *   success: boolean,
  *   validation: {
  *     success: boolean,
- *     data?: Record<string, any>,
+ *     data: Record<string, any>,
  *     summary?: Record<string, string[]>
  *   },
  *   report: {
@@ -204,7 +208,7 @@ export function validateAndReportEnv(
   success: boolean
   validation: {
     success: boolean
-    data?: Record<string, any>
+    data: Record<string, any>
     summary?: Record<string, string[]>
   }
   report: {
@@ -237,7 +241,7 @@ export function validateAndReportEnv(
  *   table: string,
  *   validation: {
  *     success: boolean,
- *     data?: Record<string, any>,
+ *     data: Record<string, any>,
  *     summary?: Record<string, string[]>
  *   },
  *   report: {
@@ -250,7 +254,8 @@ export function validateAndReportEnv(
  *       valid: boolean,
  *       errors?: string[]
  *     }>
- *   }
+ *   },
+ *   env: Record<string, any>
  * }}
  */
 export function prepareEnvValidation(
@@ -264,7 +269,7 @@ export function prepareEnvValidation(
   table: string
   validation: {
     success: boolean
-    data?: Record<string, any>
+    data: Record<string, any>
     summary?: Record<string, string[]>
   }
   report: {

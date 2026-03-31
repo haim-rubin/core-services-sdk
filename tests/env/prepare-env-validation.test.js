@@ -68,6 +68,43 @@ describe('prepareEnvValidation', () => {
     expect(result.validation.data.PORT).toBe(8080)
   })
 
+  it('returns env with parsed values and defaults applied', () => {
+    const def = {
+      PORT: { type: 'number', default: 3000 },
+      DEBUG: { type: 'boolean', default: 'false' },
+      MODE: {
+        type: 'string',
+        enum: ['development', 'production'],
+        required: true,
+      },
+    }
+
+    const values = { MODE: 'production' }
+
+    const result = prepareEnvValidation(def, values)
+
+    expect(result.success).toBe(true)
+    expect(result.env).toBeDefined()
+    expect(result.env.PORT).toBe(3000)
+    expect(result.env.DEBUG).toBe(false)
+    expect(result.env.MODE).toBe('production')
+  })
+
+  it('returns env with defaults and invalid originals on failure', () => {
+    const def = {
+      PORT: { type: 'number', default: 3000 },
+      HOST: { type: 'string', format: 'url', required: true },
+    }
+
+    const values = { HOST: 'not-a-url' }
+
+    const result = prepareEnvValidation(def, values)
+
+    expect(result.success).toBe(false)
+    expect(result.env.PORT).toBe(3000)
+    expect(result.env.HOST).toBe('not-a-url')
+  })
+
   it('returns a table string even on failure', () => {
     const values = {
       PORT: 0,
