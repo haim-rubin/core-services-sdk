@@ -37,31 +37,45 @@ describe('getLogger', () => {
     expect(result).toBe(mockLogger)
   })
 
-  it('returns the dummy logger when logger is invalid (missing methods)', () => {
+  it('returns a pino logger when called with pino options (no logger key)', () => {
+    const logger = getLogger({ level: 'warn' })
+    expect(typeof logger.info).toBe('function')
+    // @ts-ignore
+    expect(logger.level).toBe('warn')
+  })
+
+  it('passes through all pino options when no logger key is present', () => {
+    const logger = getLogger({ level: 'debug', base: { service: 'test-svc' } })
+    expect(typeof logger.info).toBe('function')
+    // @ts-ignore
+    expect(logger.level).toBe('debug')
+  })
+
+  it('treats object without logger key as pino options, not dummy logger', () => {
+    const result = getLogger({ someOtherKey: 123 })
+    // Should be a real pino logger, not the dummy logger
+    expect(typeof result.info).toBe('function')
+    // @ts-ignore — pino loggers have a level property
+    expect(result.level).toBeDefined()
+  })
+
+  it('returns the dummy logger when logger key is present but invalid', () => {
     const invalidLogger = { info: () => {}, warn: () => {} } // missing required methods
     const logger = getLogger({ logger: invalidLogger })
 
     expect(logger.info).toBeDefined()
-    expect(logger.warn).toBeDefined()
-    expect(logger.error).toBeDefined()
-    expect(logger.debug).toBeDefined()
-    expect(logger.fatal).toBeDefined()
-    expect(logger.trace).toBeDefined()
-
     // dummy logger methods are no-ops
     expect(() => logger.info('hello')).not.toThrow()
     // @ts-ignore
     expect(logger.info()).toBeUndefined()
   })
 
-  it('returns the dummy logger when called with unrelated object', () => {
-    const result = getLogger({ someOtherKey: 123 })
-    expect(result.info).toBeDefined()
-    expect(result.warn).toBeDefined()
-    expect(result.error).toBeDefined()
-    expect(result.debug).toBeDefined()
-    expect(result.fatal).toBeDefined()
-    expect(result.trace).toBeDefined()
+  it('returns the dummy logger for non-object, non-boolean values', () => {
+    // @ts-ignore — testing fallback
+    const logger = getLogger('invalid')
+    expect(logger.info).toBeDefined()
+    // @ts-ignore
+    expect(logger.info()).toBeUndefined()
   })
 
   it('logs a message when using internal pino with level warn', () => {

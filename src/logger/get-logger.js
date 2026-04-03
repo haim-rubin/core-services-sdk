@@ -31,6 +31,7 @@ const isValidLogger = (logger) =>
  * - `undefined` → pino with level 'info'
  * - `true` → pino with level 'info'
  * - `{ logger: true, level?: string }` → pino with given level
+ * - `{ level?: string, base?: object, ... }` → pino with provided options
  * - `{ logger: LoggerObject }` → use provided logger
  * - fallback → dummy logger
  *
@@ -63,6 +64,13 @@ export const getLogger = (option) => {
     // User supplied a custom logger
     if (isValidLogger(logger)) {
       return logger
+    }
+
+    // No `logger` key — treat the whole object as pino options
+    if (!('logger' in option)) {
+      const pinoLogger = pino(option)
+      pinoLogger.info('[getLogger] Using Pino logger with provided options.')
+      return pinoLogger
     }
   }
 
